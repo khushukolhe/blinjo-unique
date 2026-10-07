@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blinjo Premium Rose Urli with Diya & Decorative Idol | Official Store</title>
+  <meta name="description" content="Shop authentic Blinjo Premium Rose Urli with Diya & Decorative Idol. Handcrafted brass decorative bowl with artificial red roses & marigolds. Perfect for Pooja, Diwali & Gifting. Free Shipping & COD Available!">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="hero-bg-container">
+      <img src="assets/hero_banner.jpg" alt="Blinjo Premium Rose Urli with Diya & Decorative Idol" class="hero-bg-img" id="mainHeroImg">
+    </div>
+
+    <!-- Hero Slideshow Navigation Arrows -->
+    <button class="hero-nav-arrow hero-prev-arrow" id="heroPrevBtn" aria-label="Previous Slide">‹</button>
+    <button class="hero-nav-arrow hero-next-arrow" id="heroNextBtn" aria-label="Next Slide">›</button>
+
+  </section>
+
+  <!-- Occasion / Use-Case Section -->
+  <section class="usecase-section">
+    <div class="section-container">
+      
+      <div class="section-title-wrap">
+        <h2 class="main-heading">Perfect for Every Occasion</h2>
+      </div>
+
+
+
+      <div class="usecase-grid">
+        
+        <!-- Card 1 -->
+        <div class="usecase-card" onclick="openLightbox('assets/cat_1.jpg', 'Living Room Decor')">
+          <img src="assets/cat_1.jpg" alt="Living Room Decor">
+          <div class="pill-label">Living Room Decor</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="usecase-card" onclick="openLightbox('assets/cat_2.jpg', 'Pooja Room')">
+          <img src="assets/cat_2.jpg" alt="Pooja Room">
+          <div class="pill-label">Pooja Room</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="usecase-card" onclick="openLightbox('assets/cat_3.jpg', 'Diwali & Festivals')">
+          <img src="assets/cat_3.jpg" alt="Diwali & Festivals">
+          <div class="pill-label">Diwali & Festivals</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="usecase-card" onclick="openLightbox('assets/cat_4.jpg', 'Wedding Decoration')">
+          <img src="assets/cat_4.jpg" alt="Wedding Decoration">
+          <div class="pill-label">Wedding Decoration</div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="usecase-card" onclick="openLightbox('assets/cat_5.jpg', 'Entrance Decor')">
+          <img src="assets/cat_5.jpg" alt="Entrance Decor">
+          <div class="pill-label">Entrance Decor</div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="usecase-card" onclick="openLightbox('assets/cat_6.jpg', 'Perfect Gift')">
+          <img src="assets/cat_6.jpg" alt="Perfect Gift">
+          <div class="pill-label">Perfect Gift</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing, Offers & Direct Order Section -->
+  <section class="offer-section" id="purchase">
+    <div class="offer-container">
+      <div class="offer-grid">
+        
+        <!-- Left Product Showcase Card -->
+        <div class="offer-image-box">
+          <img src="assets/bestseller.jpg" alt="Blinjo Rose Urli Set" id="offerProductImg">
+          <div class="offer-badge-ribbon">🔥 BESTSELLER</div>
+        </div>
+
+        <!-- Right Pricing & Order Action Box -->
+        <div class="offer-details-box">
+          <div class="rating-header">
+            <div class="rating-left">
+              <div class="stars">★★★★★</div>
+              <span class="rating-text">4.9/5 (1,420+ Verified Buyers)</span>
+            </div>
+            <div class="bestseller-crown-badge">👑 Bestseller</div>
+          </div>
+
+          <h2 class="product-title-main">BLINJO PREMIUM ROSE URLI SET</h2>
+
+          <div class="price-box-wrapper">
+            <div class="price-box-left">
+              <span class="current-price">₹2,999</span>
+              <span class="original-price">₹5,999</span>
+              <span class="discount-badge">50% OFF</span>
+            </div>
+            <div class="you-save-badge">
+              <div class="save-tag-icon">🏷️</div>
+              <div class="save-text-wrap">
+                <span class="save-label">You Save</span>
+                <strong class="save-amount">₹3,000</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock Countdown & Urgency -->
+          <div class="urgency-banner-new">
+            <div class="stock-pill-new">⚡ Only <strong id="stockCount">14</strong> Left in Stock!</div>
+            <div class="timer-divider"></div>
+            <div class="timer-box-new">
+              <span class="clock-icon">🕒</span>
+              <span>Offer Ends In</span>
+              <span class="timer-digits-red" id="countdownTimer">04 : 32 : 15</span>
+            </div>
+          </div>
+
+          <!-- Quantity Selector & Action Buttons -->
+          <div class="action-row">
+            <div class="quantity-selector">
+              <button type="button" class="qty-btn" id="qtyMinus">-</button>
+              <input type="number" id="qtyInput" value="1" min="1" max="10" readonly>
+              <button type="button" class="qty-btn" id="qtyPlus">+</button>
+            </div>
+
+            <button class="btn-checkout-orange" id="instantBuyBtn">
+              <div class="buy-btn-left">
+                <span class="bolt-icon">⚡</span>
+                <div class="buy-btn-text">
+                  <span class="buy-title">BUY NOW</span>
+                  <span class="buy-sub">CASH ON DELIVERY</span>
+                </div>
+              </div>
+              <div class="btn-circle-arrow">›</div>
+            </button>
+          </div>
+
+          <button class="btn-add-cart-outline-new" id="addToCartBtn">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-text">Add to Cart</span>
+            <span class="cart-arrow">›</span>
+          </button>
+
+          <!-- Guarantees Row -->
+          <div class="guarantees-grid-new">
+            <div class="g-item-new green-bg">
+              <div class="g-icon">🚚</div>
+              <div class="g-text">
+                <strong>Free</strong>
+                <span>Express Delivery</span>
+              </div>
+            </div>
+            <div class="g-item-new gold-bg">
+              <div class="g-icon">💵</div>
+              <div class="g-text">
+                <strong>Cash On</strong>
+                <span>Delivery</span>
+              </div>
+            </div>
+            <div class="g-item-new blue-bg">
+              <div class="g-icon">🔄</div>
+              <div class="g-text">
+                <strong>3 Days</strong>
+                <span>Easy Return Policy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Customer Products Catalog Grid Section (Dynamically populated from Admin) -->
+  <section class="products-catalog-section" id="products-catalog" style="padding:60px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div style="text-align:center; margin-bottom:40px;">
+        <span style="background:#e6f4ea; color:#047857; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:8px;">Handcrafted Elegance</span>
+        <h2 style="font-family:'Cinzel', serif; font-size:32px; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Our Festive Decor Collection</h2>
+        <p style="color:#64748b; font-size:15px; margin:0;">Explore authentic handcrafted brass urlis, floating diyas, and festive decor sets.</p>
+      </div>
+
+      <div class="customer-products-grid" id="customerProductsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:24px;">
+        <!-- Product Cards dynamically rendered by script.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <span class="logo-text text-white">Blinjo</span>
+        </div>
+        <p>Elevating Indian festive home decor with timeless handcrafted brass elegance and divine charm.</p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#faq">FAQ</a>
+      </div>
+
+      <div class="footer-contact">
+        <h4>Need Support?</h4>
+        <p>📧 Email: support@blinjo.com</p>
+        <p>📞 Phone/WhatsApp: +91 98765 43210</p>
+        <p>📍 Location: New Delhi, India</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Blinjo. All Rights Reserved. Crafted with ❤️ for Festive Celebrations.</p>
+    </div>
+  </footer>
+
+  <!-- Floating Mobile Order Bar -->
+  <div class="mobile-sticky-bar">
+    <div class="m-price-info">
+      <span class="m-price">₹2,999</span>
+      <span class="m-strike">₹5,999</span>
+    </div>
+    <button class="btn-primary-green m-btn" id="mobileBuyBtn">
+      BUY NOW - COD
+    </button>
+  </div>
+
+  <!-- Video Modal -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content video-content">
+      <button class="close-modal" id="closeVideoModal">&times;</button>
+      <div class="video-container">
+        <iframe id="videoPlayer" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Blinjo Rose Urli Video Preview" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="modal" id="lightboxModal">
+    <div class="modal-content lightbox-content">
+      <button class="close-modal" id="closeLightboxModal">&times;</button>
+      <img src="" alt="Enlarged Decor View" id="lightboxImg">
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+  </div>
+
+  <!-- Cart & Multi-Step Checkout Modal Overlay (100% Exact Match to User Screenshots) -->
+  <div class="cart-drawer-overlay" id="cartDrawerOverlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.45); backdrop-filter:blur(4px); z-index:99999; display:none; align-items:center; justify-content:center; padding:16px;">
+    <div class="cart-drawer-modal-card" style="width:100%; max-width:480px; max-height:92vh; background:#ffffff; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden; position:relative;">
+      
+      <!-- Top Brand Header with Menu Icon -->
+      <div class="cart-header-top" style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #f1f5f9; background:#ffffff;">
+        <div class="brand-cart-logo" style="display:flex; align-items:center; gap:10px;">
+          <button type="button" id="hamburgerMenuBtn" style="border:none; background:none; font-size:20px; color:#334155; cursor:pointer; padding:0 4px; display:flex; align-items:center;" title="Menu">≡</button>
+          <button type="button" id="backToCartBtn" style="display:none; border:none; background:none; font-size:22px; color:#475569; cursor:pointer; padding:0 4px; font-weight:700;" title="Back to Cart">‹</button>
+          <div class="green-bag-icon" style="background:#047857; color:#fff; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">🛍️</div>
+          <div class="brand-title-wrap" style="line-height:1.2;">
+            <strong class="brand-name" style="font-size:18px; font-weight:800; color:#0f172a; display:block;">Blinjo</strong>
+            <span class="brand-sub" style="font-size:11px; color:#64748b; font-weight:500;">Online Store</span>
+          </div>
+        </div>
+
+        <!-- 4-Step Progress Stepper (Visible during checkout steps) -->
+        <div class="checkout-stepper-header" id="checkoutStepperHeader" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600;">
+          <div class="step-item active" id="stepIndicatorCart" style="display:flex; align-items:center; gap:4px; color:#047857;">
+            <span class="step-icon-circle" id="stepCartIconCircle" style="width:24px; height:24px; border-radius:50%; background:#047857; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">🛒</span>
+            <span class="step-label" id="stepCartLabel" style="font-weight:700; color:#047857;">Cart</span>
+          </div>
+          <span class="step-arrow" style="color:#cbd5e1; font-size:10px;">›</span>
+          <div class="step-item" id="stepIndicatorAddress" style="display:flex; align-items:center; gap:4px; color:#94a3b8;">
+            <span class="step-icon-circle" id="stepAddressIconCircle" style="width:24px; height:24px; border-radius:50%; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">📍</span>
+            <span class="step-label" id="stepAddressLabel">Address</span>
+          </div>
+          <span class="step-arrow" style="color:#cbd5e1; font-size:10px;">›</span>
+          <div class="step-item" id="stepIndicatorPayment" style="display:flex; align-items:center; gap:4px; color:#94a3b8;">
+            <span class="step-icon-circle" style="width:24px; height:24px; border-radius:50%; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">💳</span>
+            <span class="step-label">Payment</span>
+          </div>
+        </div>
+
+        <button type="button" class="close-drawer-btn" id="closeCartBtnTop" style="border:none; background:none; font-size:22px; color:#94a3b8; cursor:pointer; padding:4px;">✕</button>
+      </div>
+
+      <div class="cart-drawer-body" style="padding:20px 24px; overflow-y:auto; max-height:calc(90vh - 70px);">
+        
+        <!-- STEP 1: SHOPPING CART VIEW (Exact Match to Diagram Screenshot) -->
+        <div id="checkoutStepCart" class="checkout-step-view">
+          
+          <!-- Section Title with Close Button -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <h3 class="cart-section-title" style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">
+              Shopping Cart <span class="cart-item-count" style="color:#0f172a; font-weight:500; font-size:16px;" id="cartQtyHeader">(1 Item)</span>
+            </h3>
+            <button type="button" class="close-drawer-btn" id="closeCartBtn" style="border:none; background:none; font-size:22px; color:#94a3b8; cursor:pointer; padding:4px;">✕</button>
+          </div>
+
+          <!-- Product Item Card -->
+          <div class="cart-item-card-new" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; background:#ffffff; padding:12px; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:16px;">
+            <img src="assets/bestseller.jpg" alt="Blinjo Brass Urli Bowl" id="cartProductImg" class="cart-prod-thumb" style="width:72px; height:72px; border-radius:10px; object-fit:cover; flex-shrink:0;">
+            
+            <div class="cart-prod-details" style="flex:1;">
+              <h4 id="cartProdTitle" style="margin:0; font-size:14px; font-weight:800; color:#0f172a;">Blinjo Brass Urli Bowl</h4>
+              <p id="cartProdSubtitle" style="margin:2px 0 6px 0; font-size:11px; color:#64748b;">Traditional Brass Urli for Home Decor</p>
+              
+              <div class="cart-price-discount-row" style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                <strong class="cart-selling-price" id="cartSellingPrice" style="font-size:16px; font-weight:800; color:#ff5722;">₹599</strong>
+                <span class="cart-mrp-price" id="cartMrpPrice" style="text-decoration:line-through; color:#94a3b8; font-size:12px;">₹799</span>
+                <span class="cart-disc-badge" id="cartDiscBadge" style="background:#e6f4ea; color:#137333; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;">25% OFF</span>
+              </div>
+
+              <div class="cart-qty-trash-group" style="display:flex; align-items:center; justify-content:space-between;">
+                <div class="qty-stepper-box" style="display:flex; align-items:center; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; overflow:hidden;">
+                  <button type="button" id="drawerQtyMinus" class="stepper-btn" style="border:none; background:none; padding:4px 10px; font-weight:700; cursor:pointer; color:#334155; font-size:13px;">-</button>
+                  <span id="cartQtyVal" class="stepper-val" style="font-weight:700; font-size:13px; color:#0f172a; padding:0 4px;">1</span>
+                  <button type="button" id="drawerQtyPlus" class="stepper-btn" style="border:none; background:none; padding:4px 10px; font-weight:700; cursor:pointer; color:#334155; font-size:13px;">+</button>
+                </div>
+                <button type="button" class="trash-btn" id="clearCartItemBtn" title="Remove Item" style="border:none; background:none; cursor:pointer; font-size:16px; color:#94a3b8;">🗑️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Option Selector Card (Prepaid vs COD) -->
+          <div style="margin-bottom:16px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#0f172a; margin-bottom:8px;">
+              <span>💳</span> Payment Option
+            </label>
+
+            <!-- Prepaid Option Card -->
+            <div id="payOptPrepaidCard" style="border:2px solid #10b981; background:#f0fdf4; border-radius:12px; padding:12px; margin-bottom:10px; cursor:pointer; transition:all 0.2s;">
+              <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin:0;">
+                <input type="radio" name="paymentChoice" value="prepaid" id="payChoicePrepaid" checked style="accent-color:#047857; width:18px; height:18px; margin-top:2px;">
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <strong style="font-size:13px; color:#0f172a;">Prepaid Order (UPI)</strong>
+                    <div style="display:flex; gap:4px;">
+                      <span style="font-size:10px; font-weight:700; color:#4285f4; background:#ffffff; padding:1px 5px; border-radius:4px; border:1px solid #cbd5e1;">GPay</span>
+                      <span style="font-size:10px; font-weight:700; color:#5f259f; background:#ffffff; padding:1px 5px; border-radius:4px; border:1px solid #cbd5e1;">PhonePe</span>
+                      <span style="font-size:10px; font-weight:700; color:#00baf2; background:#ffffff; padding:1px 5px; border-radius:4px; border:1px solid #cbd5e1;">Paytm</span>
+                    </div>
+                  </div>
+                  <span style="display:inline-block; background:#e6f4ea; color:#137333; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">Get 50% OFF on Delivery Charges</span>
+                </div>
+              </label>
+            </div>
+
+            <!-- Cash on Delivery Option Card -->
+            <div id="payOptCodCard" style="border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:12px; cursor:pointer; transition:all 0.2s;">
+              <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin:0;">
+                <input type="radio" name="paymentChoice" value="cod" id="payChoiceCod" style="accent-color:#047857; width:18px; height:18px; margin-top:2px;">
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+                    <span style="font-size:14px;">💸</span>
+                    <strong style="font-size:13px; color:#0f172a;">Cash on Delivery (COD)</strong>
+                  </div>
+                  <p style="margin:0; font-size:11px; color:#64748b; line-height:1.3;">Pay when you receive the order. Standard delivery charges apply</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Order Summary Card -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:16px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#0f172a; margin-bottom:8px;">
+              <span>📄</span> Order Summary
+            </label>
+            <div style="display:flex; flex-direction:column; gap:6px; font-size:12px; color:#475569;">
+              <div style="display:flex; justify-content:space-between;">
+                <span>Subtotal (<span id="summaryItemCount">1 item</span>)</span>
+                <strong style="color:#0f172a;" id="drawerSubtotal">₹599</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span>Delivery Charge</span>
+                <div>
+                  <span style="text-decoration:line-through; color:#94a3b8; margin-right:4px;" id="delChargeOriginal">₹80</span>
+                  <strong style="color:#0f172a;" id="delChargeVal">₹40</strong>
+                </div>
+              </div>
+              <div id="prepaidSaveBanner" style="display:flex; justify-content:space-between; color:#137333; font-weight:700;">
+                <span>Save on Delivery (Prepaid)</span>
+                <span>- ₹40</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; border-top:1px solid #e2e8f0; padding-top:8px; margin-top:2px; font-size:15px; font-weight:800; color:#0f172a;">
+                <span>Total Amount</span>
+                <strong style="color:#0f172a;" id="drawerTotal">₹599</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Button: Proceed to Address -->
+          <button type="button" class="btn-confirm-order-green" id="placeOrderBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:14px; font-size:16px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.25); transition:background 0.2s;">
+            <span id="placeOrderBtnText">Proceed to Address</span> <span style="font-size:18px;">➔</span>
+          </button>
+
+        </div>
+
+
+        <!-- STEP 2: DELIVERY ADDRESS FORM VIEW (Screenshot 2 Match) -->
+        <div id="checkoutStepAddress" class="checkout-step-view" style="display:none;">
+          
+          <!-- Step Title Header -->
+          <div class="address-step-header" style="display:flex; align-items:flex-start; gap:14px; margin-bottom:24px;">
+            <div class="address-pin-icon" style="background:#e6f4ea; color:#047857; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">📍</div>
+            <div>
+              <h3 style="margin:0; font-size:22px; font-weight:800; color:#0f172a; line-height:1.2;">Delivery Address</h3>
+              <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Enter your delivery address to receive your order</p>
+            </div>
+          </div>
+
+          <form id="orderAddressForm" class="address-form-styled" style="display:flex; flex-direction:column; gap:16px;">
+            
+            <!-- Full Name -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Full Name <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">👤</span>
+                <input type="text" id="custNameInput" placeholder="Enter full name" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none; transition:border 0.2s;">
+              </div>
+            </div>
+
+            <!-- Email Address -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Email Address <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">✉️</span>
+                <input type="email" id="custEmailInput" placeholder="Enter email address" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
+              </div>
+            </div>
+
+            <!-- 10-Digit Mobile Number -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">10-Digit Mobile Number <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">📞</span>
+                <input type="tel" id="custPhoneInput" placeholder="Enter mobile number" pattern="[0-9]{10}" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
+              </div>
+            </div>
+
+            <!-- Flat, Building / House No. -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Flat, Building / House No. <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">🏠</span>
+                <input type="text" id="custFlatInput" placeholder="Enter flat, building or house number" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
+              </div>
+            </div>
+
+            <!-- Area / Landmark -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Area / Landmark</label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">📍</span>
+                <input type="text" id="custStreetInput" placeholder="Enter area or landmark (optional)" style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
+              </div>
+            </div>
+
+            <!-- Pincode -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Pincode <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">📮</span>
+                <input type="text" id="custPincodeInput" placeholder="Enter pincode" pattern="[0-9]{6}" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
+              </div>
+            </div>
+
+            <!-- State -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">State <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">🗺️</span>
+                <select id="custStateInput" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none; background:#ffffff; appearance:none; cursor:pointer;">
+                  <option value="" disabled selected>Select state</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Kerala">Kerala</option>
+                </select>
+                <span style="position:absolute; right:14px; pointer-events:none; color:#94a3b8;">⌄</span>
+              </div>
+            </div>
+
+            <!-- City -->
+            <div class="form-field-group">
+              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">City <span style="color:#ef4444;">*</span></label>
+              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
+                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">🏙️</span>
+                <select id="custCityInput" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none; background:#ffffff; appearance:none; cursor:pointer;">
+                  <option value="" disabled selected>Select state first</option>
+                </select>
+                <span style="position:absolute; right:14px; pointer-events:none; color:#94a3b8;">⌄</span>
+              </div>
+            </div>
+
+            <!-- Save Address Checkbox -->
+            <div class="checkbox-row" style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+              <input type="checkbox" id="saveAddressCheck" checked style="accent-color:#047857; width:18px; height:18px; cursor:pointer;">
+              <label for="saveAddressCheck" style="font-size:13px; font-weight:600; color:#0f172a; cursor:pointer;">Save this address for future orders</label>
+            </div>
+
+            <!-- Dynamic Action Button: Continue to Payment ➔ (Prepaid) OR Place Order ➔ (COD) -->
+            <button type="submit" class="btn-save-continue-green" id="saveAddressBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:17px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.3); margin-top:10px; transition:background 0.2s;">
+              <span id="saveAddressBtnText">Continue to Payment</span> <span style="font-size:18px;">➔</span>
+            </button>
+
+          </form>
+
+        </div>
+
+
+        <!-- STEP 3: PAYMENT PAGE (UPI) VIEW (Only for Prepaid Flow) -->
+        <div id="checkoutStepPayment" class="checkout-step-view" style="display:none;">
+          
+          <div class="payment-step-header" style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
+            <div class="payment-card-icon" style="background:#e6f4ea; color:#047857; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">💳</div>
+            <div>
+              <h3 style="margin:0; font-size:22px; font-weight:800; color:#0f172a; line-height:1.2;">Payment</h3>
+              <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Choose your preferred payment method</p>
+            </div>
+          </div>
+
+          <!-- UPI Recommended Box -->
+          <div class="upi-pay-card" style="border:2px solid #10b981; background:#ffffff; border-radius:16px; padding:20px; text-align:center; box-shadow:0 4px 16px rgba(16,185,129,0.08); margin-bottom:20px;">
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
+              <span style="accent-color:#10b981; font-size:16px;">🔘</span>
+              <strong style="font-size:15px; color:#0f172a; font-weight:800;">UPI Payment (Recommended)</strong>
+            </div>
+            <p style="margin:0 0 14px 0; font-size:12px; color:#64748b;">Scan QR code or pay using any UPI app</p>
+            
+            <div class="upi-app-badges" style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px;">
+              <span style="font-weight:700; font-size:12px; color:#4285f4; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">GPay</span>
+              <span style="font-weight:700; font-size:12px; color:#5f259f; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">PhonePe</span>
+              <span style="font-weight:700; font-size:12px; color:#00baf2; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">Paytm</span>
+              <span style="font-weight:700; font-size:12px; color:#ff6b00; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">BHIM</span>
+            </div>
+
+            <!-- Interactive QR Code Container -->
+            <div class="qr-code-box" style="display:inline-block; background:#ffffff; padding:12px; border:2px solid #047857; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.06); margin-bottom:12px;">
+              <svg width="150" height="150" viewBox="0 0 100 100" style="display:block;">
+                <rect width="100" height="100" fill="white"/>
+                <!-- Corner Targets -->
+                <rect x="5" y="5" width="28" height="28" fill="#0f172a"/>
+                <rect x="9" y="9" width="20" height="20" fill="white"/>
+                <rect x="13" y="13" width="12" height="12" fill="#047857"/>
+
+                <rect x="67" y="5" width="28" height="28" fill="#0f172a"/>
+                <rect x="71" y="9" width="20" height="20" fill="white"/>
+                <rect x="75" y="13" width="12" height="12" fill="#047857"/>
+
+                <rect x="5" y="67" width="28" height="28" fill="#0f172a"/>
+                <rect x="9" y="71" width="20" height="20" fill="white"/>
+                <rect x="13" y="75" width="12" height="12" fill="#047857"/>
+
+                <!-- QR Data Blocks -->
+                <rect x="38" y="8" width="8" height="8" fill="#047857"/>
+                <rect x="50" y="8" width="10" height="8" fill="#0f172a"/>
+                <rect x="38" y="20" width="14" height="6" fill="#0f172a"/>
+                <rect x="8" y="38" width="10" height="10" fill="#047857"/>
+                <rect x="22" y="38" width="12" height="6" fill="#0f172a"/>
+                <rect x="38" y="38" width="24" height="24" fill="#0f172a"/>
+                <!-- Center Logo Icon -->
+                <rect x="42" y="42" width="16" height="16" fill="#047857" rx="4"/>
+                <text x="50" y="54" font-size="10" text-anchor="middle" fill="white" font-weight="bold">🛍️</text>
+
+                <rect x="68" y="38" width="24" height="8" fill="#047857"/>
+                <rect x="68" y="50" width="12" height="12" fill="#0f172a"/>
+                <rect x="84" y="50" width="8" height="12" fill="#047857"/>
+                <rect x="38" y="68" width="10" height="14" fill="#047857"/>
+                <rect x="52" y="68" width="12" height="14" fill="#0f172a"/>
+                <rect x="68" y="68" width="24" height="24" fill="#0f172a"/>
+                <rect x="74" y="74" width="12" height="12" fill="white"/>
+                <rect x="78" y="78" width="4" height="4" fill="#047857"/>
+              </svg>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <strong style="font-size:24px; font-weight:800; color:#0f172a; display:block;" id="upiPayAmountVal">₹599</strong>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">Blinjo Online Store</span>
+            </div>
+
+            <div style="background:#e6f4ea; color:#137333; font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; display:inline-block;">
+              Auto apply: 50% OFF on delivery charges ✓
+            </div>
+          </div>
+
+          <div style="text-align:center; position:relative; margin:16px 0;">
+            <span style="background:#fff; padding:0 12px; color:#94a3b8; font-size:12px; font-weight:700; position:relative; z-index:1;">OR</span>
+            <div style="border-top:1px solid #e2e8f0; position:absolute; top:50%; width:100%; left:0; z-index:0;"></div>
+          </div>
+
+          <div style="border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; background:#ffffff; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:18px;">💸</span>
+              <strong style="font-size:14px; color:#0f172a;">Pay with UPI ID</strong>
+            </div>
+            <span style="color:#94a3b8; font-weight:700;">›</span>
+          </div>
+
+          <div style="text-align:center; font-size:12px; color:#64748b; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <span>🔒</span> <span>100% Secure Payment - Your payment information is encrypted.</span>
+          </div>
+
+          <button type="button" class="btn-confirm-order-green" id="completeUpiPayBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:18px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.3); transition:background 0.2s;">
+            <span>Pay & Place Order</span> <span style="font-size:20px;">➔</span>
+          </button>
+        </div>
+
+
+        <!-- STEP 4: ORDER SUCCESS VIEW (Prepaid & COD Match) -->
+        <div id="checkoutStepSuccess" class="checkout-step-view" style="display:none; text-align:center; padding:10px 0;">
+          
+          <div class="success-checkmark-circle" style="background:#047857; color:#ffffff; width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 16px auto; box-shadow:0 8px 24px rgba(4,120,87,0.3);">
+            ✓
+          </div>
+
+          <h3 style="margin:0; font-size:24px; font-weight:800; color:#0f172a;" id="successTitle">Payment Successful!</h3>
+          <p style="margin:6px 0 20px 0; font-size:14px; color:#64748b;" id="successSubtitle">Your order has been placed successfully.</p>
+
+          <!-- Order Summary Card -->
+          <div class="success-details-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:18px; text-align:left; margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
+              <span style="color:#64748b;">Order ID</span>
+              <strong style="color:#0f172a; font-weight:800;" id="succOrderId">#BLJ123456</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
+              <span style="color:#64748b;">Order Amount</span>
+              <strong style="color:#0f172a; font-weight:800;" id="succAmount">₹599</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
+              <span style="color:#64748b;">Payment Method</span>
+              <strong style="color:#047857; font-weight:800;" id="succPayMethod">UPI (Prepaid)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px;">
+              <span style="color:#64748b;">Expected Delivery</span>
+              <strong style="color:#0f172a; font-weight:700;" id="succDeliveryDate">05 Oct 2026</strong>
+            </div>
+          </div>
+
+          <!-- View Order Details Button -->
+          <button type="button" id="finishOrderBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:16px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.25);">
+            <span>View Order Details</span> <span style="font-size:18px;">➔</span>
+          </button>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Added to Cart Pop-up Modal (Exact Match to User Screenshot 1) -->
+  <div class="modal" id="addedToCartModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="added-cart-modal-card" style="background:#ffffff; border-radius:20px; padding:24px 24px 20px 24px; text-align:center; max-width:340px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.18); position:relative; animation:modalPopIn 0.25s ease-out;">
+      
+      <!-- Top Close Button -->
+      <button type="button" id="closeAddedModalBtn" style="position:absolute; top:14px; right:16px; border:none; background:none; font-size:20px; color:#94a3b8; cursor:pointer; padding:4px; line-height:1;">✕</button>
+
+      <!-- Circle Checkmark Icon with Confetti Dots -->
+      <div style="position:relative; width:80px; height:80px; margin:4px auto 16px auto; display:flex; align-items:center; justify-content:center;">
+        <!-- Confetti Dots -->
+        <span style="position:absolute; top:4px; left:12px; width:6px; height:6px; background:#ff5722; border-radius:50%;"></span>
+        <span style="position:absolute; top:12px; right:10px; width:6px; height:6px; background:#10b981; border-radius:50%;"></span>
+        <span style="position:absolute; bottom:8px; left:6px; width:7px; height:7px; background:#10b981; border-radius:50%;"></span>
+        <span style="position:absolute; bottom:14px; right:8px; width:6px; height:6px; background:#eab308; border-radius:50%;"></span>
+        <span style="position:absolute; top:20px; left:2px; width:5px; height:5px; background:#3b82f6; border-radius:50%;"></span>
+        <span style="position:absolute; top:2px; right:24px; width:5px; height:5px; background:#a855f7; border-radius:50%;"></span>
+        
+        <!-- Outer Glowing Light Green Circle -->
+        <div style="width:76px; height:76px; background:#dcfce7; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+          <!-- Inner Dark Green Circle with White Checkmark -->
+          <div style="width:52px; height:52px; background:#047857; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:26px; font-weight:800; box-shadow:0 4px 12px rgba(4,120,87,0.3);">
+            ✓
+          </div>
+        </div>
+      </div>
+
+      <!-- Title & Message -->
+      <h3 style="margin:0 0 6px 0; font-size:20px; font-weight:800; color:#0f172a;">Added to Cart!</h3>
+      <p style="margin:0 0 20px 0; font-size:13px; color:#64748b; line-height:1.4;" id="addedModalProdMsg">
+        Blinjo Brass Urli Bowl (10 Inch) has been added to your cart.
+      </p>
+
+      <!-- Action Buttons Row -->
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button type="button" id="continueShoppingBtn" style="flex:1; border:1.5px solid #cbd5e1; background:#ffffff; color:#334155; font-weight:700; font-size:12.5px; padding:11px 10px; border-radius:10px; cursor:pointer; transition:all 0.2s;">
+          Continue Shopping
+        </button>
+        <button type="button" id="viewCartModalBtn" style="flex:1; border:none; background:#047857; color:#ffffff; font-weight:700; font-size:12.5px; padding:11px 10px; border-radius:10px; cursor:pointer; box-shadow:0 4px 12px rgba(4,120,87,0.25); transition:background 0.2s;">
+          View Cart
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase Firestore Compatibility Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

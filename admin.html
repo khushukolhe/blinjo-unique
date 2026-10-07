@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blinjo Admin Portal | Store Management Dashboard</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-style.css?v=5">
+</head>
+<body class="admin-body">
+
+  <!-- Admin Header Nav -->
+  <header class="admin-header">
+    <div class="admin-nav-container">
+      <div class="admin-logo">
+        <svg class="logo-leaf" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17,8C8,10 59,16.17 3.82,21.34L5.23,22.75C11.4,17.58 18,17 18,17A2,2 0 0,0 20,15V10A2,2 0 0,0 18,8M16,15C13.5,15 10,13 8,10C10.5,10 14,12 16,15Z"/>
+          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,14.76 13.5,13.5C14.76,10.12 17.38,7.5 18.28,7.07C18.28,7.07 17.38,10.12 16.13,13.5C14.88,16.88 12.26,19.5 11.36,19.93L7.07,18.28Z"/>
+        </svg>
+        <span class="logo-text">Blinjo Admin</span>
+        <span class="admin-badge-tag">STORE MANAGER</span>
+      </div>
+
+      <div class="admin-header-actions" style="display:flex; align-items:center; gap:12px;">
+        <span id="firestoreStatusBadge" style="display:inline-flex; align-items:center; gap:6px; background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:12px; font-weight:700; padding:6px 12px; border-radius:20px;">
+          <span style="width:8px; height:8px; background:#22c55e; border-radius:50%; display:inline-block; box-shadow:0 0 8px #22c55e;"></span> 🔥 Firestore Live
+        </span>
+        <a href="index.html" class="btn-outline-store" target="_blank">
+          🌐 View Live Store
+        </a>
+        <button class="btn-danger-sm" id="adminLogoutBtn">
+          🔒 Lock Panel
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Main Layout -->
+  <div class="admin-layout">
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-tab="tab-overview">
+          <span class="s-icon">📊</span> Dashboard Overview
+        </button>
+        <button class="sidebar-link" data-tab="tab-orders">
+          <span class="s-icon">📦</span> Orders Management
+          <span class="nav-count-badge" id="sidebarOrdersCount">12</span>
+        </button>
+        <button class="sidebar-link" data-tab="tab-products">
+          <span class="s-icon">🏷️</span> Products
+        </button>
+        <button class="sidebar-link" data-tab="tab-reviews">
+          <span class="s-icon">⭐</span> Customer Reviews
+        </button>
+        <button class="sidebar-link" data-tab="tab-slideshow">
+          <span class="s-icon">🖼️</span> Slideshow / Banners
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>Blinjo Engine v2.4</p>
+        <small>Logged in as: Admin Manager</small>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+
+      <!-- TAB 1: OVERVIEW / DASHBOARD -->
+      <section class="admin-tab active" id="tab-overview">
+        
+        <!-- Top Search & Profile Bar -->
+        <div class="dash-top-bar mb-20">
+          <div class="dash-search-box">
+            <span>🔍</span>
+            <input type="text" id="dashGlobalSearch" placeholder="Search orders, products, customers...">
+          </div>
+          <div class="dash-top-right">
+            <div class="date-picker-btn" id="dashDatePicker">
+              <span>📅 01 Oct 2026 - 01 Oct 2026</span>
+              <span>▼</span>
+            </div>
+            <div class="dash-notif-bell" title="Notifications">
+              <span>🔔</span>
+              <span class="bell-badge">3</span>
+            </div>
+            <div class="dash-user-profile">
+              <img src="assets/cat_1.jpg" alt="Admin Avatar" class="dash-avatar">
+              <div class="user-meta">
+                <strong>Admin</strong>
+                <small>Super Admin ▾</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Welcome Banner -->
+        <div class="dash-welcome-banner mb-24">
+          <div class="welcome-left-text">
+            <h2>Welcome Back, Admin 👋</h2>
+            <p>Here's what's happening with your store today.</p>
+            <button class="btn-view-orders-green" onclick="document.querySelector('[data-tab=tab-orders]').click()">View Orders &rarr;</button>
+          </div>
+          <div class="welcome-banner-img-group">
+            <div class="banner-tagline">Beautiful Products for Every Occasion</div>
+            <img src="assets/hero_banner.jpg" alt="Brass Urli Set" class="banner-prod-img img-1">
+            <img src="assets/cat_3.jpg" alt="Floating Flowers" class="banner-prod-img img-2">
+            <img src="assets/bestseller.jpg" alt="Diya Urli" class="banner-prod-img img-3">
+          </div>
+        </div>
+
+        <!-- 4 Stat Metric Cards Row -->
+        <div class="prod-kpi-grid mb-24">
+          <div class="order-kpi-card" onclick="document.querySelector('[data-tab=tab-orders]').click()" style="cursor:pointer;">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Total Orders</span>
+                <strong class="order-kpi-val" id="dashTotalOrdersVal">128</strong>
+                <span class="order-kpi-trend trend-green">↑ 12% <small style="color:#64748b; font-weight:400;">vs last 30 days</small></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" style="cursor:pointer;">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-red" style="background:#fee2e2; color:#ef4444;">
+                <span style="font-weight:800; font-size:18px;">₹</span>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Total Sales</span>
+                <strong class="order-kpi-val" id="dashTotalSalesVal">₹1,24,580</strong>
+                <span class="order-kpi-trend trend-green">↑ 18% <small style="color:#64748b; font-weight:400;">vs last 30 days</small></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" style="cursor:pointer;">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Total Customers</span>
+                <strong class="order-kpi-val" id="dashTotalCustVal">96</strong>
+                <span class="order-kpi-trend trend-green">↑ 10% <small style="color:#64748b; font-weight:400;">vs last 30 days</small></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" onclick="document.querySelector('[data-tab=tab-products]').click()" style="cursor:pointer;">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-purple" style="background:#f3e8ff; color:#9333ea;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Total Products</span>
+                <strong class="order-kpi-val" id="dashTotalProdVal">248</strong>
+                <span class="order-kpi-trend trend-green">↑ 6% <small style="color:#64748b; font-weight:400;">vs last 30 days</small></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Section: Sales & Orders Line Chart + Order Status Donut Chart -->
+        <div class="dash-charts-grid mb-24" style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+          
+          <!-- Sales & Orders Line Graph Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16">
+              <h3 style="margin:0; font-weight:800; font-size:18px;">Sales & Orders</h3>
+              <div class="flex-center gap-16" style="display:flex; align-items:center; gap:16px;">
+                <span style="font-size:13px; font-weight:600; color:#10b981;">🟢 Sales (₹)</span>
+                <span style="font-size:13px; font-weight:600; color:#a7f3d0;">🟢 Orders</span>
+                <select style="padding:4px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:12px;">
+                  <option>Last 7 Days</option>
+                  <option>Last 30 Days</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="chart-canvas-wrap" style="height: 220px; position:relative; width:100%;">
+              <svg width="100%" height="100%" viewBox="0 0 600 200" preserveAspectRatio="none" style="overflow:visible;">
+                <line x1="0" y1="40" x2="600" y2="40" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="0" y1="80" x2="600" y2="80" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="0" y1="120" x2="600" y2="120" stroke="#f1f5f9" stroke-width="1"/>
+                <line x1="0" y1="160" x2="600" y2="160" stroke="#f1f5f9" stroke-width="1"/>
+                
+                <path d="M 30,160 L 110,135 L 190,150 L 270,110 L 350,130 L 430,100 L 510,90 L 570,50 L 570,180 L 30,180 Z" fill="rgba(16,185,129,0.12)" />
+                <path d="M 30,160 Q 70,140 110,135 T 190,150 T 270,110 T 350,130 T 430,100 T 510,90 T 570,50" fill="none" stroke="#10b981" stroke-width="3" />
+                
+                <circle cx="30" cy="160" r="4" fill="#10b981"/>
+                <circle cx="110" cy="135" r="4" fill="#10b981"/>
+                <circle cx="190" cy="150" r="4" fill="#10b981"/>
+                <circle cx="270" cy="110" r="4" fill="#10b981"/>
+                <circle cx="350" cy="130" r="4" fill="#10b981"/>
+                <circle cx="430" cy="100" r="4" fill="#10b981"/>
+                <circle cx="510" cy="90" r="4" fill="#10b981"/>
+                <circle cx="570" cy="50" r="5" fill="#059669" stroke="#ffffff" stroke-width="2"/>
+              </svg>
+              <div class="x-axis-labels flex-between" style="display:flex; justify-content:space-between; padding-top:10px; font-size:12px; color:#64748b; font-weight:600;">
+                <span>25 Sep</span><span>26 Sep</span><span>27 Sep</span><span>28 Sep</span><span>29 Sep</span><span>30 Sep</span><span>01 Oct</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Status Donut Chart Card -->
+          <div class="admin-card">
+            <h3 style="margin:0 0 16px 0; font-weight:800; font-size:18px;">Order Status</h3>
+            <div class="donut-chart-flex" style="display:flex; align-items:center; gap:16px;">
+              <div class="donut-ring-wrap" style="position:relative; width:120px; height:120px; flex-shrink:0;">
+                <svg width="120" height="120" viewBox="0 0 42 42">
+                  <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f1f5f9" stroke-width="6"/>
+                  <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10b981" stroke-width="6" stroke-dasharray="44 56" stroke-dashoffset="25"/>
+                  <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#3b82f6" stroke-width="6" stroke-dasharray="22 78" stroke-dashoffset="81"/>
+                  <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" stroke-width="6" stroke-dasharray="19 81" stroke-dashoffset="59"/>
+                  <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#ef4444" stroke-width="6" stroke-dasharray="9 91" stroke-dashoffset="40"/>
+                </svg>
+                <div class="donut-center-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+                  <strong style="font-size:18px; display:block; color:#0f172a; line-height:1;">128</strong>
+                  <small style="font-size:11px; color:#64748b;">Orders</small>
+                </div>
+              </div>
+              <div class="status-legend-list">
+                <div class="status-legend-item"><span>🟢 Delivered</span><strong>56 (44%)</strong></div>
+                <div class="status-legend-item"><span>🔵 Processing</span><strong>28 (22%)</strong></div>
+                <div class="status-legend-item"><span>🟡 Shipped</span><strong>24 (19%)</strong></div>
+                <div class="status-legend-item"><span>🔴 Cancelled</span><strong>12 (9%)</strong></div>
+                <div class="status-legend-item"><span>⚪ Pending</span><strong>8 (6%)</strong></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Quick Action Shortcuts Row -->
+        <div class="quick-actions-row mb-24" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:12px;">
+          <div class="q-action-card green-bg" onclick="document.querySelector('[data-tab=tab-products]').click(); setTimeout(() => document.getElementById('openAddProductBtn')?.click(), 200);">
+            <span class="q-icon">🟢</span>
+            <strong>+ Add Product</strong>
+          </div>
+          <div class="q-action-card blue-bg" onclick="document.querySelector('[data-tab=tab-orders]').click();">
+            <span class="q-icon">🛒</span>
+            <strong>View Orders</strong>
+          </div>
+          <div class="q-action-card orange-bg" onclick="document.querySelector('[data-tab=tab-products]').click();">
+            <span class="q-icon">🪟</span>
+            <strong>Manage Categories</strong>
+          </div>
+          <div class="q-action-card purple-bg" onclick="document.querySelector('[data-tab=tab-products]').click();">
+            <span class="q-icon">📦</span>
+            <strong>Manage Inventory</strong>
+          </div>
+          <div class="q-action-card blue-bg" onclick="alert('👥 Customer Directory: 96 Verified Customers logged in system.')">
+            <span class="q-icon">👥</span>
+            <strong>View Customers</strong>
+          </div>
+          <div class="q-action-card pink-bg" onclick="document.getElementById('exportOrdersBtn')?.click()">
+            <span class="q-icon">📊</span>
+            <strong>Generate Report</strong>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Recent Orders, Top Selling Products, Low Stock Products -->
+        <div class="dash-bottom-grid mb-24" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+          
+          <!-- Recent Orders Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-weight:800; font-size:16px;">Recent Orders</h3>
+              <a href="javascript:void(0)" onclick="document.querySelector('[data-tab=tab-orders]').click()" class="text-link-green" style="font-size:13px; font-weight:700; color:#10b981; text-decoration:none;">View All</a>
+            </div>
+            <div class="mini-list" id="dashRecentOrdersList" style="display:flex; flex-direction:column; gap:10px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Top Selling Products Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-weight:800; font-size:16px;">Top Selling Products</h3>
+              <a href="javascript:void(0)" onclick="document.querySelector('[data-tab=tab-products]').click()" class="text-link-green" style="font-size:13px; font-weight:700; color:#10b981; text-decoration:none;">View All</a>
+            </div>
+            <table class="mini-table" style="width:100%; font-size:13px;">
+              <thead>
+                <tr style="text-align:left; color:#64748b; font-size:11px;">
+                  <th>#</th><th>Product</th><th>Sold</th><th style="text-align:right;">Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="dashTopSellingBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Low Stock Products Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-weight:800; font-size:16px;">Low Stock Products</h3>
+              <a href="javascript:void(0)" onclick="document.querySelector('[data-tab=tab-products]').click()" class="text-link-green" style="font-size:13px; font-weight:700; color:#10b981; text-decoration:none;">View All</a>
+            </div>
+            <table class="mini-table" style="width:100%; font-size:13px;">
+              <thead>
+                <tr style="text-align:left; color:#64748b; font-size:11px;">
+                  <th>Product</th><th style="text-align:center;">Stock</th><th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashLowStockBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Footer Row: Top Customers, Customer Growth, Recent Reviews -->
+        <div class="dash-footer-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px;">
+          
+          <!-- Top Customers Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-weight:800; font-size:16px;">Top Customers</h3>
+              <a href="javascript:void(0)" class="text-link-green" style="font-size:13px; font-weight:700; color:#10b981; text-decoration:none;">View All</a>
+            </div>
+            <table class="mini-table" style="width:100%; font-size:13px;">
+              <thead>
+                <tr style="text-align:left; color:#64748b; font-size:11px;">
+                  <th>#</th><th>Customer</th><th style="text-align:center;">Orders</th><th style="text-align:right;">Total Spent</th>
+                </tr>
+              </thead>
+              <tbody id="dashTopCustBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Customer Growth Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-weight:800; font-size:16px;">Customer Growth</h3>
+              <select style="padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; font-size:11px;"><option>Last 5 Months</option></select>
+            </div>
+            <div class="chart-bars-container" style="height:140px; display:flex; align-items:flex-end; justify-content:space-between;">
+              <div class="chart-bar-wrap" style="display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;"><div class="bar" style="height:40%; background:#10b981; width:20px; border-radius:4px;"></div><span class="bar-day" style="font-size:11px;">Aug</span></div>
+              <div class="chart-bar-wrap" style="display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;"><div class="bar" style="height:55%; background:#10b981; width:20px; border-radius:4px;"></div><span class="bar-day" style="font-size:11px;">Sep</span></div>
+              <div class="chart-bar-wrap" style="display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;"><div class="bar" style="height:80%; background:#10b981; width:20px; border-radius:4px;"></div><span class="bar-day" style="font-size:11px;">Oct</span></div>
+              <div class="chart-bar-wrap" style="display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;"><div class="bar" style="height:50%; background:#10b981; width:20px; border-radius:4px;"></div><span class="bar-day" style="font-size:11px;">Nov</span></div>
+              <div class="chart-bar-wrap" style="display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end;"><div class="bar" style="height:90%; background:#10b981; width:20px; border-radius:4px;"></div><span class="bar-day" style="font-size:11px;">Dec</span></div>
+            </div>
+          </div>
+
+          <!-- Recent Reviews Card -->
+          <div class="admin-card">
+            <div class="card-title-row flex-between mb-16" style="display:flex; justify-content:space-between; align-items:center;">
+              <h3 style="margin:0; font-weight:800; font-size:16px;">Recent Reviews</h3>
+              <a href="javascript:void(0)" onclick="document.querySelector('[data-tab=tab-reviews]').click()" class="text-link-green" style="font-size:13px; font-weight:700; color:#10b981; text-decoration:none;">View All</a>
+            </div>
+            <div class="mini-reviews-list" id="dashRecentRevList" style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- TAB 2: ORDERS MANAGEMENT -->
+      <section class="admin-tab" id="tab-orders">
+        <div class="tab-header flex-between">
+          <div>
+            <h2>Order Management</h2>
+            <span class="text-muted">View, track and manage all orders from your online store</span>
+          </div>
+          <div class="header-right-actions">
+            <div class="date-picker-btn" id="openDatePickerBtn">
+              <span id="datePickerText">📅 01 Oct 2026 - 31 Oct 2026</span>
+              <span>▼</span>
+            </div>
+            <button class="btn-secondary-sm" id="exportOrdersBtn">
+              📥 Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 Stat KPI Cards Grid (Exact Design Match) -->
+        <div class="order-kpi-grid">
+          <div class="order-kpi-card active" data-order-kpi="all">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Total Orders</span>
+                <strong class="order-kpi-val" id="kpiTotalOrdersVal">1,248</strong>
+                <span class="order-kpi-trend trend-green">↑ 12%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-order-kpi="Pending">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Pending</span>
+                <strong class="order-kpi-val" id="kpiPendingVal">56</strong>
+                <span class="order-kpi-trend trend-red">↑ 8%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-order-kpi="Processing">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Processing</span>
+                <strong class="order-kpi-val" id="kpiProcessingVal">132</strong>
+                <span class="order-kpi-trend trend-green">↑ 15%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-order-kpi="Shipped">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Shipped</span>
+                <strong class="order-kpi-val" id="kpiShippedVal">298</strong>
+                <span class="order-kpi-trend trend-green">↑ 22%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-order-kpi="Delivered">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Delivered</span>
+                <strong class="order-kpi-val" id="kpiDeliveredVal">712</strong>
+                <span class="order-kpi-trend trend-green">↑ 18%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-order-kpi="Cancelled">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-red">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Cancelled</span>
+                <strong class="order-kpi-val" id="kpiCancelledVal">50</strong>
+                <span class="order-kpi-trend trend-red">↓ 5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="order-toolbar-card">
+          <div class="toolbar-search">
+            <span>🔍</span>
+            <input type="text" id="orderSearchInput" placeholder="Search by Order ID, customer name, product...">
+          </div>
+
+          <div class="toolbar-dropdowns">
+            <select id="filterOrderStatus">
+              <option value="all">Order Status: All</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <select id="filterPaymentStatus">
+              <option value="all">Payment Status: All</option>
+              <option value="Paid">Paid</option>
+              <option value="COD">COD</option>
+              <option value="Failed">Failed</option>
+            </select>
+
+            <button class="btn-reset-sm" id="resetFiltersBtn">Reset</button>
+            <button class="btn-apply-green" id="applyFiltersBtn">Apply</button>
+          </div>
+        </div>
+
+        <!-- Orders Table Card (Full Width Default) -->
+        <div class="orders-split-layout" style="width:100%;">
+          
+          <!-- Orders Data Table Card -->
+          <div class="admin-card table-card flex-1" style="width:100%; padding:0; overflow-x:auto;">
+            
+            <!-- Bulk Action Toolbar -->
+            <div id="bulkActionsBar" class="bulk-actions-bar" style="display: none;">
+              <span><strong id="selectedCountVal">0</strong> orders selected</span>
+              <div class="bulk-btns-group">
+                <button id="bulkShippedBtn" class="btn-bulk-action">🚚 Mark Shipped</button>
+                <button id="bulkDeliveredBtn" class="btn-bulk-action">✅ Mark Delivered</button>
+                <button id="bulkDeleteBtn" class="btn-bulk-delete">🗑️ Delete Selected</button>
+              </div>
+            </div>
+
+            <div style="overflow-x:auto; width:100%;">
+              <table class="orders-table-modern" style="width:100%; min-width:680px;">
+                <thead>
+                  <tr>
+                    <th style="width:70px;">Order ID</th>
+                    <th style="min-width:130px;">Customer Name</th>
+                    <th style="min-width:150px;">Product</th>
+                    <th style="min-width:120px;">Customer Number</th>
+                    <th style="min-width:160px;">Shipping Address</th>
+                    <th style="min-width:110px;">Order Status</th>
+                    <th style="text-align:right; min-width:110px; padding-right:16px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                  <!-- Injected by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div class="table-pagination" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-top:1px solid #e2e8f0;">
+              <span class="pagination-info" id="paginationInfo">Showing 1 to 10 of 10 orders</span>
+              <div class="pagination-controls" id="paginationControls" style="display:flex; gap:6px;">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: PRODUCTS CATALOG & INVENTORY MANAGEMENT -->
+      <section class="admin-tab" id="tab-products">
+        
+        <!-- Header -->
+        <div class="tab-header flex-between mb-20">
+          <div>
+            <h2>Products</h2>
+            <span class="text-muted">Manage all your products. Add, edit, view or delete products.</span>
+          </div>
+          <button class="btn-save-product" id="openAddProductBtn">
+            <span style="font-size:16px;">+</span> Add New Product
+          </button>
+        </div>
+
+        <!-- 4 KPI Stat Cards Row (Strictly in 1 line) -->
+        <div class="prod-kpi-grid mb-24">
+          
+          <div class="order-kpi-card" data-prod-kpi="all">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Total Products</span>
+                <strong class="order-kpi-val" id="kpiTotalProdVal">128</strong>
+                <span class="order-kpi-trend trend-green">↑ 12%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-prod-kpi="Active">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Active Products</span>
+                <strong class="order-kpi-val" id="kpiActiveProdVal">102</strong>
+                <span class="order-kpi-trend trend-green">↑ 8%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-prod-kpi="Out of Stock">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-red">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Out of Stock</span>
+                <strong class="order-kpi-val" id="kpiOutOfStockVal">12</strong>
+                <span class="order-kpi-trend trend-red">↑ 5%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" data-prod-kpi="Low Stock">
+            <div class="order-kpi-top">
+              <div class="order-kpi-icon kpi-circle-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+              </div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title">Low Stock</span>
+                <strong class="order-kpi-val" id="kpiLowStockVal">14</strong>
+                <span class="order-kpi-trend trend-green">↑ 18%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="order-toolbar-card mb-24">
+          <div class="toolbar-search">
+            <span>🔍</span>
+            <input type="text" id="prodSearchInput" placeholder="Search by product name, SKU...">
+          </div>
+
+          <div class="toolbar-dropdowns">
+            <select id="filterProdCategory">
+              <option value="all">All Categories</option>
+              <option value="Home Decor">Home Decor</option>
+              <option value="Pooja Items">Pooja Items</option>
+              <option value="Decoration">Decoration</option>
+            </select>
+
+            <select id="filterProdStatus">
+              <option value="all">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+              <option value="Out of Stock">Out of Stock</option>
+            </select>
+
+            <select id="filterStockStatus">
+              <option value="all">Stock Status</option>
+              <option value="In Stock">In Stock</option>
+              <option value="Low Stock">Low Stock (&lt;20)</option>
+              <option value="Out of Stock">Out of Stock (0)</option>
+            </select>
+
+            <button class="btn-reset-sm" id="resetProdFiltersBtn">Reset</button>
+            <button class="btn-apply-green" id="applyProdFiltersBtn">Apply</button>
+          </div>
+        </div>
+
+        <!-- Products Table Card -->
+        <div class="admin-card table-card">
+          <table class="orders-table-modern products-table-styled">
+            <thead>
+              <tr>
+                <th style="width: 30px;"><input type="checkbox" id="selectAllProds"></th>
+                <th style="width: 30px;">#</th>
+                <th>Product Name</th>
+                <th>Image</th>
+                <th>Category</th>
+                <th style="text-align: center;">Selling Price</th>
+                <th style="text-align: center;">MRP</th>
+                <th style="text-align: center;">Discount</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th style="text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <!-- Injected dynamically by JS -->
+            </tbody>
+          </table>
+
+          <!-- Table Pagination Bar -->
+          <div class="table-pagination">
+            <span class="pagination-info" id="prodPaginationInfo">Showing 1 to 8 of 128 products</span>
+            <div class="pagination-controls" id="prodPaginationControls">
+              <!-- Injected dynamically by JS -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 4: REVIEWS MANAGEMENT -->
+      <section class="admin-tab" id="tab-reviews">
+        <div class="tab-header flex-between">
+          <div>
+            <h2>Customer Reviews</h2>
+            <span class="text-muted">Moderate existing reviews or publish new customer testimonials</span>
+          </div>
+          <button class="btn-primary-sm" id="openAddReviewBtn">+ Add New Review</button>
+        </div>
+
+        <div class="admin-card">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Location</th>
+                <th>Rating</th>
+                <th>Review Comment</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsTableBody">
+              <!-- Reviews JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 5: SLIDESHOW / BANNERS MANAGEMENT -->
+      <section class="admin-tab" id="tab-slideshow">
+        <div class="tab-header flex-between mb-24" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <div>
+            <h2 style="font-size:24px; font-weight:800; color:#0f172a; margin:0 0 4px 0;">🖼️ Slideshow & Banner Management</h2>
+            <span class="text-muted" style="font-size:14px; color:#64748b;">Manage homepage hero slides, promotional banners, image tags, and call-to-action buttons.</span>
+          </div>
+          <button type="button" class="btn-primary-sm" id="openAddSlideBtn" onclick="openSlideModal()" style="background:#047857; color:#ffffff; border:none; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 3px 10px rgba(4,120,87,0.25); transition:all 0.2s;">+ Add New Slide</button>
+        </div>
+
+        <!-- Slideshow Stats Row -->
+        <div class="prod-kpi-grid mb-24" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+          <div class="order-kpi-card" style="background:#ffffff; padding:16px; border-radius:14px; border:1px solid #f1f5f9; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+            <div class="order-kpi-top" style="display:flex; align-items:center; gap:12px;">
+              <div class="order-kpi-icon kpi-circle-green" style="background:#dcfce7; color:#15803d; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">🖼️</div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title" style="font-size:12px; color:#64748b; font-weight:600; display:block;">Total Slides</span>
+                <strong class="order-kpi-val" id="kpiTotalSlides" style="font-size:22px; font-weight:800; color:#0f172a;">3</strong>
+                <span class="order-kpi-trend trend-green" style="font-size:12px; color:#16a34a; font-weight:600;">Live Store Carousel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" style="background:#ffffff; padding:16px; border-radius:14px; border:1px solid #f1f5f9; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+            <div class="order-kpi-top" style="display:flex; align-items:center; gap:12px;">
+              <div class="order-kpi-icon kpi-circle-blue" style="background:#dbeafe; color:#1d4ed8; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">🟢</div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title" style="font-size:12px; color:#64748b; font-weight:600; display:block;">Active Status</span>
+                <strong class="order-kpi-val" id="kpiActiveSlides" style="font-size:22px; font-weight:800; color:#0f172a;">3 Active</strong>
+                <span class="order-kpi-trend trend-green" style="font-size:12px; color:#16a34a; font-weight:600;">Published on Storefront</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-kpi-card" style="background:#ffffff; padding:16px; border-radius:14px; border:1px solid #f1f5f9; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+            <div class="order-kpi-top" style="display:flex; align-items:center; gap:12px;">
+              <div class="order-kpi-icon kpi-circle-purple" style="background:#f3e8ff; color:#7e22ce; width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">⏱️</div>
+              <div class="order-kpi-meta">
+                <span class="order-kpi-title" style="font-size:12px; color:#64748b; font-weight:600; display:block;">Auto-Slide Speed</span>
+                <strong class="order-kpi-val" style="font-size:22px; font-weight:800; color:#0f172a;">5 Seconds</strong>
+                <span class="order-kpi-trend trend-green" style="font-size:12px; color:#64748b; font-weight:600;">Smooth Auto Transition</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slides List Cards Container -->
+        <div id="slidesListContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;">
+          <!-- Dynamically Rendered Slides Cards -->
+        </div>
+
+        <!-- Section 2: Perfect For Every Occasion Category Banners -->
+        <div style="margin-top:48px; border-top:1px solid #e2e8f0; padding-top:32px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+              <h3 style="font-size:20px; font-weight:800; color:#0f172a; margin:0 0 4px 0;">✨ Perfect For Every Occasion Banners (6 Cards)</h3>
+              <span class="text-muted" style="font-size:13px; color:#64748b;">Manage homepage occasion category images (Living Room, Pooja Room, Diwali, Wedding, Entrance, Gift) and title pills.</span>
+            </div>
+          </div>
+
+          <div id="occasionCardsContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:20px;">
+            <!-- Dynamically populated 6 occasion cards -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add New Review Modal (Exact Match to Screenshot) -->
+  <div class="modal" id="addReviewModal">
+    <div class="modal-content add-review-modal-container">
+      
+      <!-- Header -->
+      <div class="add-rev-header flex-between mb-20">
+        <div>
+          <h2 style="margin:0; font-size:22px; font-weight:800; color:#0f172a;">Add New Review</h2>
+          <p class="text-muted text-sm" style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Add customer review with photo and short description.</p>
+        </div>
+        <button type="button" class="close-modal" id="closeReviewModal">&times;</button>
+      </div>
+
+      <form id="newReviewForm">
+        
+        <!-- Customer Name Input -->
+        <div class="form-group mb-16" style="margin-bottom:16px;">
+          <label class="field-label" style="display:block; font-weight:700; margin-bottom:6px;">Customer Name <span class="text-red">*</span></label>
+          <input type="text" id="revCustName" class="add-prod-input" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1;" required value="Meera Kapoor" placeholder="e.g. Meera Kapoor">
+        </div>
+
+        <!-- Top Row: Select Product & Rating -->
+        <div class="rev-top-grid mb-20">
+          
+          <!-- Select Product Card -->
+          <div class="add-prod-card">
+            <label class="field-label mb-8">Select Product <span class="text-red">*</span></label>
+            <div class="prod-select-box-wrap">
+              <select id="revProductSelect" class="add-prod-select" style="width:100%;">
+                <option value="BLJ001" data-img="assets/bestseller.jpg">Brass Urli Bowl (SKU: BLJ001)</option>
+                <option value="BLJ002" data-img="assets/cat_3.jpg">Floating Flowers Set (SKU: BLJ002)</option>
+                <option value="BLJ003" data-img="assets/thumb_3.jpg">LED Floating Diya (SKU: BLJ003)</option>
+                <option value="BLJ004" data-img="assets/cat_2.jpg">Copper Water Fountain (SKU: BLJ004)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Rating Card -->
+          <div class="add-prod-card">
+            <label class="field-label mb-8">Rating <span class="text-red">*</span></label>
+            <div class="star-rating-picker-wrap">
+              <div class="stars-picker" id="starPicker">
+                <span class="star-item active" data-rating="1">★</span>
+                <span class="star-item active" data-rating="2">★</span>
+                <span class="star-item active" data-rating="3">★</span>
+                <span class="star-item active" data-rating="4">★</span>
+                <span class="star-item" data-rating="5">★</span>
+              </div>
+              <span class="rating-text-readout" id="ratingTextReadout"><strong id="ratingNum">4</strong> out of 5</span>
+              <input type="hidden" id="revRatingVal" value="4">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Review Images Section -->
+        <div class="add-prod-card mb-20">
+          <label class="field-label mb-2">Review Images</label>
+          <p class="text-muted text-xs mb-14" style="font-size:12px; color:#64748b; margin-bottom:12px;">Upload customer review images (up to 5 images)</p>
+          
+          <div class="product-preview-grid" id="revImagePreviewGrid">
+            <div class="preview-thumb-box">
+              <img src="assets/bestseller.jpg" alt="Review 1">
+              <button type="button" class="remove-thumb-btn">&times;</button>
+            </div>
+            <div class="preview-thumb-box">
+              <img src="assets/hero_banner.jpg" alt="Review 2">
+              <button type="button" class="remove-thumb-btn">&times;</button>
+            </div>
+            <div class="preview-thumb-box">
+              <img src="assets/cat_2.jpg" alt="Review 3">
+              <button type="button" class="remove-thumb-btn">&times;</button>
+            </div>
+            <div class="add-more-thumb-box" id="addRevImageBtn">
+              <span class="plus-sign">+</span>
+              <span>Add Image</span>
+              <input type="file" id="revImgFileInput" accept="image/*" multiple style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Short Description Section -->
+        <div class="add-prod-card mb-20">
+          <label class="field-label mb-8">Short Description <span class="text-red">*</span></label>
+          <textarea id="revCommentText" class="add-prod-textarea" rows="3" maxlength="200" required placeholder="Very beautiful and premium quality product. Looks amazing in my living room. Perfect for home decoration and festivals. Highly recommended!">Very beautiful and premium quality product. Looks amazing in my living room. Perfect for home decoration and festivals. Highly recommended!</textarea>
+          <div class="char-count-wrap" style="text-align:right; margin-top:4px; font-size:12px; color:#64748b;"><span id="revCharCount">120</span>/200</div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="modal-footer flex-between gap-12" style="display:flex; justify-content:flex-end; gap:12px; margin-top:16px;">
+          <button type="button" class="btn-cancel-modal" id="cancelReviewModalBtn">Cancel</button>
+          <button type="submit" class="btn-save-product" style="background:#ff6b00; box-shadow: 0 4px 12px rgba(255,107,0,0.25);">💾 Add Review</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Add New Product Modal (Exact Match to Screenshot) -->
+  <div class="modal" id="addProductModal">
+    <div class="modal-content add-product-modal-container">
+      
+      <!-- Top Header Row -->
+      <div class="add-prod-header flex-between mb-20">
+        <h2>Add New Product</h2>
+        <div class="add-prod-header-actions">
+          <button type="button" class="btn-cancel-modal" id="closeAddProductModal">Cancel</button>
+          <button type="submit" form="newProductForm" class="btn-save-product">💾 Save Product</button>
+        </div>
+      </div>
+
+      <form id="newProductForm" class="add-product-grid">
+        
+        <!-- Left Column: Form Fields in Individual Cards -->
+        <div class="add-prod-left-col">
+          
+          <!-- Card 1: Product Name -->
+          <div class="add-prod-card">
+            <label class="field-label">Product Name <span class="text-red">*</span></label>
+            <input type="text" id="prodTitle" class="add-prod-input" required placeholder="Enter product name (e.g. Brass Urli Bowl)">
+          </div>
+
+          <!-- Card 2: Short Description -->
+          <div class="add-prod-card">
+            <label class="field-label">Short Description <span class="text-red">*</span></label>
+            <textarea id="prodSubtitle" class="add-prod-textarea" rows="4" maxlength="200" required placeholder="Enter short description of the product"></textarea>
+            <div class="char-count-wrap"><span id="descCharCount">0</span>/200</div>
+          </div>
+
+          <!-- Card 3: Pricing -->
+          <div class="add-prod-card">
+            <label class="field-label mb-12">Pricing <span class="text-red">*</span></label>
+            <div class="pricing-grid-3">
+              <div class="price-input-group">
+                <label>Selling Price (₹) <span class="text-red">*</span></label>
+                <input type="number" id="prodPrice" class="add-prod-input" step="0.01" placeholder="0.00" required>
+              </div>
+              <div class="price-input-group">
+                <label>MRP (₹) <span class="text-red">*</span></label>
+                <input type="number" id="prodMrp" class="add-prod-input" step="0.01" placeholder="0.00" required>
+              </div>
+              <div class="price-input-group">
+                <label>Discount (%)</label>
+                <input type="number" id="prodDiscount" class="add-prod-input" value="0" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Stock Quantity -->
+          <div class="add-prod-card">
+            <label class="field-label">Stock Quantity <span class="text-red">*</span></label>
+            <input type="number" id="prodStock" class="add-prod-input" value="0" required>
+          </div>
+
+          <!-- Card 5: Product Status -->
+          <div class="add-prod-card">
+            <label class="field-label">Product Status <span class="text-red">*</span></label>
+            <div class="status-select-wrap">
+              <select id="prodStatus" class="add-prod-select">
+                <option value="Active">🟢 Active</option>
+                <option value="Draft">🔴 Draft</option>
+                <option value="Out of Stock">🟡 Out of Stock</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Product Image Upload Box & Grid -->
+        <div class="add-prod-right-col">
+          <div class="add-prod-card h-full">
+            <label class="field-label">Product Image <span class="text-red">*</span></label>
+            
+            <!-- Dashed Drag & Drop Zone -->
+            <div class="image-drag-drop-zone" id="dropZoneBtn">
+              <div class="cloud-upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4"></path><path d="M12 12v9"></path><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+              </div>
+              <div class="drag-title">Drag & drop product images here</div>
+              <div class="drag-subtitle">or click to browse</div>
+              <input type="file" id="prodImgFileInput" accept="image/*" multiple style="display:none;">
+            </div>
+
+            <div class="image-upload-specs">
+              <span>Upload up to 10 images (JPG, PNG, WebP)</span>
+              <span>Recommended size: 1000 x 1000 px</span>
+            </div>
+
+            <!-- Image Thumbnails Grid (Matches Screenshot) -->
+            <div class="product-preview-grid" id="imagePreviewGrid">
+              <div class="preview-thumb-box">
+                <img src="assets/bestseller.jpg" alt="Preview 1">
+                <button type="button" class="remove-thumb-btn">&times;</button>
+              </div>
+              <div class="preview-thumb-box">
+                <img src="assets/cat_3.jpg" alt="Preview 2">
+                <button type="button" class="remove-thumb-btn">&times;</button>
+              </div>
+              <div class="preview-thumb-box">
+                <img src="assets/thumb_3.jpg" alt="Preview 3">
+                <button type="button" class="remove-thumb-btn">&times;</button>
+              </div>
+              <div class="add-more-thumb-box" id="addMoreThumbBtn">
+                <span class="plus-sign">+</span>
+                <span>Add Image</span>
+              </div>
+            </div>
+
+            </div>
+
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Select Date Filter Range Modal (Exact Match to Screenshot) -->
+  <div class="modal" id="dateFilterModal">
+    <div class="modal-content date-filter-modal-container">
+      
+      <!-- Modal Header -->
+      <div class="date-modal-header">
+        <div class="date-modal-title-group">
+          <div class="date-header-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div>
+            <h3>Select Date Filter Range</h3>
+            <p>Choose a date range to filter your data.</p>
+          </div>
+        </div>
+        <button class="close-modal" id="closeDateModalBtn">&times;</button>
+      </div>
+
+      <!-- Modal Main Grid (Left Presets + Right Dual Calendar) -->
+      <div class="date-modal-body">
+        
+        <!-- Left Side Presets Column -->
+        <div class="date-presets-col">
+          
+          <div class="preset-card active" data-preset="all">
+            <div class="preset-icon-circle green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="preset-meta">
+              <strong>All Time</strong>
+              <small>View all data</small>
+            </div>
+            <div class="preset-check-badge">✓</div>
+          </div>
+
+          <div class="preset-card" data-preset="today">
+            <div class="preset-icon-circle blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><text x="7.5" y="19" font-size="7" font-weight="900" fill="currentColor">29</text></svg>
+            </div>
+            <div class="preset-meta">
+              <strong>Today</strong>
+              <small>01 Oct 2026</small>
+            </div>
+            <div class="preset-check-badge">✓</div>
+          </div>
+
+          <div class="preset-card" data-preset="7days">
+            <div class="preset-icon-circle purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><text x="8.5" y="19" font-size="9" font-weight="900" fill="currentColor">7</text></svg>
+            </div>
+            <div class="preset-meta">
+              <strong>Last 7 Days</strong>
+              <small>25 Sep 2026 - 01 Oct 2026</small>
+            </div>
+            <div class="preset-check-badge">✓</div>
+          </div>
+
+          <div class="preset-card" data-preset="30days">
+            <div class="preset-icon-circle orange">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><text x="6" y="19" font-size="8" font-weight="900" fill="currentColor">30</text></svg>
+            </div>
+            <div class="preset-meta">
+              <strong>Last 30 Days</strong>
+              <small>02 Sep 2026 - 01 Oct 2026</small>
+            </div>
+            <div class="preset-check-badge">✓</div>
+          </div>
+
+          <div class="preset-card" data-preset="custom">
+            <div class="preset-icon-circle dark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><circle cx="12" cy="15" r="2"></circle></svg>
+            </div>
+            <div class="preset-meta">
+              <strong>Custom Range</strong>
+              <small>Select custom date range</small>
+            </div>
+            <div class="preset-check-badge">✓</div>
+          </div>
+
+        </div>
+
+        <!-- Right Side Dual Calendar & Inputs -->
+        <div class="date-calendar-col">
+          
+          <div class="cal-header-row">
+            <h4>Select Date Range</h4>
+            <span class="preset-status-tag" id="activePresetTag">All Time</span>
+          </div>
+
+          <!-- Date Input Fields -->
+          <div class="date-inputs-row">
+            <div class="date-input-box">
+              <label>From Date</label>
+              <div class="input-with-icon">
+                <span class="icon">📅</span>
+                <input type="text" id="fromDateInput" value="01 Oct 2026" readonly>
+              </div>
+            </div>
+            <div class="date-input-box">
+              <label>To Date</label>
+              <div class="input-with-icon">
+                <span class="icon">📅</span>
+                <input type="text" id="toDateInput" value="01 Oct 2026" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Month Calendars -->
+          <div class="dual-calendars-wrapper">
+            
+            <!-- Month 1: September 2026 -->
+            <div class="calendar-month-block">
+              <div class="month-nav-row">
+                <button class="cal-nav-btn" id="prevMonthBtn">&lt;</button>
+                <strong class="month-title">September 2026</strong>
+                <span></span>
+              </div>
+              <table class="cal-table">
+                <thead>
+                  <tr>
+                    <th class="sun">Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td class="muted">30</td><td class="muted">31</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+                  <tr><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td></tr>
+                  <tr><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td></tr>
+                  <tr><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td class="cal-day-item" data-date="2026-09-25">25</td><td class="cal-day-item" data-date="2026-09-26">26</td></tr>
+                  <tr><td class="cal-day-item" data-date="2026-09-27">27</td><td class="cal-day-item" data-date="2026-09-28">28</td><td class="cal-day-item" data-date="2026-09-29">29</td><td class="cal-day-item" data-date="2026-09-30">30</td><td class="muted">1</td><td class="muted">2</td><td class="muted">3</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Month 2: October 2026 -->
+            <div class="calendar-month-block">
+              <div class="month-nav-row">
+                <span></span>
+                <strong class="month-title">October 2026</strong>
+                <button class="cal-nav-btn" id="nextMonthBtn">&gt;</button>
+              </div>
+              <table class="cal-table">
+                <thead>
+                  <tr>
+                    <th class="sun">Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td class="muted">27</td><td class="muted">28</td><td class="muted">29</td><td class="muted">30</td><td class="cal-day-item selected-day active-day" data-date="2026-10-01">1</td><td class="cal-day-item" data-date="2026-10-02">2</td><td class="cal-day-item" data-date="2026-10-03">3</td></tr>
+                  <tr><td class="cal-day-item" data-date="2026-10-04">4</td><td class="cal-day-item" data-date="2026-10-05">5</td><td class="cal-day-item" data-date="2026-10-06">6</td><td class="cal-day-item" data-date="2026-10-07">7</td><td class="cal-day-item" data-date="2026-10-08">8</td><td class="cal-day-item" data-date="2026-10-09">9</td><td class="cal-day-item" data-date="2026-10-10">10</td></tr>
+                  <tr><td class="cal-day-item" data-date="2026-10-11">11</td><td class="cal-day-item" data-date="2026-10-12">12</td><td class="cal-day-item" data-date="2026-10-13">13</td><td class="cal-day-item" data-date="2026-10-14">14</td><td class="cal-day-item" data-date="2026-10-15">15</td><td class="cal-day-item" data-date="2026-10-16">16</td><td class="cal-day-item" data-date="2026-10-17">17</td></tr>
+                  <tr><td class="cal-day-item" data-date="2026-10-18">18</td><td class="cal-day-item" data-date="2026-10-19">19</td><td class="cal-day-item" data-date="2026-10-20">20</td><td class="cal-day-item" data-date="2026-10-21">21</td><td class="cal-day-item" data-date="2026-10-22">22</td><td class="cal-day-item" data-date="2026-10-23">23</td><td class="cal-day-item" data-date="2026-10-24">24</td></tr>
+                  <tr><td class="cal-day-item" data-date="2026-10-25">25</td><td class="cal-day-item" data-date="2026-10-26">26</td><td class="cal-day-item" data-date="2026-10-27">27</td><td class="cal-day-item" data-date="2026-10-28">28</td><td class="cal-day-item" data-date="2026-10-29">29</td><td class="cal-day-item" data-date="2026-10-30">30</td><td class="cal-day-item" data-date="2026-10-31">31</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+  <!-- Edit Order Status Modal -->
+  <div class="modal" id="editOrderModal">
+    <div class="modal-content edit-order-modal-container">
+      <div class="panel-header flex-between mb-16">
+        <h3 style="margin:0; font-size:18px; font-weight:800;">Edit Order Status</h3>
+        <button class="close-modal" id="closeEditOrderModalBtn">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:10px 0;">
+        <p class="mb-16">Update status details for order <strong id="editModalOrderId">#BLJ1250</strong></p>
+        
+        <div class="form-group mb-16" style="margin-bottom:16px;">
+          <label style="font-weight:700; display:block; margin-bottom:6px;">Order Fulfillment Status:</label>
+          <select id="editModalOrderStatus" class="panel-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1;">
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-20" style="margin-bottom:20px;">
+          <label style="font-weight:700; display:block; margin-bottom:6px;">Payment Status:</label>
+          <select id="editModalPaymentStatus" class="panel-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1;">
+            <option value="Paid">Paid</option>
+            <option value="COD">COD (Pending Collection)</option>
+            <option value="Failed">Failed</option>
+          </select>
+        </div>
+
+        <div class="modal-footer flex-between gap-12" style="display:flex; justify-content:flex-end; gap:12px;">
+          <button class="btn-cancel-modal" id="cancelEditOrderBtn">Cancel</button>
+          <button class="btn-primary-green" id="saveEditOrderBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Customer Information Modal -->
+  <div class="modal" id="editCustomerModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:480px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;">Edit Customer Information</h3>
+        <button type="button" id="closeEditCustomerModalBtn" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
+      </div>
+
+      <form id="editCustomerForm">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Customer Name <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="editCustNameInput" class="add-prod-input" required placeholder="Full Name" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Phone Number <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="editCustPhoneInput" class="add-prod-input" required placeholder="Phone Number" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Email Address <span style="color:#ef4444;">*</span></label>
+          <input type="email" id="editCustEmailInput" class="add-prod-input" required placeholder="Email Address" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Shipping Address <span style="color:#ef4444;">*</span></label>
+          <textarea id="editCustAddressInput" class="add-prod-textarea" rows="3" required placeholder="Full Delivery Address" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #f1f5f9; padding-top:16px;">
+          <button type="button" id="cancelEditCustomerBtn" style="border:1px solid #cbd5e1; background:#fff; color:#475569; padding:10px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Cancel</button>
+          <button type="submit" style="border:none; background:#047857; color:#fff; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">💾 Save Customer Details</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Product Details Modal -->
+  <div class="modal" id="viewProductDetailsModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:540px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;" id="viewProdModalTitle">Product Details</h3>
+        <button type="button" id="closeViewProductDetailsModalBtn" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; gap:20px; align-items:flex-start;">
+        <div style="width:180px; height:180px; border-radius:12px; overflow:hidden; background:#f8fafc; flex-shrink:0; border:1px solid #e2e8f0; position:relative;">
+          <img id="viewProdModalImg" src="assets/bestseller.jpg" alt="Product" style="width:100%; height:100%; object-fit:cover;">
+          <span id="viewProdModalBadge" style="position:absolute; top:8px; left:8px; background:#047857; color:#fff; font-size:10px; font-weight:800; padding:3px 8px; border-radius:8px;">🔥 BESTSELLER</span>
+        </div>
+
+        <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <h4 id="viewProdModalName" style="margin:0 0 4px 0; font-size:18px; font-weight:800; color:#0f172a;">Brass Urli Bowl</h4>
+            <span id="viewProdModalSku" style="font-size:12px; color:#64748b; font-weight:600; font-family:monospace;">SKU: BLJ001</span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <strong id="viewProdModalPrice" style="font-size:22px; font-weight:800; color:#047857;">₹599</strong>
+            <span id="viewProdModalMrp" style="font-size:14px; text-decoration:line-through; color:#94a3b8;">₹999</span>
+            <span id="viewProdModalDiscount" style="background:#dcfce7; color:#15803d; font-weight:800; font-size:12px; padding:2px 8px; border-radius:6px;">40% OFF</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:#334155; margin-top:4px;">
+            <div><span style="color:#64748b; font-size:12px;">Category:</span> <strong id="viewProdModalCategory">Home Decor</strong></div>
+            <div><span style="color:#64748b; font-size:12px;">Stock Level:</span> <strong id="viewProdModalStock">50 units</strong></div>
+            <div><span style="color:#64748b; font-size:12px;">Status:</span> <span id="viewProdModalStatus" style="font-weight:700;">🟢 Active</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; background:#f8fafc; padding:12px 14px; border-radius:10px; border:1px solid #e2e8f0;">
+        <span style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px; text-transform:uppercase;">Short Description</span>
+        <p id="viewProdModalDesc" style="margin:0; font-size:13px; color:#334155; line-height:1.4;">Traditional Brass Urli for Home Decor</p>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px; border-top:1px solid #f1f5f9; padding-top:14px;">
+        <button type="button" id="closeViewProdDetailsBtn" style="border:1px solid #cbd5e1; background:#ffffff; color:#475569; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Close</button>
+        <button type="button" id="editFromViewProdBtn" style="border:none; background:#047857; color:#ffffff; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">✏️ Edit Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Product Modal -->
+  <div class="modal" id="editProductModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:540px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;" id="editProdModalTitle">Edit Product Details</h3>
+        <button type="button" id="closeEditProductModalBtn" onclick="closeEditProductModal()" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
+      </div>
+
+      <form id="editProductForm">
+        <input type="hidden" id="editProdId" value="">
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Product Name <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="editProdTitle" class="add-prod-input" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Selling Price (₹) <span style="color:#ef4444;">*</span></label>
+            <input type="number" id="editProdPrice" class="add-prod-input" step="0.01" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">MRP (₹) <span style="color:#ef4444;">*</span></label>
+            <input type="number" id="editProdMrp" class="add-prod-input" step="0.01" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Stock Quantity <span style="color:#ef4444;">*</span></label>
+            <input type="number" id="editProdStock" class="add-prod-input" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Category <span style="color:#ef4444;">*</span></label>
+            <select id="editProdCategory" class="add-prod-select" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+              <option value="Home Decor">Home Decor</option>
+              <option value="Pooja Items">Pooja Items</option>
+              <option value="Decoration">Decoration</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Product Status <span style="color:#ef4444;">*</span></label>
+          <select id="editProdStatus" class="add-prod-select" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+            <option value="Active">🟢 Active</option>
+            <option value="Draft">🔴 Draft</option>
+            <option value="Out of Stock">🟡 Out of Stock</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Image Source URL / Path <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="editProdImage" class="add-prod-input" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Short Description</label>
+          <textarea id="editProdDesc" class="add-prod-textarea" rows="2" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #f1f5f9; padding-top:14px;">
+          <button type="button" onclick="closeEditProductModal()" style="border:1px solid #cbd5e1; background:#ffffff; color:#475569; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Cancel</button>
+          <button type="submit" style="border:none; background:#047857; color:#ffffff; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">💾 Save Product Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Order Details Modal (Right Side Sliding Drawer matching screenshot) -->
+  <div class="modal" id="viewOrderModal">
+    <div class="view-order-modal-drawer">
+      
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <h3>Order Details</h3>
+        <button class="drawer-close-btn" id="closeViewOrderModalBtn" aria-label="Close Order Details">&times;</button>
+      </div>
+
+      <!-- Drawer Scrollable Body -->
+      <div class="drawer-scroll-body">
+
+        <!-- Top Order Info Header Card -->
+        <div class="drawer-card" style="background: #ffffff; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;" id="modalOrderId">Order #01</h2>
+            <span style="font-size: 12px; color: #64748b; font-weight: 500;" id="modalOrderDate">Placed on 01 Oct 2026, 10:45 AM</span>
+          </div>
+          <div>
+            <span class="status-badge-pill status-delivered-pill" id="modalOrderStatus" style="padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; background: #dcfce7; color: #15803d;">
+              🚚 Delivered
+            </span>
+          </div>
+        </div>
+
+        <!-- Actions Top Bar (Status Selector, Invoice, Save Status) -->
+        <div class="drawer-card" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+            <label style="font-size: 12px; font-weight: 700; color: #334155; white-space: nowrap;">Status:</label>
+            <select id="modalStatusSelect" style="padding: 7px 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; flex: 1; background: #ffffff; color: #0f172a;">
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <button class="btn-outline-store" id="modalPrintInvoiceBtn" style="padding: 7px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">🖨️ Invoice</button>
+          <button class="btn-primary-sm" id="saveModalStatusBtn" style="padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; background: #ff6b00; color: #ffffff; border: none; cursor: pointer;">Save Status</button>
+        </div>
+
+        <!-- 1. Customer Information Card -->
+        <div class="drawer-card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+          <div class="drawer-card-header">
+            <h4 class="drawer-card-title">
+              <span style="color: #10b981; font-size: 16px;">👤</span> Customer Information
+            </h4>
+            <button class="btn-edit-outline" id="editCustomerInfoBtn">Edit</button>
+          </div>
+          <div style="font-size: 13px; color: #334155; line-height: 1.6; display: flex; flex-direction: column; gap: 6px;">
+            <div>
+              <span style="color: #64748b; font-size: 11px; display: block; font-weight: 600;">Name</span>
+              <strong style="color: #0f172a; font-size: 13.5px;" id="modalCustName">Rahul Sharma</strong>
+            </div>
+            <div>
+              <span style="color: #64748b; font-size: 11px; display: block; font-weight: 600;">Mobile & Email</span>
+              <span id="modalCustContact" style="font-weight: 600; color: #334155; font-size: 13px;">9876543210  |  rahul.sharma@example.com</span>
+            </div>
+            <div>
+              <span style="color: #64748b; font-size: 11px; display: block; font-weight: 600;">Shipping Address</span>
+              <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 2px;">
+                <span style="font-size: 14px; color: #0f172a;">📍</span>
+                <span id="modalCustAddress" style="font-weight: 500; color: #334155; font-size: 12.5px; line-height: 1.4;">Flat No 101, Orchid Residency, Kharadi, Pune - 411014, Maharashtra, India</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Product Information Table Card -->
+        <div class="drawer-card" style="padding: 14px;">
+          <h4 class="drawer-card-title" style="margin-bottom: 12px;">
+            <span style="color: #10b981; font-size: 16px;">🛒</span> Product Information
+          </h4>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr style="background: #f8fafc; text-align: left; color: #64748b; border-bottom: 1px solid #e2e8f0; font-size: 11px; font-weight: 700;">
+                  <th style="padding: 8px 6px;">Image</th>
+                  <th style="padding: 8px 6px;">Product Name</th>
+                  <th style="padding: 8px 6px; text-align: center;">Qty</th>
+                  <th style="padding: 8px 6px; text-align: right;">Price (₹)</th>
+                  <th style="padding: 8px 6px; text-align: right;">Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="modalProductsList">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. Order Summary Card -->
+        <div class="drawer-card" style="padding: 14px;">
+          <h4 class="drawer-card-title" style="margin-bottom: 10px;">
+            <span style="color: #10b981; font-size: 16px;">📄</span> Order Summary
+          </h4>
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #475569;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Subtotal</span>
+              <strong style="color: #0f172a;" id="modalSubtotal">₹749</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Shipping Charges</span>
+              <strong style="color: #0f172a;" id="modalShipping">₹50</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Discount</span>
+              <strong style="color: #0f172a;" id="modalDiscount">- ₹0</strong>
+            </div>
+            <div class="order-total-green-bar">
+              <span class="total-label">Total Amount</span>
+              <span class="total-val" id="modalTotalAmount">₹799</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Bottom 2-Column Grid: Payment Information & Order Status -->
+        <div class="drawer-grid-2col">
+          <!-- Payment Information -->
+          <div class="drawer-card" style="padding: 14px;">
+            <h4 class="drawer-card-title" style="margin-bottom: 10px; font-size: 13px;">
+              <span>💳</span> Payment Information
+            </h4>
+            <div style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
+              <div>
+                <span style="color: #64748b; font-size: 11px; display: block;">Payment Method</span>
+                <strong style="color: #0f172a;" id="modalPayMethod">UPI (Google Pay)</strong>
+              </div>
+              <div>
+                <span style="color: #64748b; font-size: 11px; display: block; margin-bottom: 2px;">Payment Status</span>
+                <span class="status-pill status-delivered" id="modalPayStatus" style="font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #e6f4ea; color: #137333; font-weight: 700; display: inline-block;">✓ Paid</span>
+              </div>
+              <div>
+                <span style="color: #64748b; font-size: 11px; display: block;">Transaction ID</span>
+                <span style="color: #0f172a; font-weight: 600; font-family: monospace;" id="modalTxnId">UPI1234567890</span>
+              </div>
+              <div>
+                <span style="color: #64748b; font-size: 11px; display: block;">Payment Date</span>
+                <span style="color: #0f172a; font-weight: 500;" id="modalPayDate">01 Oct 2026, 10:46 AM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Status Timeline -->
+          <div class="drawer-card" style="padding: 14px;">
+            <h4 class="drawer-card-title" style="margin-bottom: 10px; font-size: 13px;">
+              <span>🚚</span> Order Status
+            </h4>
+            <div class="order-timeline-wrap" style="position: relative; padding-left: 20px; font-size: 11px;" id="modalTimeline">
+              <!-- Dynamically Populated -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Slide Modal (Image or Video Only) -->
+  <div class="modal" id="addSlideModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:480px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <h3 id="slideModalTitle" style="margin:0; font-size:20px; font-weight:800; color:#0f172a;">Add Slide Image or Video</h3>
+        <button type="button" id="closeSlideModalBtn" onclick="closeSlideModal()" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
+      </div>
+
+      <form id="slideForm">
+        <input type="hidden" id="slideEditId" value="">
+
+        <!-- Media Type Selector -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:8px;">Select Media Type <span style="color:#ef4444;">*</span></label>
+          <div style="display:flex; gap:12px;">
+            <label style="flex:1; display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #cbd5e1; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; font-size:13px; color:#0f172a;">
+              <input type="radio" name="slideMediaType" value="image" id="mediaTypeImg" checked style="accent-color:#047857;"> 🖼️ Image Slide
+            </label>
+            <label style="flex:1; display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #cbd5e1; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; font-size:13px; color:#0f172a;">
+              <input type="radio" name="slideMediaType" value="video" id="mediaTypeVideo" style="accent-color:#047857;"> 🎥 Video Slide
+            </label>
+          </div>
+        </div>
+
+        <!-- Image or Video Source URL / Upload -->
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Image or Video Source URL / Path <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="slideImgInput" class="add-prod-input" required value="assets/hero_banner.jpg" placeholder="Enter image URL or video file path (e.g. assets/hero_banner.jpg or video.mp4)" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px;">
+          
+          <!-- File Upload Button & Quick Presets -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#f1f5f9; border:1px dashed #94a3b8; padding:8px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:#475569;">
+              <span>📁 Upload File from Computer</span>
+              <input type="file" id="slideFileInput" accept="image/*,video/*" style="display:none;">
+            </label>
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="preset-img-btn" data-img="assets/hero_banner.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Hero Banner</button>
+              <button type="button" class="preset-img-btn" data-img="assets/bestseller.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Urli Photo</button>
+              <button type="button" class="preset-img-btn" data-img="assets/cat_3.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Flowers Photo</button>
+              <button type="button" class="preset-img-btn" data-img="https://www.w3schools.com/html/mov_bbb.mp4" data-type="video" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🎥 Sample Video (MP4)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Toggle -->
+        <div style="margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="slideActiveCheckbox" checked style="width:18px; height:18px; accent-color:#047857; cursor:pointer;">
+          <label for="slideActiveCheckbox" style="font-size:14px; font-weight:700; color:#0f172a; cursor:pointer;">Active / Published on Storefront</label>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #f1f5f9; padding-top:16px;">
+          <button type="button" id="cancelSlideModalBtn" onclick="closeSlideModal()" style="border:1px solid #cbd5e1; background:#fff; color:#475569; padding:10px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Cancel</button>
+          <button type="submit" style="border:none; background:#047857; color:#fff; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">💾 Save Media Slide</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Occasion Banner Modal -->
+  <div class="modal" id="editOccasionModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:480px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <h3 id="occModalTitle" style="margin:0; font-size:20px; font-weight:800; color:#0f172a;">Edit Occasion Banner</h3>
+        <button type="button" onclick="closeOccasionModal()" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
+      </div>
+
+      <form id="occasionForm">
+        <input type="hidden" id="occEditId" value="">
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Occasion Title / Pill Label <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="occTitleInput" class="add-prod-input" required placeholder="e.g. Living Room Decor" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Image Source URL / File Path <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="occImgInput" class="add-prod-input" required value="assets/cat_1.jpg" placeholder="assets/cat_1.jpg" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px;">
+          
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#f1f5f9; border:1px dashed #94a3b8; padding:8px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:#475569;">
+              <span>📁 Upload Image from Computer</span>
+              <input type="file" id="occFileInput" accept="image/*" style="display:none;">
+            </label>
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="preset-occ-btn" data-img="assets/cat_1.jpg" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Cat 1</button>
+              <button type="button" class="preset-occ-btn" data-img="assets/cat_2.jpg" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Cat 2</button>
+              <button type="button" class="preset-occ-btn" data-img="assets/cat_3.jpg" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Cat 3</button>
+              <button type="button" class="preset-occ-btn" data-img="assets/cat_4.jpg" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Cat 4</button>
+              <button type="button" class="preset-occ-btn" data-img="assets/cat_5.jpg" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Cat 5</button>
+              <button type="button" class="preset-occ-btn" data-img="assets/cat_6.jpg" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">Cat 6</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #f1f5f9; padding-top:16px;">
+          <button type="button" onclick="closeOccasionModal()" style="border:1px solid #cbd5e1; background:#fff; color:#475569; padding:10px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Cancel</button>
+          <button type="submit" style="border:none; background:#047857; color:#fff; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">💾 Save Occasion Banner</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase Firestore Compatibility Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="admin-script.js"></script>
+</body>
+</html>
