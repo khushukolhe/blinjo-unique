@@ -2,3 +2,6 @@ node_modules/
 .tempmediaStorage/
 *.log
 .DS_Store
+.vercel
+dev-server.js
+slice_images.js

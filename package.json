@@ -3,5 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Blinjo Storefront & Admin Panel",
-  "main": "index.html"
+  "scripts": {
+    "start": "node dev-server.js"
+  }
 }
