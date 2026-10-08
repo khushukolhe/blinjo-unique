@@ -611,6 +611,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeCartBtn) closeCartBtn.addEventListener('click', closeCartDrawer);
   if (closeCartBtnTop) closeCartBtnTop.addEventListener('click', closeCartDrawer);
 
+  const heroCornerBuyBtn = document.getElementById('heroCornerBuyBtn');
+  if (heroCornerBuyBtn) {
+    heroCornerBuyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCartDrawer();
+    });
+  }
+
   // BUY NOW - Cash On Delivery Button Handler
   if (instantBuyBtn) {
     instantBuyBtn.addEventListener('click', (e) => {

@@ -270,6 +270,55 @@ button {
   right: 18px;
 }
 
+/* Floating Corner Buy Now Button on Slideshow */
+.hero-corner-buy-wrap {
+  position: absolute;
+  bottom: 24px;
+  right: 28px;
+  z-index: 30;
+}
+
+.hero-corner-buy-btn {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(4, 120, 87, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: pulseGlow 2.5s infinite;
+}
+
+.hero-corner-buy-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 28px rgba(4, 120, 87, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
+  border-color: #ffffff;
+}
+
+.hero-corner-buy-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 640px) {
+  .hero-corner-buy-wrap {
+    bottom: 14px;
+    right: 16px;
+  }
+  .hero-corner-buy-btn {
+    padding: 9px 18px;
+    font-size: 13px;
+  }
+}
+
 .hero-overlay {
   position: absolute;
   top: 0;
