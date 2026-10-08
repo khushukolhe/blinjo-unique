@@ -1,18 +1,7 @@
 {
-  "name": "blinjo-project",
+  "name": "blinjo-unique",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.html",
-  "scripts": {
-    "build": "echo 'Static build complete'",
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "sharp": "^0.35.5"
-  }
+  "private": true,
+  "description": "Blinjo Storefront & Admin Panel",
+  "main": "index.html"
 }
