@@ -23,10 +23,69 @@ document.addEventListener('DOMContentLoaded', () => {
   let ordersList = getStoredOrders();
   let selectedOrderId = ordersList[0] ? ordersList[0].id : null;
 
+  function reloadAdminOrdersData() {
+    ordersList = getStoredOrders();
+    if (!selectedOrderId && ordersList[0]) selectedOrderId = ordersList[0].id;
+    if (typeof updateOrderKPIs === 'function') updateOrderKPIs();
+    if (typeof renderOrdersTable === 'function') renderOrdersTable();
+    if (typeof renderDashboardOverview === 'function') renderDashboardOverview();
+  }
+
+  function showAdminOrderToast(msg) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: #047857;
+      color: #ffffff;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(4, 120, 87, 0.35);
+      z-index: 10000;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    `;
+    toast.innerHTML = `<span>🎉</span> <span>${msg}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-10px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+
+  // Real-time synchronization across browser tabs & local storage events
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'blinjo_orders_v2' || e.key === 'blinjo_orders') {
+      reloadAdminOrdersData();
+    }
+  });
+
+  window.addEventListener('blinjo_order_placed', () => {
+    reloadAdminOrdersData();
+    showAdminOrderToast('New Customer Order Placed!');
+  });
+
+  try {
+    const orderBC = new BroadcastChannel('blinjo_orders_channel');
+    orderBC.onmessage = (event) => {
+      if (event.data && event.data.type === 'NEW_ORDER_PLACED') {
+        reloadAdminOrdersData();
+        const oId = event.data.orderId || '';
+        showAdminOrderToast(`New Order Received: ${oId}`);
+      }
+    };
+  } catch(e) {}
+
   // Initialize Realtime Orders Sync from Firestore
   if (typeof syncOrders === 'function') {
     syncOrders((syncedOrders) => {
-      if (syncedOrders && syncedOrders.length > 0) {
+      if (syncedOrders) {
         ordersList = syncedOrders;
         if (!selectedOrderId && ordersList[0]) selectedOrderId = ordersList[0].id;
         updateOrderKPIs();

@@ -785,6 +785,13 @@ document.addEventListener('DOMContentLoaded', () => {
       addOrderFirestore(newOrder);
     }
 
+    try {
+      const orderBC = new BroadcastChannel('blinjo_orders_channel');
+      orderBC.postMessage({ type: 'NEW_ORDER_PLACED', orderId: orderId, newOrder: newOrder });
+      orderBC.close();
+    } catch(e) {}
+    window.dispatchEvent(new CustomEvent('blinjo_order_placed', { detail: newOrder }));
+
     // Update UI elements in Step 4 Success View
     const successTitle = document.getElementById('successTitle');
     const successSubtitle = document.getElementById('successSubtitle');

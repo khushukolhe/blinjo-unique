@@ -193,11 +193,17 @@ async function addOrderFirestore(newOrder) {
       console.error('Error saving order to Firestore:', err);
     }
   }
-  // LocalStorage update
+  // LocalStorage update with deduplication
   const saved = localStorage.getItem('blinjo_orders_v2');
   let orders = saved ? JSON.parse(saved) : defaultOrdersList;
-  orders.unshift(newOrder);
+  const existingIdx = orders.findIndex(o => o.id === newOrder.id);
+  if (existingIdx !== -1) {
+    orders[existingIdx] = newOrder;
+  } else {
+    orders.unshift(newOrder);
+  }
   localStorage.setItem('blinjo_orders_v2', JSON.stringify(orders));
+  localStorage.setItem('blinjo_orders', JSON.stringify(orders));
 }
 
 async function updateOrderStatusFirestore(orderId, newStatus) {
