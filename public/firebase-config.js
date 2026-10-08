@@ -298,26 +298,20 @@ async function addReviewFirestore(reviewData) {
 // --------------------------------------------------------------------------
 // 4. SLIDESHOW BANNERS COLLECTION API
 // --------------------------------------------------------------------------
-const defaultSlideshow = [
-  { id: 'SLD-001', mediaType: 'image', image: 'assets/hero_banner.jpg', active: true },
-  { id: 'SLD-002', mediaType: 'image', image: 'assets/cat_3.jpg', active: true },
-  { id: 'SLD-003', mediaType: 'image', image: 'assets/bestseller.jpg', active: true }
-];
+const defaultSlideshow = [];
 
 async function syncSlideshow(callback) {
   if (checkFirestoreActive()) {
     try {
       return db.collection('slideshow').onSnapshot((snapshot) => {
+        const slides = [];
         if (!snapshot.empty) {
-          const slides = [];
           snapshot.forEach((doc) => {
             slides.push({ id: doc.id, ...doc.data() });
           });
-          localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
-          if (callback) callback(slides);
-        } else {
-          seedInitialSlides(callback);
         }
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+        if (callback) callback(slides);
       });
     } catch (e) {
       fallbackSlideshow(callback);
@@ -327,20 +321,9 @@ async function syncSlideshow(callback) {
   }
 }
 
-async function seedInitialSlides(callback) {
-  if (!checkFirestoreActive()) return;
-  const batch = db.batch();
-  defaultSlideshow.forEach((slide) => {
-    const docRef = db.collection('slideshow').doc(slide.id);
-    batch.set(docRef, slide);
-  });
-  await batch.commit();
-  if (callback) callback(defaultSlideshow);
-}
-
 function fallbackSlideshow(callback) {
   const saved = localStorage.getItem('blinjo_slideshow_v2');
-  const slides = saved ? JSON.parse(saved) : defaultSlideshow;
+  const slides = saved ? JSON.parse(saved) : [];
   if (callback) callback(slides);
 }
 

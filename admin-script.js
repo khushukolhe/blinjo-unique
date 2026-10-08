@@ -1960,34 +1960,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // SLIDESHOW & BANNER MANAGEMENT MODULE (Media Only)
   // ==========================================
-  const defaultSlides = [
-    {
-      id: 'SLD-001',
-      mediaType: 'image',
-      image: 'assets/hero_banner.jpg',
-      active: true
-    },
-    {
-      id: 'SLD-002',
-      mediaType: 'image',
-      image: 'assets/cat_3.jpg',
-      active: true
-    },
-    {
-      id: 'SLD-003',
-      mediaType: 'image',
-      image: 'assets/bestseller.jpg',
-      active: true
-    }
-  ];
+  const defaultSlides = [];
 
   function getSlidesData() {
     const saved = localStorage.getItem('blinjo_slideshow_v2');
     if (saved) {
       try { return JSON.parse(saved); } catch(e){}
     }
-    localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(defaultSlides));
-    return defaultSlides;
+    return [];
   }
 
   function saveSlidesData(slides) {
@@ -2008,6 +1988,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
 
     const slides = getSlidesData();
+    const activeCount = slides.filter(s => s.active).length;
+
+    if (kpiTotalSlides) kpiTotalSlides.textContent = slides.length;
+    if (kpiActiveSlides) kpiActiveSlides.textContent = `${activeCount} Active`;
+
+    container.innerHTML = '';
+
+    if (slides.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#ffffff; border-radius:16px; border:1px dashed #cbd5e1;">
+          <p style="color:#64748b; font-size:15px; font-weight:600; margin:0 0 14px 0;">No slides added yet. Click "+ Add Slide" to upload slide images or videos.</p>
+          <button type="button" onclick="window.openSlideModal(null)" style="background:#047857; color:#ffffff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">+ Add New Slide</button>
+        </div>
+      `;
+      return;
+    }
     const activeCount = slides.filter(s => s.active).length;
 
     if (kpiTotalSlides) kpiTotalSlides.textContent = slides.length;

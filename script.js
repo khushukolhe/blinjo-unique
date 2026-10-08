@@ -14,20 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let slideshowTimer = null;
 
   function renderStorefrontSlideshow(passedSlides = null) {
-    const defaultSlides = [
-      { id: 'SLD-001', mediaType: 'image', image: 'assets/hero_banner.jpg', active: true },
-      { id: 'SLD-002', mediaType: 'image', image: 'assets/cat_3.jpg', active: true },
-      { id: 'SLD-003', mediaType: 'image', image: 'assets/bestseller.jpg', active: true }
-    ];
+    const defaultSlides = [];
 
     let slides = passedSlides;
     if (!slides) {
       const saved = localStorage.getItem('blinjo_slideshow_v2');
-      slides = saved ? JSON.parse(saved) : defaultSlides;
+      slides = saved ? JSON.parse(saved) : [];
     }
 
-    activeSlidesList = slides.filter(s => s.active !== false);
-    if (activeSlidesList.length === 0) activeSlidesList = defaultSlides;
+    activeSlidesList = (slides || []).filter(s => s.active !== false);
 
     if (carouselTrack) {
       carouselTrack.innerHTML = '';
