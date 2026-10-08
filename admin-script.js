@@ -1549,9 +1549,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const prodImgFileInput = document.getElementById('prodImgFileInput');
   const addMoreThumbBtn = document.getElementById('addMoreThumbBtn');
 
+  function handleUploadedFiles(files) {
+    Array.from(files).forEach(file => {
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const grid = document.getElementById('imagePreviewGrid');
+          if (grid && addMoreThumbBtn) {
+            const div = document.createElement('div');
+            div.className = 'preview-thumb-box';
+            div.innerHTML = `<img src="${event.target.result}" alt="Uploaded"><button type="button" class="remove-thumb-btn">&times;</button>`;
+            div.querySelector('.remove-thumb-btn').addEventListener('click', () => div.remove());
+            grid.insertBefore(div, addMoreThumbBtn);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
   if (dropZoneBtn && prodImgFileInput) {
     dropZoneBtn.addEventListener('click', () => prodImgFileInput.click());
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZoneBtn.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZoneBtn.addEventListener(eventName, () => {
+        dropZoneBtn.classList.add('drag-over');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZoneBtn.addEventListener(eventName, () => {
+        dropZoneBtn.classList.remove('drag-over');
+      }, false);
+    });
+
+    dropZoneBtn.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        handleUploadedFiles(dt.files);
+      }
+    }, false);
   }
+
   if (addMoreThumbBtn && prodImgFileInput) {
     addMoreThumbBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1569,21 +1615,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (prodImgFileInput) {
     prodImgFileInput.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files);
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const grid = document.getElementById('imagePreviewGrid');
-          if (grid && addMoreThumbBtn) {
-            const div = document.createElement('div');
-            div.className = 'preview-thumb-box';
-            div.innerHTML = `<img src="${event.target.result}" alt="Uploaded"><button type="button" class="remove-thumb-btn">&times;</button>`;
-            div.querySelector('.remove-thumb-btn').addEventListener('click', () => div.remove());
-            grid.insertBefore(div, addMoreThumbBtn);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      if (e.target.files && e.target.files.length > 0) {
+        handleUploadedFiles(e.target.files);
+      }
     });
   }
 
