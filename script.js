@@ -239,61 +239,85 @@ document.addEventListener('DOMContentLoaded', () => {
   let basePrice = 2999;
 
   function loadActiveProduct() {
-    const activeProdData = localStorage.getItem('blinjo_active_product');
-    if (!activeProdData) return;
-    try {
-      const activeProd = JSON.parse(activeProdData);
-      basePrice = activeProd.price || 2999;
-      const mrp = activeProd.mrp || 5999;
-      const stock = activeProd.stock || 14;
-      const savings = mrp - basePrice;
-      const discountPct = Math.round((savings / mrp) * 100);
+    const offerSection = document.querySelector('.offer-section');
+    const storedProdsStr = localStorage.getItem('blinjo_products_v3');
+    let storedProds = storedProdsStr ? JSON.parse(storedProdsStr) : [];
+    storedProds = storedProds.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
 
-      const titleEl = document.querySelector('.product-title-main');
-      const subEl = document.querySelector('.product-subtitle-main');
-      const curPriceEl = document.querySelector('.current-price');
-      const origPriceEl = document.querySelector('.original-price');
-      const discEl = document.querySelector('.discount-badge');
-      const saveEl = document.querySelector('.save-amount');
-      const stockEl = document.getElementById('stockCount');
-      const imgEl = document.getElementById('offerProductImg');
-      const ribbonEl = document.querySelector('.offer-badge-ribbon');
-
-      if (titleEl) titleEl.textContent = activeProd.title;
-      if (subEl) subEl.textContent = activeProd.subtitle;
-      if (curPriceEl) curPriceEl.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
-      if (origPriceEl) origPriceEl.textContent = `₹${mrp.toLocaleString('en-IN')}`;
-      if (discEl) discEl.textContent = `${discountPct}% OFF`;
-      if (saveEl) saveEl.textContent = `₹${savings.toLocaleString('en-IN')}`;
-      if (stockEl) stockEl.textContent = stock;
-      if (imgEl && activeProd.image) imgEl.src = activeProd.image;
-      if (ribbonEl && activeProd.badge) ribbonEl.textContent = activeProd.badge;
-
-      // Update mobile bar price
-      const mPriceEl = document.querySelector('.m-price');
-      const mStrikeEl = document.querySelector('.m-strike');
-      if (mPriceEl) mPriceEl.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
-      if (mStrikeEl) mStrikeEl.textContent = `₹${mrp.toLocaleString('en-IN')}`;
-
-      // Update drawer item elements
-      const cartProdTitle = document.getElementById('cartProdTitle');
-      const cartProdSubtitle = document.getElementById('cartProdSubtitle');
-      const cartSellingPrice = document.getElementById('cartSellingPrice');
-      const cartMrpPrice = document.getElementById('cartMrpPrice');
-      const cartDiscBadge = document.getElementById('cartDiscBadge');
-      const cartProductImg = document.getElementById('cartProductImg');
-
-      if (cartProdTitle) cartProdTitle.textContent = activeProd.title;
-      if (cartProdSubtitle) cartProdSubtitle.textContent = activeProd.subtitle || '10 Inch';
-      if (cartSellingPrice) cartSellingPrice.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
-      if (cartMrpPrice) cartMrpPrice.textContent = `₹${mrp.toLocaleString('en-IN')}`;
-      if (cartDiscBadge) cartDiscBadge.textContent = `${discountPct}% OFF`;
-      if (cartProductImg && activeProd.image) cartProductImg.src = activeProd.image;
-
-      updateQuantity(currentQty);
-    } catch (e) {
-      console.error('Error loading active product:', e);
+    if (storedProds.length === 0) {
+      if (offerSection) offerSection.style.display = 'none';
+      return;
+    } else {
+      if (offerSection) offerSection.style.display = 'block';
     }
+
+    const activeProdData = localStorage.getItem('blinjo_active_product');
+    let activeProd = null;
+    if (activeProdData) {
+      try {
+        const parsed = JSON.parse(activeProdData);
+        if (parsed && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(parsed.id)) {
+          activeProd = parsed;
+        }
+      } catch(e) {}
+    }
+
+    if (!activeProd) {
+      activeProd = storedProds.find(p => p.active) || storedProds[0];
+    }
+
+    if (!activeProd) return;
+
+    localStorage.setItem('blinjo_active_product', JSON.stringify(activeProd));
+
+    basePrice = activeProd.price || 2999;
+    const mrp = activeProd.mrp || Math.round(basePrice * 1.5);
+    const stock = activeProd.stock !== undefined ? activeProd.stock : 14;
+    const savings = Math.max(0, mrp - basePrice);
+    const discountPct = mrp > basePrice ? Math.round((savings / mrp) * 100) : 40;
+
+    const titleEl = document.querySelector('.product-title-main');
+    const subEl = document.querySelector('.product-subtitle-main');
+    const curPriceEl = document.querySelector('.current-price');
+    const origPriceEl = document.querySelector('.original-price');
+    const discEl = document.querySelector('.discount-badge');
+    const saveEl = document.querySelector('.save-amount');
+    const stockEl = document.getElementById('stockCount');
+    const imgEl = document.getElementById('offerProductImg');
+    const ribbonEl = document.querySelector('.offer-badge-ribbon');
+
+    if (titleEl) titleEl.textContent = activeProd.title;
+    if (subEl) subEl.textContent = activeProd.subtitle || 'Handcrafted premium festive decor';
+    if (curPriceEl) curPriceEl.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
+    if (origPriceEl) origPriceEl.textContent = `₹${mrp.toLocaleString('en-IN')}`;
+    if (discEl) discEl.textContent = `${discountPct}% OFF`;
+    if (saveEl) saveEl.textContent = `₹${savings.toLocaleString('en-IN')}`;
+    if (stockEl) stockEl.textContent = stock;
+    if (imgEl && activeProd.image) imgEl.src = activeProd.image;
+    if (ribbonEl) ribbonEl.textContent = activeProd.badge || '🔥 NEW LAUNCH';
+
+    // Update mobile bar price
+    const mPriceEl = document.querySelector('.m-price');
+    const mStrikeEl = document.querySelector('.m-strike');
+    if (mPriceEl) mPriceEl.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
+    if (mStrikeEl) mStrikeEl.textContent = `₹${mrp.toLocaleString('en-IN')}`;
+
+    // Update drawer item elements
+    const cartProdTitle = document.getElementById('cartProdTitle');
+    const cartProdSubtitle = document.getElementById('cartProdSubtitle');
+    const cartSellingPrice = document.getElementById('cartSellingPrice');
+    const cartMrpPrice = document.getElementById('cartMrpPrice');
+    const cartDiscBadge = document.getElementById('cartDiscBadge');
+    const cartProductImg = document.getElementById('cartProductImg');
+
+    if (cartProdTitle) cartProdTitle.textContent = activeProd.title;
+    if (cartProdSubtitle) cartProdSubtitle.textContent = activeProd.subtitle || 'Festive Decor';
+    if (cartSellingPrice) cartSellingPrice.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
+    if (cartMrpPrice) cartMrpPrice.textContent = `₹${mrp.toLocaleString('en-IN')}`;
+    if (cartDiscBadge) cartDiscBadge.textContent = `${discountPct}% OFF`;
+    if (cartProductImg && activeProd.image) cartProductImg.src = activeProd.image;
+
+    updateQuantity(currentQty);
   }
 
   loadActiveProduct();
@@ -382,11 +406,13 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('storage', (e) => {
     if (e.key === 'blinjo_products_v3' || e.key === 'blinjo_active_product') {
       renderCustomerProductsGrid();
+      loadActiveProduct();
     }
   });
 
   window.addEventListener('blinjo_products_updated', (e) => {
     renderCustomerProductsGrid(e.detail);
+    loadActiveProduct();
   });
 
   try {
@@ -394,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     prodBC.onmessage = (event) => {
       if (event.data && event.data.type === 'PRODUCTS_UPDATED') {
         renderCustomerProductsGrid(event.data.prods);
+        loadActiveProduct();
       }
     };
   } catch(e) {}
