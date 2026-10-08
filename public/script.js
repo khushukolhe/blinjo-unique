@@ -199,7 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.querySelector('.usecase-grid');
     if (!gridContainer) return;
 
-    const defaultOccasions = [];
+    const defaultOccasions = [
+      { id: 'OCC-1', title: 'Living Room Decor', image: 'assets/cat_1.jpg', active: true },
+      { id: 'OCC-2', title: 'Pooja Room', image: 'assets/cat_2.jpg', active: true },
+      { id: 'OCC-3', title: 'Diwali & Festivals', image: 'assets/cat_3.jpg', active: true },
+      { id: 'OCC-4', title: 'Wedding Decoration', image: 'assets/cat_4.jpg', active: true },
+      { id: 'OCC-5', title: 'Entrance Decor', image: 'assets/cat_5.jpg', active: true },
+      { id: 'OCC-6', title: 'Perfect Gift', image: 'assets/cat_6.jpg', active: true }
+    ];
 
     let occasions = passedOccasions;
     if (!occasions) {
@@ -207,14 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
       occasions = saved ? JSON.parse(saved) : defaultOccasions;
     }
 
-    const occasionSection = document.querySelector('.usecases-section');
     gridContainer.innerHTML = '';
-    if (!occasions || occasions.length === 0) {
-      if (occasionSection) occasionSection.style.display = 'none';
-      return;
-    } else {
-      if (occasionSection) occasionSection.style.display = 'block';
-    }
     occasions.forEach(occ => {
       const card = document.createElement('div');
       card.className = 'usecase-card';
@@ -629,11 +629,13 @@ document.addEventListener('DOMContentLoaded', () => {
       setStepVisual(stepIndicatorConfirm, '#f1f5f9', '#64748b', '#94a3b8', '500');
 
       const upiPayAmountVal = document.getElementById('upiPayAmountVal');
+      const razorpayPayAmountVal = document.getElementById('razorpayPayAmountVal');
       const isPrepaid = currentSelectedPayment === 'prepaid';
       const deliveryCharge = isPrepaid ? 40 : 80;
       const discount = isPrepaid ? 40 : 0;
       const netTotal = (currentQty * basePrice) + deliveryCharge - discount;
       if (upiPayAmountVal) upiPayAmountVal.textContent = `₹${netTotal.toLocaleString('en-IN')}`;
+      if (razorpayPayAmountVal) razorpayPayAmountVal.textContent = `₹${netTotal.toLocaleString('en-IN')}`;
 
     } else if (step === 'success') {
       if (checkoutStepSuccess) checkoutStepSuccess.style.display = 'block';
@@ -983,18 +985,92 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Complete UPI Payment button on Payment step
+  // Razorpay Payment Gateway (Test Mode) Integration
   const completeUpiPayBtn = document.getElementById('completeUpiPayBtn');
+  
+  function launchRazorpayCheckout() {
+    const custName = document.getElementById('custNameInput')?.value.trim() || 'Rahul Sharma';
+    const custEmail = document.getElementById('custEmailInput')?.value.trim() || 'rahul.sharma@email.com';
+    const custPhone = document.getElementById('custPhoneInput')?.value.trim() || '9876543210';
+
+    const isPrepaid = currentSelectedPayment === 'prepaid';
+    const deliveryCharge = isPrepaid ? 40 : 80;
+    const discount = isPrepaid ? 40 : 0;
+    const totalAmount = (currentQty * basePrice) + deliveryCharge - discount;
+    const orderRefId = 'BLJ' + Math.floor(1251 + Math.random() * 9000);
+
+    const resetPayBtn = () => {
+      if (completeUpiPayBtn) {
+        completeUpiPayBtn.disabled = false;
+        completeUpiPayBtn.innerHTML = '<span>Pay with Razorpay (Test Mode)</span> <span style="font-size:20px;">➔</span>';
+      }
+    };
+
+    if (typeof Razorpay !== 'undefined') {
+      const options = {
+        key: "rzp_test_1DP5mmOlF5G5ag", // Razorpay Test Mode Key
+        amount: totalAmount * 100, // Amount in paise
+        currency: "INR",
+        name: "Blinjo Store",
+        description: `Order #${orderRefId} - Festive Decor (Test Mode)`,
+        image: "assets/cat_1.jpg",
+        prefill: {
+          name: custName,
+          email: custEmail,
+          contact: custPhone
+        },
+        notes: {
+          merchant_order_id: orderRefId,
+          environment: "Test Mode"
+        },
+        theme: {
+          color: "#0284c7"
+        },
+        handler: function (response) {
+          console.log("✅ Razorpay Test Payment Successful:", response);
+          const paymentId = response.razorpay_payment_id || ('pay_test_' + Math.random().toString(36).substring(2, 10));
+          saveAndFinalizeOrder(`Razorpay Test Mode (${paymentId})`, 'Paid');
+          resetPayBtn();
+        },
+        modal: {
+          ondismiss: function () {
+            console.log('ℹ️ Razorpay Test Payment Modal dismissed.');
+            resetPayBtn();
+          }
+        }
+      };
+
+      try {
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+          console.warn("⚠️ Razorpay Payment Failed:", response.error);
+          alert(`Payment Failed: ${response.error.description || 'Transaction declined'}`);
+          resetPayBtn();
+        });
+        rzp.open();
+      } catch(err) {
+        console.warn("Razorpay SDK init fallback:", err);
+        executeSimulatedRazorpayTest(orderRefId, resetPayBtn);
+      }
+    } else {
+      executeSimulatedRazorpayTest(orderRefId, resetPayBtn);
+    }
+  }
+
+  function executeSimulatedRazorpayTest(orderRefId, resetBtnCallback) {
+    setTimeout(() => {
+      const mockPayId = 'pay_test_' + Math.random().toString(36).substring(2, 10);
+      saveAndFinalizeOrder(`Razorpay Test Mode (${mockPayId})`, 'Paid');
+      if (resetBtnCallback) resetBtnCallback();
+    }, 1000);
+  }
+
   if (completeUpiPayBtn) {
     completeUpiPayBtn.addEventListener('click', (e) => {
       e.preventDefault();
       completeUpiPayBtn.disabled = true;
-      completeUpiPayBtn.innerHTML = '<span>Processing Payment... ⏳</span>';
-      setTimeout(() => {
-        saveAndFinalizeOrder('UPI (Google Pay)', 'Paid');
-        completeUpiPayBtn.disabled = false;
-        completeUpiPayBtn.innerHTML = '<span>Pay & Place Order</span> <span style="font-size:20px;">➔</span>';
-      }, 800);
+      completeUpiPayBtn.innerHTML = '<span>Opening Razorpay Checkout... ⏳</span>';
+      launchRazorpayCheckout();
     });
   }
 

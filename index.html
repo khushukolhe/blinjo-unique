@@ -537,37 +537,59 @@
         </div>
 
 
-        <!-- STEP 3: PAYMENT PAGE (UPI) VIEW (Only for Prepaid Flow) -->
+        <!-- STEP 3: PAYMENT PAGE (Razorpay Test Mode & UPI) VIEW (Only for Prepaid Flow) -->
         <div id="checkoutStepPayment" class="checkout-step-view" style="display:none;">
           
           <div class="payment-step-header" style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
-            <div class="payment-card-icon" style="background:#e6f4ea; color:#047857; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">💳</div>
+            <div class="payment-card-icon" style="background:#e0f2fe; color:#0284c7; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">💳</div>
             <div>
-              <h3 style="margin:0; font-size:22px; font-weight:800; color:#0f172a; line-height:1.2;">Payment</h3>
-              <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Choose your preferred payment method</p>
+              <h3 style="margin:0; font-size:22px; font-weight:800; color:#0f172a; line-height:1.2;">Payment Gateway</h3>
+              <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Secure Checkout powered by Razorpay (Test Mode)</p>
             </div>
           </div>
 
-          <!-- UPI Recommended Box -->
-          <div class="upi-pay-card" style="border:2px solid #10b981; background:#ffffff; border-radius:16px; padding:20px; text-align:center; box-shadow:0 4px 16px rgba(16,185,129,0.08); margin-bottom:20px;">
-            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
-              <span style="accent-color:#10b981; font-size:16px;">🔘</span>
-              <strong style="font-size:15px; color:#0f172a; font-weight:800;">UPI Payment (Recommended)</strong>
-            </div>
-            <p style="margin:0 0 14px 0; font-size:12px; color:#64748b;">Scan QR code or pay using any UPI app</p>
+          <!-- Razorpay Payment Recommended Card -->
+          <div class="razorpay-pay-card" style="border:2px solid #0284c7; background:linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); border-radius:16px; padding:20px; text-align:center; box-shadow:0 6px 20px rgba(2,132,199,0.12); margin-bottom:20px; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:12px; right:12px; background:#0284c7; color:#ffffff; font-size:10px; font-weight:800; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px;">Test Mode</div>
             
-            <div class="upi-app-badges" style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px;">
-              <span style="font-weight:700; font-size:12px; color:#4285f4; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">GPay</span>
-              <span style="font-weight:700; font-size:12px; color:#5f259f; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">PhonePe</span>
-              <span style="font-weight:700; font-size:12px; color:#00baf2; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">Paytm</span>
-              <span style="font-weight:700; font-size:12px; color:#ff6b00; background:#f8fafc; padding:4px 10px; border-radius:6px; border:1px solid #e2e8f0;">BHIM</span>
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px;">
+              <strong style="font-size:17px; color:#0f172a; font-weight:800;">Razorpay Test Checkout</strong>
+            </div>
+            <p style="margin:0 0 14px 0; font-size:12.5px; color:#475569;">Supports Cards, NetBanking, UPI (GPay/PhonePe/Paytm), & Wallets</p>
+            
+            <div class="razorpay-method-pills" style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">💳 Credit / Debit Cards</span>
+              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">🏦 NetBanking</span>
+              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">📲 UPI</span>
+              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">👛 Wallets</span>
             </div>
 
-            <!-- Interactive QR Code Container -->
-            <div class="qr-code-box" style="display:inline-block; background:#ffffff; padding:12px; border:2px solid #047857; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.06); margin-bottom:12px;">
-              <svg width="150" height="150" viewBox="0 0 100 100" style="display:block;">
+            <div style="margin-bottom:16px; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
+              <span style="font-size:12px; color:#64748b; font-weight:600; display:block; margin-bottom:2px;">Total Payable Amount:</span>
+              <strong style="font-size:26px; font-weight:800; color:#0f172a; display:block;" id="razorpayPayAmountVal">₹599</strong>
+              <span style="font-size:11px; color:#047857; font-weight:700;">Includes 50% OFF Shipping Discount ✓</span>
+            </div>
+
+            <button type="button" class="btn-confirm-order-green" id="completeUpiPayBtn" style="width:100%; background:linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:17px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(2,132,199,0.35); transition:transform 0.15s, background 0.2s;">
+              <span>Pay with Razorpay (Test Mode)</span> <span style="font-size:20px;">➔</span>
+            </button>
+          </div>
+
+          <!-- Divider -->
+          <div style="text-align:center; position:relative; margin:20px 0;">
+            <span style="background:#fff; padding:0 12px; color:#94a3b8; font-size:12px; font-weight:700; position:relative; z-index:1;">OR SCAN DIRECT UPI QR</span>
+            <div style="border-top:1px solid #e2e8f0; position:absolute; top:50%; width:100%; left:0; z-index:0;"></div>
+          </div>
+
+          <!-- Direct UPI QR Box -->
+          <div class="upi-pay-card" style="border:1px solid #e2e8f0; background:#f8fafc; border-radius:16px; padding:16px; text-align:center; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px;">
+              <strong style="font-size:14px; color:#0f172a; font-weight:700;">Direct UPI QR Code</strong>
+            </div>
+            
+            <div class="qr-code-box" style="display:inline-block; background:#ffffff; padding:10px; border:1px solid #cbd5e1; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:10px;">
+              <svg width="120" height="120" viewBox="0 0 100 100" style="display:block;">
                 <rect width="100" height="100" fill="white"/>
-                <!-- Corner Targets -->
                 <rect x="5" y="5" width="28" height="28" fill="#0f172a"/>
                 <rect x="9" y="9" width="20" height="20" fill="white"/>
                 <rect x="13" y="13" width="12" height="12" fill="#047857"/>
@@ -580,14 +602,12 @@
                 <rect x="9" y="71" width="20" height="20" fill="white"/>
                 <rect x="13" y="75" width="12" height="12" fill="#047857"/>
 
-                <!-- QR Data Blocks -->
                 <rect x="38" y="8" width="8" height="8" fill="#047857"/>
                 <rect x="50" y="8" width="10" height="8" fill="#0f172a"/>
                 <rect x="38" y="20" width="14" height="6" fill="#0f172a"/>
                 <rect x="8" y="38" width="10" height="10" fill="#047857"/>
                 <rect x="22" y="38" width="12" height="6" fill="#0f172a"/>
                 <rect x="38" y="38" width="24" height="24" fill="#0f172a"/>
-                <!-- Center Logo Icon -->
                 <rect x="42" y="42" width="16" height="16" fill="#047857" rx="4"/>
                 <text x="50" y="54" font-size="10" text-anchor="middle" fill="white" font-weight="bold">🛍️</text>
 
@@ -601,37 +621,15 @@
                 <rect x="78" y="78" width="4" height="4" fill="#047857"/>
               </svg>
             </div>
-
-            <div style="margin-bottom:12px;">
-              <strong style="font-size:24px; font-weight:800; color:#0f172a; display:block;" id="upiPayAmountVal">₹599</strong>
-              <span style="font-size:12px; color:#64748b; font-weight:600;">Blinjo Online Store</span>
+            <div style="margin-bottom:4px;">
+              <strong style="font-size:18px; font-weight:800; color:#0f172a;" id="upiPayAmountVal">₹599</strong>
             </div>
-
-            <div style="background:#e6f4ea; color:#137333; font-size:12px; font-weight:700; padding:8px 12px; border-radius:8px; display:inline-block;">
-              Auto apply: 50% OFF on delivery charges ✓
-            </div>
-          </div>
-
-          <div style="text-align:center; position:relative; margin:16px 0;">
-            <span style="background:#fff; padding:0 12px; color:#94a3b8; font-size:12px; font-weight:700; position:relative; z-index:1;">OR</span>
-            <div style="border-top:1px solid #e2e8f0; position:absolute; top:50%; width:100%; left:0; z-index:0;"></div>
-          </div>
-
-          <div style="border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; background:#ffffff; margin-bottom:20px;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span style="font-size:18px;">💸</span>
-              <strong style="font-size:14px; color:#0f172a;">Pay with UPI ID</strong>
-            </div>
-            <span style="color:#94a3b8; font-weight:700;">›</span>
+            <p style="margin:0; font-size:11px; color:#64748b;">Scan using GPay, PhonePe, Paytm, BHIM</p>
           </div>
 
           <div style="text-align:center; font-size:12px; color:#64748b; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:6px;">
-            <span>🔒</span> <span>100% Secure Payment - Your payment information is encrypted.</span>
+            <span>🔒</span> <span>100% Encrypted & Secure Payment</span>
           </div>
-
-          <button type="button" class="btn-confirm-order-green" id="completeUpiPayBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:18px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.3); transition:background 0.2s;">
-            <span>Pay & Place Order</span> <span style="font-size:20px;">➔</span>
-          </button>
         </div>
 
 
@@ -720,6 +718,9 @@
 
     </div>
   </div>
+
+  <!-- Razorpay Payment Gateway SDK (Test Mode Enabled) -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <!-- Firebase Firestore Compatibility Scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
