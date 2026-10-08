@@ -129,6 +129,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'blinjo_slideshow_v2') {
+      renderStorefrontSlideshow();
+    }
+  });
+
+  window.addEventListener('blinjo_slideshow_updated', (e) => {
+    renderStorefrontSlideshow(e.detail);
+  });
+
+  try {
+    const sbc = new BroadcastChannel('blinjo_slideshow_channel');
+    sbc.onmessage = (event) => {
+      if (event.data && event.data.type === 'SLIDESHOW_UPDATED') {
+        renderStorefrontSlideshow(event.data.slides);
+      }
+    };
+  } catch(e) {}
+
   if (typeof syncSlideshow === 'function') {
     syncSlideshow((slides) => renderStorefrontSlideshow(slides));
   } else {

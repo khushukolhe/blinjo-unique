@@ -1992,6 +1992,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function saveSlidesData(slides) {
     localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+    try {
+      const bc = new BroadcastChannel('blinjo_slideshow_channel');
+      bc.postMessage({ type: 'SLIDESHOW_UPDATED', slides: slides });
+      bc.close();
+    } catch(e) {}
+    window.dispatchEvent(new CustomEvent('blinjo_slideshow_updated', { detail: slides }));
     renderSlideshowManager();
   }
 
@@ -2065,12 +2071,16 @@ document.addEventListener('DOMContentLoaded', () => {
         openSlideModal(slide);
       });
 
-      card.querySelector('.btn-delete-slide').addEventListener('click', () => {
-        if (confirm(`Are you sure you want to delete Slide #${index + 1}?`)) {
-          const targetId = slide.id;
-          const updated = slides.filter(s => s.id !== slide.id);
-          saveSlidesData(updated);
-          if (typeof deleteSlideFirestore === 'function') deleteSlideFirestore(targetId);
+      card.querySelector('.btn-delete-slide').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const targetId = slide.id;
+        const slidesNow = getSlidesData();
+        const updated = slidesNow.filter(s => s.id !== targetId);
+        saveSlidesData(updated);
+        if (typeof deleteSlideFirestore === 'function') deleteSlideFirestore(targetId);
+        if (typeof showAdminOrderToast === 'function') {
+          showAdminOrderToast(`🗑️ Slide #${index + 1} deleted successfully!`);
         }
       });
 
