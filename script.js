@@ -199,14 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.querySelector('.usecase-grid');
     if (!gridContainer) return;
 
-    const defaultOccasions = [
-      { id: 'OCC-1', title: 'Living Room Decor', image: 'assets/cat_1.jpg', active: true },
-      { id: 'OCC-2', title: 'Pooja Room', image: 'assets/cat_2.jpg', active: true },
-      { id: 'OCC-3', title: 'Diwali & Festivals', image: 'assets/cat_3.jpg', active: true },
-      { id: 'OCC-4', title: 'Wedding Decoration', image: 'assets/cat_4.jpg', active: true },
-      { id: 'OCC-5', title: 'Entrance Decor', image: 'assets/cat_5.jpg', active: true },
-      { id: 'OCC-6', title: 'Perfect Gift', image: 'assets/cat_6.jpg', active: true }
-    ];
+    const defaultOccasions = [];
 
     let occasions = passedOccasions;
     if (!occasions) {
@@ -214,7 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
       occasions = saved ? JSON.parse(saved) : defaultOccasions;
     }
 
+    const occasionSection = document.querySelector('.usecases-section');
     gridContainer.innerHTML = '';
+    if (!occasions || occasions.length === 0) {
+      if (occasionSection) occasionSection.style.display = 'none';
+      return;
+    } else {
+      if (occasionSection) occasionSection.style.display = 'block';
+    }
     occasions.forEach(occ => {
       const card = document.createElement('div');
       card.className = 'usecase-card';
