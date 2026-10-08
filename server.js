@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const mimeTypes = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'text/javascript',
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
@@ -12,50 +12,67 @@ const mimeTypes = {
   '.json': 'application/json'
 };
 
+function getPossiblePaths(relativePath) {
+  let cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath;
+  if (cleanPath === '' || cleanPath === 'admin') {
+    cleanPath = cleanPath === 'admin' ? 'admin.html' : 'index.html';
+  }
+  
+  return [
+    path.join(process.cwd(), cleanPath),
+    path.join(__dirname, cleanPath),
+    path.join(process.cwd(), 'public', cleanPath),
+    path.join(__dirname, 'public', cleanPath),
+    path.resolve(cleanPath)
+  ];
+}
+
 function handleRequest(req, res) {
   let reqUrl = (req.url || '/').split('?')[0];
   if (reqUrl === '/admin' || reqUrl === '/admin/') {
     reqUrl = '/admin.html';
   }
 
-  let relativePath = reqUrl === '/' ? 'index.html' : reqUrl;
-  let filePath = path.join(__dirname, relativePath);
-  filePath = decodeURIComponent(filePath);
+  const ext = path.extname(reqUrl).toLowerCase() || '.html';
+  const contentType = mimeTypes[ext] || 'text/html; charset=utf-8';
 
-  const ext = path.extname(filePath).toLowerCase();
-  const contentType = mimeTypes[ext] || 'text/html';
+  const candidates = getPossiblePaths(reqUrl);
 
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      // Check if file exists in public/ or fallback to index.html
-      const publicFilePath = path.join(__dirname, 'public', relativePath);
-      fs.readFile(publicFilePath, (errPublic, contentPublic) => {
-        if (!errPublic) {
-          res.writeHead(200, { 'Content-Type': contentType });
-          res.end(contentPublic);
-        } else {
-          fs.readFile(path.join(__dirname, 'index.html'), (errFallback, fallbackContent) => {
-            if (!errFallback) {
-              res.writeHead(200, { 'Content-Type': 'text/html' });
-              res.end(fallbackContent);
-            } else {
-              res.writeHead(404, { 'Content-Type': 'text/html' });
-              res.end('<h1>404 Not Found</h1>');
-            }
-          });
+  function tryNext(index) {
+    if (index >= candidates.length) {
+      const indexCandidates = [
+        path.join(process.cwd(), 'index.html'),
+        path.join(__dirname, 'index.html'),
+        path.join(process.cwd(), 'public', 'index.html'),
+        path.join(__dirname, 'public', 'index.html')
+      ];
+      for (const idxPath of indexCandidates) {
+        if (fs.existsSync(idxPath)) {
+          const content = fs.readFileSync(idxPath);
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          return res.end(content);
         }
-      });
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content);
+      }
+      res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end('<h1>404 Not Found</h1>');
     }
-  });
+
+    const curPath = candidates[index];
+    fs.readFile(curPath, (err, content) => {
+      if (!err && content) {
+        res.writeHead(200, { 'Content-Type': contentType });
+        return res.end(content);
+      } else {
+        tryNext(index + 1);
+      }
+    });
+  }
+
+  tryNext(0);
 }
 
-// Export Vercel Serverless Function Handler
 module.exports = handleRequest;
 
-// Standalone Local Node Server execution
 if (require.main === module) {
   const http = require('http');
   const PORT = process.env.PORT || 3000;
