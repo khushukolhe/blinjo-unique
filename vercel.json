@@ -1,15 +1,19 @@
 {
   "version": 2,
+  "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/admin",
-      "destination": "/admin.html"
+      "src": "/admin/?",
+      "dest": "/admin.html"
     },
     {
-      "source": "/admin/",
-      "destination": "/admin.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
