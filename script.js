@@ -299,25 +299,30 @@ document.addEventListener('DOMContentLoaded', () => {
   loadActiveProduct();
 
   // 4b. Render Products Catalog Grid dynamically from LocalStorage (Sync with Admin)
-  const defaultStoreProducts = [
-    { id: 'BLJ001', title: 'Brass Urli Bowl', subtitle: 'Traditional Brass Urli for Home Decor', price: 599, mrp: 999, stock: 50, status: 'Active', badge: '🔥 BESTSELLER', image: 'assets/bestseller.jpg' },
-    { id: 'BLJ002', title: 'Floating Flowers Set', subtitle: 'Handcrafted Festive Artificial Flowers', price: 150, mrp: 250, stock: 120, status: 'Active', badge: 'NEW', image: 'assets/cat_3.jpg' },
-    { id: 'BLJ003', title: 'LED Floating Diya', subtitle: 'Water-sensor LED Floating Festive Diya', price: 350, mrp: 499, stock: 80, status: 'Active', badge: 'POPULAR', image: 'assets/thumb_3.jpg' },
-    { id: 'BLJ004', title: 'Copper Water Fountain', subtitle: 'Handcrafted Brass & Copper Tabletop Fountain', price: 1299, mrp: 1799, stock: 20, status: 'Low Stock', badge: 'PREMIUM', image: 'assets/cat_2.jpg' },
-    { id: 'BLJ005', title: 'Pooja Decoration Set', subtitle: 'Complete Festive Brass Pooja Decor Kit', price: 899, mrp: 1299, stock: 0, status: 'Out of Stock', badge: 'FEATURED', image: 'assets/cat_1.jpg' }
-  ];
+  const defaultStoreProducts = [];
 
   function renderCustomerProductsGrid(passedProducts = null) {
     const grid = document.getElementById('customerProductsGrid');
+    const catalogSection = document.querySelector('.products-catalog-section');
     if (!grid) return;
 
     let prods = passedProducts;
     if (!prods) {
       const stored = localStorage.getItem('blinjo_products_v3');
-      prods = stored ? JSON.parse(stored) : defaultStoreProducts;
+      prods = stored ? JSON.parse(stored) : [];
     }
 
+    // Clean out dummy sample products if present
+    prods = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+
     grid.innerHTML = '';
+
+    if (prods.length === 0) {
+      if (catalogSection) catalogSection.style.display = 'none';
+      return;
+    } else {
+      if (catalogSection) catalogSection.style.display = 'block';
+    }
 
     prods.forEach(p => {
       const card = document.createElement('div');
@@ -372,6 +377,26 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.appendChild(card);
     });
   }
+
+  // Real-time listener for Admin added/updated products
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'blinjo_products_v3' || e.key === 'blinjo_active_product') {
+      renderCustomerProductsGrid();
+    }
+  });
+
+  window.addEventListener('blinjo_products_updated', (e) => {
+    renderCustomerProductsGrid(e.detail);
+  });
+
+  try {
+    const prodBC = new BroadcastChannel('blinjo_products_channel');
+    prodBC.onmessage = (event) => {
+      if (event.data && event.data.type === 'PRODUCTS_UPDATED') {
+        renderCustomerProductsGrid(event.data.prods);
+      }
+    };
+  } catch(e) {}
 
   if (typeof syncProducts === 'function') {
     syncProducts((products) => {

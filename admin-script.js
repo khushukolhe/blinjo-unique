@@ -1159,13 +1159,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveStoredProducts(prods) {
-    localStorage.setItem('blinjo_products_v3', JSON.stringify(prods));
-    const activeProd = prods.find(p => p.active) || prods[0];
+    const cleaned = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+    localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
+    const activeProd = cleaned.find(p => p.active) || cleaned[0];
     if (activeProd) {
       localStorage.setItem('blinjo_active_product', JSON.stringify(activeProd));
       localStorage.setItem('blinjo_offer_price', activeProd.price);
       localStorage.setItem('blinjo_stock', activeProd.stock);
+    } else {
+      localStorage.removeItem('blinjo_active_product');
     }
+
+    try {
+      const prodBC = new BroadcastChannel('blinjo_products_channel');
+      prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: cleaned });
+      prodBC.close();
+    } catch(e) {}
+    window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: cleaned }));
   }
 
   let productsList = getStoredProducts();
