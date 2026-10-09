@@ -3013,6 +3013,219 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.06);
 }
 
+/* ==========================================================================
+   ADMIN DASHBOARD PERFECT ALIGNMENT ENHANCEMENTS
+   ========================================================================== */
+
+/* Main Header Nav Container Alignment */
+.admin-nav-container {
+  max-width: 100% !important;
+  padding: 0 28px !important;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Sidebar & Main Content Alignments */
+.admin-layout {
+  display: flex;
+  min-height: calc(100vh - 64px);
+  align-items: stretch;
+  width: 100%;
+}
+
+.admin-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 24px 28px 40px 28px;
+  box-sizing: border-box;
+  max-width: calc(100% - 250px);
+  width: 100%;
+}
+
+/* Dashboard Overview Top Bar Alignment */
+.dash-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #ffffff;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  margin-bottom: 24px;
+}
+
+/* Welcome Banner Alignment */
+.dash-welcome-banner {
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 4 KPI Cards Row Alignment */
+.prod-kpi-grid, .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+  align-items: stretch;
+}
+
+.order-kpi-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.order-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-orange);
+  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.08);
+}
+
+.order-kpi-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.order-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.order-kpi-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.order-kpi-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.order-kpi-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-black);
+  line-height: 1.2;
+}
+
+.order-kpi-trend {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.trend-green { color: #16a34a; }
+
+/* Charts & Donut Ring Grid Alignment */
+.dash-charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.dash-charts-grid .admin-card {
+  height: 100%;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+/* Quick Action Row Alignment */
+.quick-actions-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* Bottom Grid 3 Column Layout */
+.dash-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.dash-bottom-grid .admin-card {
+  height: 100%;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Responsive Alignment Breakpoints */
+@media (max-width: 1280px) {
+  .prod-kpi-grid, .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-bottom-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .dash-charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-sidebar {
+    width: 200px;
+  }
+  .admin-main {
+    max-width: calc(100% - 200px);
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+  .admin-main {
+    max-width: 100%;
+    padding: 16px;
+  }
+  .prod-kpi-grid, .kpi-grid, .dash-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 
 
