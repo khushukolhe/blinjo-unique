@@ -107,29 +107,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 1. Sidebar Tab Navigation
+  // 1. Sidebar Tab Navigation (Failsafe Direct Switching)
   const sidebarLinks = document.querySelectorAll('.sidebar-link');
   const adminTabs = document.querySelectorAll('.admin-tab');
 
-  sidebarLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      sidebarLinks.forEach(l => l.classList.remove('active'));
-      adminTabs.forEach(t => t.classList.remove('active'));
-
-      link.classList.add('active');
-      const tabId = link.getAttribute('data-tab');
-      const targetTab = document.getElementById(tabId);
-      if (targetTab) {
-        targetTab.classList.add('active');
-      }
-      if (tabId === 'tab-overview') {
-        renderDashboardOverview();
-      } else if (tabId === 'tab-slideshow') {
-        renderSlideshowManager();
-        renderOccasionsManager();
+  function activateTab(tabId) {
+    if (!tabId) return;
+    sidebarLinks.forEach(l => {
+      if (l.getAttribute('data-tab') === tabId) {
+        l.classList.add('active');
+      } else {
+        l.classList.remove('active');
       }
     });
+
+    adminTabs.forEach(t => {
+      if (t.id === tabId) {
+        t.classList.add('active');
+        t.style.display = 'block';
+      } else {
+        t.classList.remove('active');
+        t.style.display = 'none';
+      }
+    });
+
+    if (tabId === 'tab-overview') {
+      if (typeof renderDashboardOverview === 'function') renderDashboardOverview();
+    } else if (tabId === 'tab-orders') {
+      if (typeof renderOrdersTable === 'function') renderOrdersTable();
+    } else if (tabId === 'tab-products') {
+      if (typeof renderProductsTable === 'function') renderProductsTable();
+    } else if (tabId === 'tab-slideshow') {
+      if (typeof renderSlideshowManager === 'function') renderSlideshowManager();
+      if (typeof renderOccasionsManager === 'function') renderOccasionsManager();
+    }
+  }
+
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tabId = link.getAttribute('data-tab');
+      activateTab(tabId);
+    });
   });
+
+  window.activateTab = activateTab;
 
   // 2. DOM Elements for Order Management
   const ordersTableBody = document.getElementById('ordersTableBody');
@@ -2050,12 +2072,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       return;
     }
-    const activeCount = slides.filter(s => s.active).length;
-
-    if (kpiTotalSlides) kpiTotalSlides.textContent = slides.length;
-    if (kpiActiveSlides) kpiActiveSlides.textContent = `${activeCount} Active`;
-
-    container.innerHTML = '';
 
     slides.forEach((slide, index) => {
       const card = document.createElement('div');
