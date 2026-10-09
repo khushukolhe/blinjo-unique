@@ -2422,6 +2422,234 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ==========================================================================
+  // ALL BUTTONS ACTIVE INTERACTIVE HANDLERS
+  // ==========================================================================
+
+  // Header Logo Click -> Return to Overview
+  const adminLogo = document.querySelector('.admin-logo');
+  if (adminLogo) {
+    adminLogo.style.cursor = 'pointer';
+    adminLogo.addEventListener('click', () => {
+      const overviewTab = document.querySelector('[data-tab="tab-overview"]');
+      if (overviewTab) overviewTab.click();
+    });
+  }
+
+  // Top Global Search Input Handler
+  const dashGlobalSearch = document.getElementById('dashGlobalSearch');
+  if (dashGlobalSearch) {
+    dashGlobalSearch.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const searchOrderInput = document.getElementById('searchOrderInput');
+      if (searchOrderInput) {
+        searchOrderInput.value = query;
+        renderOrdersTable();
+      }
+    });
+  }
+
+  // Date Range Picker Modal
+  const dashDatePicker = document.getElementById('dashDatePicker');
+  if (dashDatePicker) {
+    dashDatePicker.style.cursor = 'pointer';
+    dashDatePicker.addEventListener('click', () => {
+      showAdminDatePickerModal();
+    });
+  }
+
+  function showAdminDatePickerModal() {
+    let modal = document.getElementById('datePickerModalOverlay');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'datePickerModalOverlay';
+      modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 10000; animation: fadeIn 0.2s ease;
+      `;
+      modal.innerHTML = `
+        <div style="background: #ffffff; width: 90%; max-width: 420px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">📅 Select Date Range</h3>
+            <button id="closeDatePickerBtn" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">&times;</button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+            <button class="date-opt-btn" data-range="01 Oct 2026 - 01 Oct 2026" style="padding: 10px 14px; background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; border-radius: 8px; font-weight: 700; text-align: left; cursor: pointer;">Today (01 Oct 2026)</button>
+            <button class="date-opt-btn" data-range="25 Sep 2026 - 01 Oct 2026" style="padding: 10px 14px; background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; text-align: left; cursor: pointer;">Last 7 Days</button>
+            <button class="date-opt-btn" data-range="01 Sep 2026 - 01 Oct 2026" style="padding: 10px 14px; background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; text-align: left; cursor: pointer;">Last 30 Days</button>
+            <button class="date-opt-btn" data-range="01 Jan 2026 - 01 Oct 2026" style="padding: 10px 14px; background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; text-align: left; cursor: pointer;">Year to Date (2026)</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      modal.querySelector('#closeDatePickerBtn').addEventListener('click', () => modal.remove());
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+      
+      modal.querySelectorAll('.date-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const rangeText = btn.getAttribute('data-range');
+          const pickerSpan = dashDatePicker.querySelector('span:first-child');
+          if (pickerSpan) pickerSpan.textContent = '📅 ' + rangeText;
+          showAdminOrderToast(`Date Range Updated: ${rangeText}`);
+          modal.remove();
+        });
+      });
+    } else {
+      modal.style.display = 'flex';
+    }
+  }
+
+  // Notification Bell Dropdown
+  const dashNotifBell = document.querySelector('.dash-notif-bell');
+  if (dashNotifBell) {
+    dashNotifBell.style.position = 'relative';
+    dashNotifBell.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAdminNotifDropdown();
+    });
+  }
+
+  function toggleAdminNotifDropdown() {
+    let dropdown = document.getElementById('notifDropdownMenu');
+    if (dropdown) {
+      dropdown.remove();
+      return;
+    }
+    dropdown = document.createElement('div');
+    dropdown.id = 'notifDropdownMenu';
+    dropdown.style.cssText = `
+      position: absolute; top: 48px; right: 0; width: 300px;
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 1000; padding: 16px;
+      animation: fadeIn 0.2s ease;
+    `;
+    dropdown.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+        <strong style="font-size:14px; color:#0f172a;">🔔 Store Notifications</strong>
+        <span style="font-size:11px; background:#ef4444; color:#fff; font-weight:800; padding:2px 8px; border-radius:10px;">3 New</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:12px;">
+        <div style="padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; color:#166534; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-orders]').click()">
+          <strong>📦 New Order Placed</strong><br><small style="color:#64748b;">Order #BLJ8942 received for ₹1,299</small>
+        </div>
+        <div style="padding:8px 10px; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; color:#9a3412; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-products]').click()">
+          <strong>⚠️ Low Stock Alert</strong><br><small style="color:#64748b;">Blinjo Brass Diya Urli stock &lt; 5 units</small>
+        </div>
+        <div style="padding:8px 10px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; color:#0369a1; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-reviews]').click()">
+          <strong>⭐ New Review Posted</strong><br><small style="color:#64748b;">Priya S. rated 5 stars: "Absolute elegance!"</small>
+        </div>
+      </div>
+    `;
+    dashNotifBell.appendChild(dropdown);
+    document.addEventListener('click', function closeNotif(ev) {
+      if (!dropdown.contains(ev.target) && ev.target !== dashNotifBell) {
+        dropdown.remove();
+        document.removeEventListener('click', closeNotif);
+      }
+    });
+  }
+
+  // User Profile Dropdown
+  const dashUserProfile = document.querySelector('.dash-user-profile');
+  if (dashUserProfile) {
+    dashUserProfile.style.position = 'relative';
+    dashUserProfile.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAdminUserDropdown();
+    });
+  }
+
+  function toggleAdminUserDropdown() {
+    let menu = document.getElementById('userProfileDropdownMenu');
+    if (menu) {
+      menu.remove();
+      return;
+    }
+    menu = document.createElement('div');
+    menu.id = 'userProfileDropdownMenu';
+    menu.style.cssText = `
+      position: absolute; top: 48px; right: 0; width: 220px;
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 1000; padding: 12px;
+      animation: fadeIn 0.2s ease;
+    `;
+    menu.innerHTML = `
+      <div style="padding-bottom:10px; margin-bottom:8px; border-bottom:1px solid #e2e8f0;">
+        <strong style="display:block; font-size:13px; color:#0f172a;">Store Manager</strong>
+        <small style="color:#64748b; font-size:11px;">admin@blinjostore.com</small>
+      </div>
+      <button id="profOptOrders" style="width:100%; text-align:left; background:none; border:none; padding:8px 10px; font-weight:700; font-size:12.5px; color:#334155; cursor:pointer; border-radius:6px;">📦 View Orders</button>
+      <button id="profOptProducts" style="width:100%; text-align:left; background:none; border:none; padding:8px 10px; font-weight:700; font-size:12.5px; color:#334155; cursor:pointer; border-radius:6px;">🏷️ Manage Products</button>
+      <button id="profOptStore" style="width:100%; text-align:left; background:none; border:none; padding:8px 10px; font-weight:700; font-size:12.5px; color:#334155; cursor:pointer; border-radius:6px;">🌐 Open Live Store</button>
+    `;
+    dashUserProfile.appendChild(menu);
+
+    menu.querySelector('#profOptOrders').addEventListener('click', () => {
+      document.querySelector('[data-tab="tab-orders"]')?.click();
+      menu.remove();
+    });
+    menu.querySelector('#profOptProducts').addEventListener('click', () => {
+      document.querySelector('[data-tab="tab-products"]')?.click();
+      menu.remove();
+    });
+    menu.querySelector('#profOptStore').addEventListener('click', () => {
+      window.open('index.html', '_blank');
+      menu.remove();
+    });
+
+    document.addEventListener('click', function closeUserMenu(ev) {
+      if (!menu.contains(ev.target) && !dashUserProfile.contains(ev.target)) {
+        menu.remove();
+        document.removeEventListener('click', closeUserMenu);
+      }
+    });
+  }
+
+  // Customer Directory Modal
+  window.openCustomerDirectoryModal = function() {
+    let modal = document.getElementById('custDirectoryModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'custDirectoryModal';
+      modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 10000; animation: fadeIn 0.2s ease;
+      `;
+      modal.innerHTML = `
+        <div style="background: #ffffff; width: 92%; max-width: 600px; border-radius: 16px; padding: 24px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">👥 Customer Directory (96 Verified)</h3>
+            <button id="closeCustModalBtn" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">&times;</button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <div><strong style="color: #0f172a; font-size: 13.5px;">Rahul Sharma</strong><br><small style="color: #64748b;">rahul.sharma@email.com | +91 98765 43210</small></div>
+              <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;">3 Orders</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <div><strong style="color: #0f172a; font-size: 13.5px;">Priya Patel</strong><br><small style="color: #64748b;">priya.patel@email.com | +91 98123 45678</small></div>
+              <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;">2 Orders</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <div><strong style="color: #0f172a; font-size: 13.5px;">Anish Kapoor</strong><br><small style="color: #64748b;">anish.k@email.com | +91 99887 76655</small></div>
+              <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;">1 Order</span>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.querySelector('#closeCustModalBtn').addEventListener('click', () => modal.remove());
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    } else {
+      modal.style.display = 'flex';
+    }
+  };
+
   // Initialize
   updateOrderKPIs();
   renderOrdersTable();
