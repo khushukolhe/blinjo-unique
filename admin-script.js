@@ -2662,6 +2662,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // ==========================================================================
+  // GLOBAL WINDOW MODAL CONTROLLERS & BUTTON CLICK HANDLERS
+  // ==========================================================================
+  window.openAddProductModal = function() {
+    const addProductModal = document.getElementById('addProductModal');
+    if (addProductModal) {
+      addProductModal.classList.add('active');
+      addProductModal.style.display = 'flex';
+    }
+  };
+
+  window.closeAddProductModal = function() {
+    const addProductModal = document.getElementById('addProductModal');
+    if (addProductModal) {
+      addProductModal.classList.remove('active');
+      addProductModal.style.display = 'none';
+    }
+  };
+
+  window.openAddSlideModal = function() {
+    const slideModal = document.getElementById('slideModal');
+    if (slideModal) {
+      slideModal.classList.add('active');
+      slideModal.style.display = 'flex';
+    }
+  };
+
+  window.closeSlideModal = function() {
+    const slideModal = document.getElementById('slideModal');
+    if (slideModal) {
+      slideModal.classList.remove('active');
+      slideModal.style.display = 'none';
+    }
+  };
+
+  window.openAddOccasionModal = function() {
+    const occasionModal = document.getElementById('occasionModal');
+    if (occasionModal) {
+      occasionModal.classList.add('active');
+      occasionModal.style.display = 'flex';
+    }
+  };
+
+  window.closeOccasionModal = function() {
+    const occasionModal = document.getElementById('occasionModal');
+    if (occasionModal) {
+      occasionModal.classList.remove('active');
+      occasionModal.style.display = 'none';
+    }
+  };
+
+  window.openAddReviewModal = function() {
+    const addReviewModal = document.getElementById('addReviewModal');
+    if (addReviewModal) {
+      addReviewModal.classList.add('active');
+      addReviewModal.style.display = 'flex';
+    }
+  };
+
+  window.closeReviewModal = function() {
+    const addReviewModal = document.getElementById('addReviewModal');
+    if (addReviewModal) {
+      addReviewModal.classList.remove('active');
+      addReviewModal.style.display = 'none';
+    }
+  };
+
+  // Wire buttons to global functions as fallback
+  document.getElementById('openAddProductBtn')?.addEventListener('click', window.openAddProductModal);
+  document.getElementById('closeAddProductModal')?.addEventListener('click', window.closeAddProductModal);
+  document.getElementById('openAddSlideBtn')?.addEventListener('click', window.openAddSlideModal);
+  document.getElementById('closeSlideModalBtn')?.addEventListener('click', window.closeSlideModal);
+  document.getElementById('cancelSlideModalBtn')?.addEventListener('click', window.closeSlideModal);
+  document.getElementById('openAddOccasionBtn')?.addEventListener('click', window.openAddOccasionModal);
+  document.getElementById('closeOccasionModalBtn')?.addEventListener('click', window.closeOccasionModal);
+  document.getElementById('openAddReviewBtn')?.addEventListener('click', window.openAddReviewModal);
+  document.getElementById('cancelReviewModalBtn')?.addEventListener('click', window.closeReviewModal);
+
   // Initialize
   updateOrderKPIs();
   renderOrdersTable();
