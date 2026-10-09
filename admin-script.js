@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  // One-time data reset for manual entry
+  if (!localStorage.getItem('blinjo_data_cleaned_v2')) {
+    localStorage.removeItem('blinjo_products_v3');
+    localStorage.removeItem('blinjo_orders_v2');
+    localStorage.removeItem('blinjo_orders');
+    localStorage.removeItem('blinjo_reviews_v1');
+    localStorage.removeItem('blinjo_slideshow_v2');
+    localStorage.removeItem('blinjo_occasions_v1');
+    localStorage.removeItem('blinjo_active_product');
+    localStorage.setItem('blinjo_data_cleaned_v2', 'true');
+  }
+
   // Initial Orders DB starting empty for manual entry
   const defaultOrders = [];
 
