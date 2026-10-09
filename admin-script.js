@@ -2089,8 +2089,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isVideo = slide.mediaType === 'video' || (slide.image && slide.image.endsWith('.mp4'));
       const mediaPreview = isVideo
-        ? `<video src="${slide.image}" autoplay loop muted style="width:100%; height:100%; object-fit:cover;"></video>`
-        : `<img src="${slide.image}" alt="Slide #${index+1}" style="width:100%; height:100%; object-fit:cover;">`;
+        ? `<video src="${slide.image}" autoplay loop muted style="width:100%; height:100%; object-fit:contain; object-position:center;"></video>`
+        : `<img src="${slide.image}" alt="Slide #${index+1}" style="width:100%; height:100%; object-fit:contain; object-position:center;">`;
 
       card.innerHTML = `
         <div style="position:relative; width:100%; height:200px; background:#0f172a; overflow:hidden;">
