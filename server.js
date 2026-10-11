@@ -9,6 +9,8 @@ const mimeTypes = {
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
   '.json': 'application/json'
 };
 
@@ -40,6 +42,12 @@ function handleRequest(req, res) {
 
   function tryNext(index) {
     if (index >= candidates.length) {
+      // Do not return HTML fallback for missing media/icons/scripts/styles
+      if (['.ico', '.png', '.svg', '.jpg', '.jpeg', '.webp', '.css', '.js'].includes(ext)) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        return res.end('404 Not Found');
+      }
+
       const indexCandidates = [
         path.join(process.cwd(), 'index.html'),
         path.join(__dirname, 'index.html'),
@@ -60,7 +68,11 @@ function handleRequest(req, res) {
     const curPath = candidates[index];
     fs.readFile(curPath, (err, content) => {
       if (!err && content) {
-        res.writeHead(200, { 'Content-Type': contentType });
+        const cacheControl = ext === '.html' ? 'no-cache' : 'public, max-age=86400';
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Cache-Control': cacheControl
+        });
         return res.end(content);
       } else {
         tryNext(index + 1);
