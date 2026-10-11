@@ -140,6 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (tabId === 'tab-slideshow') {
       if (typeof renderSlideshowManager === 'function') renderSlideshowManager();
       if (typeof renderOccasionsManager === 'function') renderOccasionsManager();
+    } else if (tabId === 'tab-reviews') {
+      if (typeof renderReviewsTable === 'function') renderReviewsTable();
     }
   }
 
@@ -1871,157 +1873,318 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Form Submission
+  // Reviews Local Storage & Sync Helper
+  function getStoredReviews() {
+    const saved = localStorage.getItem('blinjo_reviews_v1');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e){}
+    }
+    return [];
+  }
+
+  function saveStoredReviews(revs) {
+    localStorage.setItem('blinjo_reviews_v1', JSON.stringify(revs));
+    renderReviewsTable();
+    renderDashboardOverview();
+  }
+
+  // Render Customer Reviews Table in Reviews Tab
+  function renderReviewsTable() {
+    const reviewsTableBody = document.getElementById('reviewsTableBody');
+    if (!reviewsTableBody) return;
+    const reviews = getStoredReviews();
+
+    if (reviews.length === 0) {
+      reviewsTableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center; padding:36px 16px; color:#94a3b8; font-size:14px; font-weight:600;">
+            ⭐ No customer reviews yet. Click "+ Add New Review" to publish one.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    reviewsTableBody.innerHTML = reviews.map(r => `
+      <tr style="border-bottom:1px solid #f1f5f9;">
+        <td><strong style="color:#0f172a; font-size:13px;">${r.name || 'Customer'}</strong></td>
+        <td style="color:#64748b; font-size:12px;">${r.location || 'India'}</td>
+        <td style="color:#eab308; font-size:13px;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(Math.max(0, 5 - (r.rating || 5)))}</td>
+        <td style="color:#334155; font-size:12px; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.comment || ''}">${r.comment || ''}</td>
+        <td><span class="status-badge-pill status-delivered-pill" style="font-size:11px; padding:3px 8px; border-radius:6px;">${r.status || 'Published'}</span></td>
+        <td>
+          <button type="button" class="btn-delete-rev" data-id="${r.id}" style="border:none; background:#fee2e2; color:#ef4444; padding:6px 10px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">🗑️ Delete</button>
+        </td>
+      </tr>
+    `).join('');
+
+    reviewsTableBody.querySelectorAll('.btn-delete-rev').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        let revs = getStoredReviews();
+        revs = revs.filter(r => r.id !== id);
+        saveStoredReviews(revs);
+        if (typeof showAdminOrderToast === 'function') {
+          showAdminOrderToast('Review deleted successfully!');
+        }
+      });
+    });
+  }
+
+  // Initialize Realtime Sync with Firestore for Reviews
+  if (typeof syncReviews === 'function') {
+    syncReviews((syncedRevs) => {
+      if (syncedRevs) {
+        localStorage.setItem('blinjo_reviews_v1', JSON.stringify(syncedRevs));
+        renderReviewsTable();
+        renderDashboardOverview();
+      }
+    });
+  }
+
+  // Form Submission for Customer Review
   if (newReviewForm) {
     newReviewForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const custName = document.getElementById('revCustName')?.value || 'Anonymous Customer';
-      const comment = revCommentText?.value || '';
-      const rating = revRatingVal?.value || 5;
+      const custName = document.getElementById('revCustName')?.value.trim() || 'Verified Customer';
+      const comment = revCommentText?.value.trim() || '';
+      const rating = parseInt(revRatingVal?.value) || 5;
 
-      alert(`🎉 Customer review from "${custName}" (${rating}/5 Stars) published successfully!`);
+      const newRev = {
+        id: 'REV-' + Date.now(),
+        name: custName,
+        location: 'Verified Buyer',
+        rating: rating,
+        comment: comment,
+        status: 'Published',
+        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+      };
+
+      const reviews = getStoredReviews();
+      reviews.unshift(newRev);
+      saveStoredReviews(reviews);
+
+      if (typeof addReviewFirestore === 'function') {
+        addReviewFirestore(newRev);
+      }
+
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast(`🎉 Review from "${custName}" published successfully!`);
+      }
       closeRevModal();
       newReviewForm.reset();
       if (revCharCount) revCharCount.textContent = '0';
     });
   }
 
-  // Dynamic Dashboard Overview Renderer
+  // Real Data-Driven Dashboard Overview Renderer
   function renderDashboardOverview() {
-    // 1. Update KPI Values
+    // 1. Real KPI Values
     const totalOrdersVal = document.getElementById('dashTotalOrdersVal');
     const totalSalesVal = document.getElementById('dashTotalSalesVal');
     const totalCustVal = document.getElementById('dashTotalCustVal');
     const totalProdVal = document.getElementById('dashTotalProdVal');
 
     const totalOrdersCount = ordersList.length;
-    let totalSalesSum = ordersList.reduce((acc, o) => acc + (o.amount || 0), 0);
-    if (totalSalesSum === 0) totalSalesSum = 124580;
+    const totalSalesSum = ordersList.reduce((acc, o) => acc + (Number(o.amount) || 0), 0);
+    const uniqueCustCount = new Set(ordersList.map(o => (o.phone || o.name || '').trim()).filter(Boolean)).size;
+    const realProdCount = productsList ? productsList.length : 0;
 
     if (totalOrdersVal) totalOrdersVal.textContent = totalOrdersCount.toLocaleString('en-IN');
     if (totalSalesVal) totalSalesVal.textContent = `₹${totalSalesSum.toLocaleString('en-IN')}`;
-    if (totalCustVal) totalCustVal.textContent = '96';
-    if (totalProdVal) totalProdVal.textContent = productsList.length ? productsList.length.toString() : '248';
+    if (totalCustVal) totalCustVal.textContent = uniqueCustCount.toLocaleString('en-IN');
+    if (totalProdVal) totalProdVal.textContent = realProdCount.toString();
 
-    // 2. Recent Orders Mini List
+    // 2. Real Donut Chart & Status Breakdown
+    const dashDonutTotalVal = document.getElementById('dashDonutTotalVal');
+    if (dashDonutTotalVal) dashDonutTotalVal.textContent = totalOrdersCount;
+
+    const deliveredCount = ordersList.filter(o => o.status === 'Delivered').length;
+    const processingCount = ordersList.filter(o => o.status === 'Processing').length;
+    const shippedCount = ordersList.filter(o => o.status === 'Shipped').length;
+    const cancelledCount = ordersList.filter(o => o.status === 'Cancelled').length;
+    const pendingCount = ordersList.filter(o => !['Delivered', 'Processing', 'Shipped', 'Cancelled'].includes(o.status)).length;
+
+    const calcPct = (cnt) => totalOrdersCount > 0 ? Math.round((cnt / totalOrdersCount) * 100) : 0;
+
+    const lDelivered = document.getElementById('legendDeliveredVal');
+    const lProcessing = document.getElementById('legendProcessingVal');
+    const lShipped = document.getElementById('legendShippedVal');
+    const lCancelled = document.getElementById('legendCancelledVal');
+    const lPending = document.getElementById('legendPendingVal');
+
+    if (lDelivered) lDelivered.textContent = `${deliveredCount} (${calcPct(deliveredCount)}%)`;
+    if (lProcessing) lProcessing.textContent = `${processingCount} (${calcPct(processingCount)}%)`;
+    if (lShipped) lShipped.textContent = `${shippedCount} (${calcPct(shippedCount)}%)`;
+    if (lCancelled) lCancelled.textContent = `${cancelledCount} (${calcPct(cancelledCount)}%)`;
+    if (lPending) lPending.textContent = `${pendingCount} (${calcPct(pendingCount)}%)`;
+
+    // 3. Real Recent Orders Mini List
     const dashRecentOrdersList = document.getElementById('dashRecentOrdersList');
     if (dashRecentOrdersList) {
-      const recent = ordersList.slice(0, 5);
-      dashRecentOrdersList.innerHTML = recent.map((ord) => `
-        <div class="recent-ord-row" style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <img src="${ord.products && ord.products[0]?.img ? ord.products[0].img : 'assets/bestseller.jpg'}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
-            <div>
-              <strong style="font-size:13px; color:#0f172a; display:block;">${ord.name}</strong>
-              <small style="color:#64748b; font-size:11px;">1 item • ${ord.date || '01 Oct'}, ${ord.time || '10:45 AM'}</small>
+      if (ordersList.length === 0) {
+        dashRecentOrdersList.innerHTML = `
+          <div style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:13px; font-weight:600;">
+            🛒 No customer orders placed yet.<br>
+            <small style="color:#cbd5e1; font-weight:500;">Real orders from your store will appear here automatically.</small>
+          </div>
+        `;
+      } else {
+        const recent = ordersList.slice(0, 5);
+        dashRecentOrdersList.innerHTML = recent.map((ord) => {
+          const prodTitle = ord.products && ord.products[0]?.name ? ord.products[0].name : 'Blinjo Product';
+          const prodImg = ord.products && ord.products[0]?.img ? ord.products[0].img : 'assets/bestseller.jpg';
+          return `
+            <div class="recent-ord-row" style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <img src="${prodImg}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
+                <div>
+                  <strong style="font-size:13px; color:#0f172a; display:block;">${ord.name || 'Customer'}</strong>
+                  <small style="color:#64748b; font-size:11px;">${prodTitle} • ${ord.date || 'Recent'}</small>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <strong style="font-size:13px; color:#0f172a; display:block;">₹${(Number(ord.amount) || 0).toLocaleString('en-IN')}</strong>
+                <span class="status-badge-pill status-${(ord.status || 'Processing').toLowerCase()}-pill" style="font-size:10px; padding:2px 8px; border-radius:6px;">${ord.status || 'Processing'}</span>
+              </div>
             </div>
-          </div>
-          <div style="text-align:right;">
-            <strong style="font-size:13px; color:#0f172a; display:block;">₹${(ord.amount || 1249).toLocaleString('en-IN')}</strong>
-            <span class="status-badge-pill status-${(ord.status || 'Delivered').toLowerCase()}-pill" style="font-size:10px; padding:2px 8px; border-radius:6px;">${ord.status || 'Delivered'}</span>
-          </div>
-        </div>
-      `).join('');
+          `;
+        }).join('');
+      }
     }
 
-    // 3. Top Selling Products Table Body
+    // 4. Real Top Selling Products from Orders
     const dashTopSellingBody = document.getElementById('dashTopSellingBody');
     if (dashTopSellingBody) {
-      const topProds = [
-        { num: 1, name: 'Brass Urli Bowl', sold: 45, rev: 26955, img: 'assets/bestseller.jpg' },
-        { num: 2, name: 'Floating Flowers Set', sold: 38, rev: 5700, img: 'assets/cat_3.jpg' },
-        { num: 3, name: 'LED Floating Diya', sold: 32, rev: 11200, img: 'assets/thumb_3.jpg' },
-        { num: 4, name: 'Pooja Decoration Set', sold: 28, rev: 25172, img: 'assets/hero_banner.jpg' },
-        { num: 5, name: 'Copper Water Fountain', sold: 20, rev: 25980, img: 'assets/cat_2.jpg' }
-      ];
-      dashTopSellingBody.innerHTML = topProds.map(p => `
-        <tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="font-weight:700; color:#64748b; padding:8px 0;">${p.num}</td>
-          <td>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <img src="${p.img}" style="width:28px; height:28px; border-radius:6px; object-fit:cover;">
-              <strong style="font-size:12px; color:#0f172a;">${p.name}</strong>
-            </div>
-          </td>
-          <td style="font-weight:600; color:#334155;">${p.sold}</td>
-          <td style="text-align:right; font-weight:700; color:#0f172a;">₹${p.rev.toLocaleString('en-IN')}</td>
-        </tr>
-      `).join('');
+      const prodSalesMap = {};
+      ordersList.forEach(ord => {
+        (ord.products || []).forEach(p => {
+          const key = p.name || 'Product';
+          if (!prodSalesMap[key]) {
+            prodSalesMap[key] = { name: key, sold: 0, rev: 0, img: p.img || 'assets/bestseller.jpg' };
+          }
+          const qty = Number(p.qty) || 1;
+          prodSalesMap[key].sold += qty;
+          prodSalesMap[key].rev += (Number(p.price) || 0) * qty;
+        });
+      });
+      const topProds = Object.values(prodSalesMap).sort((a, b) => b.sold - a.sold).slice(0, 5);
+
+      if (topProds.length === 0) {
+        dashTopSellingBody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:13px; font-weight:600;">
+              📦 No product sales recorded yet.
+            </td>
+          </tr>
+        `;
+      } else {
+        dashTopSellingBody.innerHTML = topProds.map((p, idx) => `
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="font-weight:700; color:#64748b; padding:8px 0;">${idx + 1}</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <img src="${p.img}" style="width:28px; height:28px; border-radius:6px; object-fit:cover;">
+                <strong style="font-size:12px; color:#0f172a;">${p.name}</strong>
+              </div>
+            </td>
+            <td style="font-weight:600; color:#334155;">${p.sold}</td>
+            <td style="text-align:right; font-weight:700; color:#0f172a;">₹${p.rev.toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('');
+      }
     }
 
-    // 4. Low Stock Products Table Body
+    // 5. Real Low Stock Products from Catalog
     const dashLowStockBody = document.getElementById('dashLowStockBody');
     if (dashLowStockBody) {
-      const lowStockProds = [
-        { name: 'Copper Water Fountain', stock: 5, img: 'assets/cat_2.jpg' },
-        { name: 'LED Floating Diya', stock: 8, img: 'assets/thumb_3.jpg' },
-        { name: 'Brass Urli Bowl', stock: 10, img: 'assets/bestseller.jpg' },
-        { name: 'Decorative Urli Stand', stock: 12, img: 'assets/thumb_2.jpg' },
-        { name: 'Aromatic Candle Set', stock: 15, img: 'assets/cat_1.jpg' }
-      ];
-      dashLowStockBody.innerHTML = lowStockProds.map(p => `
-        <tr style="border-bottom:1px solid #f1f5f9;">
-          <td>
-            <div style="display:flex; align-items:center; gap:8px; padding:6px 0;">
-              <img src="${p.img}" style="width:28px; height:28px; border-radius:6px; object-fit:cover;">
-              <strong style="font-size:12px; color:#0f172a;">${p.name}</strong>
-            </div>
-          </td>
-          <td style="text-align:center;"><span style="color:#ef4444; font-weight:800; font-size:12px;">${p.stock}</span></td>
-          <td style="text-align:right;">
-            <button class="btn-restock-sm" onclick="alert('⚡ Restock request initiated for ${p.name}!')">Restock</button>
-          </td>
-        </tr>
-      `).join('');
+      const lowStockProds = (productsList || []).filter(p => Number(p.stock) <= 20);
+      if (lowStockProds.length === 0) {
+        dashLowStockBody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:13px; font-weight:600;">
+              ✅ All product inventories are healthy.
+            </td>
+          </tr>
+        `;
+      } else {
+        dashLowStockBody.innerHTML = lowStockProds.slice(0, 5).map(p => `
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td>
+              <div style="display:flex; align-items:center; gap:8px; padding:6px 0;">
+                <img src="${p.image || 'assets/bestseller.jpg'}" style="width:28px; height:28px; border-radius:6px; object-fit:cover;">
+                <strong style="font-size:12px; color:#0f172a;">${p.title}</strong>
+              </div>
+            </td>
+            <td style="text-align:center;"><span style="color:#ef4444; font-weight:800; font-size:12px;">${p.stock}</span></td>
+            <td style="text-align:right;">
+              <button class="btn-restock-sm" onclick="window.openAddProductModal()">Edit Stock</button>
+            </td>
+          </tr>
+        `).join('');
+      }
     }
 
-    // 5. Top Customers Table Body
+    // 6. Real Top Customers from Orders
     const dashTopCustBody = document.getElementById('dashTopCustBody');
     if (dashTopCustBody) {
-      const topCusts = [
-        { num: 1, name: 'Rahul Sharma', orders: 12, spent: 8450 },
-        { num: 2, name: 'Priya Patil', orders: 9, spent: 6320 },
-        { num: 3, name: 'Amit Mehta', orders: 8, spent: 5899 },
-        { num: 4, name: 'Neha Kulkarni', orders: 7, spent: 4750 },
-        { num: 5, name: 'Sagar Deshmukh', orders: 6, spent: 3990 }
-      ];
-      dashTopCustBody.innerHTML = topCusts.map(c => `
-        <tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="font-weight:700; color:#64748b; padding:8px 0;">${c.num}</td>
-          <td style="font-weight:600; color:#0f172a;">${c.name}</td>
-          <td style="text-align:center; font-weight:600;">${c.orders}</td>
-          <td style="text-align:right; font-weight:700; color:#0f172a;">₹${c.spent.toLocaleString('en-IN')}</td>
-        </tr>
-      `).join('');
+      const custMap = {};
+      ordersList.forEach(ord => {
+        const key = ord.phone || ord.name;
+        if (!key) return;
+        if (!custMap[key]) {
+          custMap[key] = { name: ord.name || 'Customer', orders: 0, spent: 0 };
+        }
+        custMap[key].orders += 1;
+        custMap[key].spent += Number(ord.amount) || 0;
+      });
+      const topCusts = Object.values(custMap).sort((a, b) => b.spent - a.spent).slice(0, 5);
+
+      if (topCusts.length === 0) {
+        dashTopCustBody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:13px; font-weight:600;">
+              👥 No customer transaction data yet.
+            </td>
+          </tr>
+        `;
+      } else {
+        dashTopCustBody.innerHTML = topCusts.map((c, idx) => `
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="font-weight:700; color:#64748b; padding:8px 0;">${idx + 1}</td>
+            <td style="font-weight:600; color:#0f172a;">${c.name}</td>
+            <td style="text-align:center; font-weight:600;">${c.orders}</td>
+            <td style="text-align:right; font-weight:700; color:#0f172a;">₹${c.spent.toLocaleString('en-IN')}</td>
+          </tr>
+        `).join('');
+      }
     }
 
-    // 6. Recent Reviews Mini List
+    // 7. Real Customer Reviews from Database
     const dashRecentRevList = document.getElementById('dashRecentRevList');
     if (dashRecentRevList) {
-      dashRecentRevList.innerHTML = `
-        <div style="display:flex; align-items:flex-start; gap:10px; padding:6px 0; border-bottom:1px solid #f1f5f9;">
-          <img src="assets/cat_2.jpg" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-          <div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:12px; color:#0f172a;">Priya Patil</strong>
-              <small style="color:#64748b; font-size:10px;">2 days ago</small>
-            </div>
-            <div style="color:#eab308; font-size:11px;">★★★★★</div>
-            <p style="margin:2px 0 0 0; font-size:11px; color:#475569; line-height:1.3;">Very beautiful and premium quality. Looks amazing in my home.</p>
+      const revs = getStoredReviews();
+      if (!revs || revs.length === 0) {
+        dashRecentRevList.innerHTML = `
+          <div style="text-align:center; padding:32px 16px; color:#94a3b8; font-size:13px; font-weight:600;">
+            ⭐ No customer reviews received yet.
           </div>
-        </div>
-        <div style="display:flex; align-items:flex-start; gap:10px; padding:6px 0;">
-          <img src="assets/cat_1.jpg" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-          <div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:12px; color:#0f172a;">Rahul Sharma</strong>
-              <small style="color:#64748b; font-size:10px;">3 days ago</small>
+        `;
+      } else {
+        dashRecentRevList.innerHTML = revs.slice(0, 3).map(r => `
+          <div style="display:flex; align-items:flex-start; gap:10px; padding:6px 0; border-bottom:1px solid #f1f5f9;">
+            <img src="${r.image || 'assets/cat_2.jpg'}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:12px; color:#0f172a;">${r.name || 'Customer'}</strong>
+                <small style="color:#64748b; font-size:10px;">${r.date || 'Recent'}</small>
+              </div>
+              <div style="color:#eab308; font-size:11px;">${'★'.repeat(r.rating || 5)}</div>
+              <p style="margin:2px 0 0 0; font-size:11px; color:#475569; line-height:1.3;">${r.comment || ''}</p>
             </div>
-            <div style="color:#eab308; font-size:11px;">★★★★★</div>
-            <p style="margin:2px 0 0 0; font-size:11px; color:#475569; line-height:1.3;">Perfect for decoration. Good quality and fast delivery.</p>
           </div>
-        </div>
-      `;
+        `).join('');
+      }
     }
   }
 
@@ -2549,26 +2712,54 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdown = document.createElement('div');
     dropdown.id = 'notifDropdownMenu';
     dropdown.style.cssText = `
-      position: absolute; top: 48px; right: 0; width: 300px;
+      position: absolute; top: 48px; right: 0; width: 320px;
       background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 1000; padding: 16px;
       animation: fadeIn 0.2s ease;
     `;
+
+    const latestOrder = ordersList[0];
+    const lowStockProd = (productsList || []).find(p => Number(p.stock) <= 20);
+    const reviews = getStoredReviews();
+    const latestReview = reviews[0];
+
+    const notifItems = [];
+    if (latestOrder) {
+      notifItems.push(`
+        <div style="padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; color:#166534; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-orders]').click()">
+          <strong>📦 Recent Order (${latestOrder.id})</strong><br>
+          <small style="color:#64748b;">${latestOrder.name || 'Customer'} • ₹${(Number(latestOrder.amount) || 0).toLocaleString('en-IN')}</small>
+        </div>
+      `);
+    }
+    if (lowStockProd) {
+      notifItems.push(`
+        <div style="padding:8px 10px; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; color:#9a3412; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-products]').click()">
+          <strong>⚠️ Low Stock Alert</strong><br>
+          <small style="color:#64748b;">${lowStockProd.title}: ${lowStockProd.stock} units left</small>
+        </div>
+      `);
+    }
+    if (latestReview) {
+      notifItems.push(`
+        <div style="padding:8px 10px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; color:#0369a1; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-reviews]').click()">
+          <strong>⭐ Latest Review</strong><br>
+          <small style="color:#64748b;">${latestReview.name || 'Buyer'}: "${latestReview.comment?.slice(0, 35) || 'Great product'}..."</small>
+        </div>
+      `);
+    }
+
     dropdown.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
         <strong style="font-size:14px; color:#0f172a;">🔔 Store Notifications</strong>
-        <span style="font-size:11px; background:#ef4444; color:#fff; font-weight:800; padding:2px 8px; border-radius:10px;">3 New</span>
+        <span style="font-size:11px; background:#047857; color:#fff; font-weight:800; padding:2px 8px; border-radius:10px;">${notifItems.length} Active</span>
       </div>
       <div style="display:flex; flex-direction:column; gap:10px; font-size:12px;">
-        <div style="padding:8px 10px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; color:#166534; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-orders]').click()">
-          <strong>📦 New Order Placed</strong><br><small style="color:#64748b;">Order #BLJ8942 received for ₹1,299</small>
-        </div>
-        <div style="padding:8px 10px; background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; color:#9a3412; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-products]').click()">
-          <strong>⚠️ Low Stock Alert</strong><br><small style="color:#64748b;">Blinjo Brass Diya Urli stock &lt; 5 units</small>
-        </div>
-        <div style="padding:8px 10px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; color:#0369a1; cursor:pointer;" onclick="document.querySelector('[data-tab=tab-reviews]').click()">
-          <strong>⭐ New Review Posted</strong><br><small style="color:#64748b;">Priya S. rated 5 stars: "Absolute elegance!"</small>
-        </div>
+        ${notifItems.length === 0 ? `
+          <div style="text-align:center; padding:18px 10px; color:#94a3b8; font-size:12.5px;">
+            ✅ All systems normal. No pending alerts.
+          </div>
+        ` : notifItems.join('')}
       </div>
     `;
     dashNotifBell.appendChild(dropdown);
@@ -2636,46 +2827,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Customer Directory Modal
+  // Customer Directory Modal (Dynamic from Real Database Orders)
   window.openCustomerDirectoryModal = function() {
     let modal = document.getElementById('custDirectoryModal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'custDirectoryModal';
-      modal.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 10000; animation: fadeIn 0.2s ease;
-      `;
-      modal.innerHTML = `
-        <div style="background: #ffffff; width: 92%; max-width: 600px; border-radius: 16px; padding: 24px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">👥 Customer Directory (96 Verified)</h3>
-            <button id="closeCustModalBtn" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">&times;</button>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <div><strong style="color: #0f172a; font-size: 13.5px;">Rahul Sharma</strong><br><small style="color: #64748b;">rahul.sharma@email.com | +91 98765 43210</small></div>
-              <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;">3 Orders</span>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <div><strong style="color: #0f172a; font-size: 13.5px;">Priya Patel</strong><br><small style="color: #64748b;">priya.patel@email.com | +91 98123 45678</small></div>
-              <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;">2 Orders</span>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <div><strong style="color: #0f172a; font-size: 13.5px;">Anish Kapoor</strong><br><small style="color: #64748b;">anish.k@email.com | +91 99887 76655</small></div>
-              <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px;">1 Order</span>
-            </div>
-          </div>
+    if (modal) modal.remove();
+
+    const custMap = {};
+    ordersList.forEach(o => {
+      const key = (o.phone || o.name || '').trim();
+      if (!key) return;
+      if (!custMap[key]) {
+        custMap[key] = {
+          name: o.name || 'Customer',
+          phone: o.phone || '',
+          city: o.city || o.address || '',
+          orders: 0,
+          spent: 0
+        };
+      }
+      custMap[key].orders += 1;
+      custMap[key].spent += Number(o.amount) || 0;
+    });
+
+    const customers = Object.values(custMap);
+
+    modal = document.createElement('div');
+    modal.id = 'custDirectoryModal';
+    modal.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; animation: fadeIn 0.2s ease;
+    `;
+    modal.innerHTML = `
+      <div style="background: #ffffff; width: 92%; max-width: 600px; border-radius: 16px; padding: 24px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+          <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a;">👥 Verified Customers (${customers.length})</h3>
+          <button id="closeCustModalBtn" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">&times;</button>
         </div>
-      `;
-      document.body.appendChild(modal);
-      modal.querySelector('#closeCustModalBtn').addEventListener('click', () => modal.remove());
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-    } else {
-      modal.style.display = 'flex';
-    }
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          ${customers.length === 0 ? `
+            <div style="text-align:center; padding:36px; color:#94a3b8; font-size:14px; font-weight:600;">
+              👥 No verified customer orders yet.<br>
+              <small style="color:#cbd5e1; font-weight:500;">When customers place orders, they will automatically be cataloged here.</small>
+            </div>
+          ` : customers.map(c => `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <div>
+                <strong style="color: #0f172a; font-size: 14px;">${c.name}</strong><br>
+                <small style="color: #64748b;">${c.phone ? '📞 ' + c.phone : ''} ${c.city ? '• 📍 ' + c.city : ''}</small>
+              </div>
+              <div style="text-align:right;">
+                <span style="background: #dcfce7; color: #166534; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; display:inline-block; margin-bottom:2px;">${c.orders} Order${c.orders > 1 ? 's' : ''}</span><br>
+                <strong style="color: #0f172a; font-size: 13px;">₹${c.spent.toLocaleString('en-IN')}</strong>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('#closeCustModalBtn').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
   };
 
   // ==========================================================================
@@ -2757,6 +2970,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderOrdersTable();
   renderProductsTable();
   renderDashboardOverview();
+  renderReviewsTable();
   renderSlideshowManager();
   renderOccasionsManager();
 

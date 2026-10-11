@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Emerald Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#043827"/>
+      <stop offset="45%" stop-color="#064e3b"/>
+      <stop offset="85%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+
+    <!-- Luxury Gold Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff9c4"/>
+      <stop offset="25%" stop-color="#fde047"/>
+      <stop offset="55%" stop-color="#eab308"/>
+      <stop offset="85%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#854d0e"/>
+    </linearGradient>
+
+    <!-- Gold Border Ring Gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#a16207"/>
+    </linearGradient>
+
+    <!-- Drop Shadow for 3D Luxury Depth -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base with Emerald Theme -->
+  <rect x="20" y="20" width="472" height="472" rx="124" ry="124" fill="url(#bgGrad)"/>
+
+  <!-- Subtle Outer Border -->
+  <rect x="20" y="20" width="472" height="472" rx="124" ry="124" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+
+  <!-- Golden Ring -->
+  <circle cx="256" cy="256" r="198" fill="none" stroke="url(#ringGrad)" stroke-width="16" filter="url(#shadow)"/>
+
+  <!-- Capital Letter 'B' with Serif Styling -->
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="central" font-family="'Cinzel', 'Playfair Display', 'Georgia', 'Times New Roman', serif" font-weight="900" font-size="320" fill="url(#goldGrad)" filter="url(#shadow)" letter-spacing="-2">B</text>
+</svg>
