@@ -1186,18 +1186,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function getStoredProducts() {
     const data = localStorage.getItem('blinjo_products_v3');
     if (!data) return [];
-    try {
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch(e) {
-      return [];
+    const parsed = JSON.parse(data);
+    const cleaned = parsed.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+    if (cleaned.length !== parsed.length) {
+      localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
     }
+    return cleaned;
   }
 
   function saveStoredProducts(prods) {
-    const list = Array.isArray(prods) ? prods : [];
-    localStorage.setItem('blinjo_products_v3', JSON.stringify(list));
-    const activeProd = list.find(p => p.active) || list[0];
+    const cleaned = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+    localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
+    const activeProd = cleaned.find(p => p.active) || cleaned[0];
     if (activeProd) {
       localStorage.setItem('blinjo_active_product', JSON.stringify(activeProd));
       localStorage.setItem('blinjo_offer_price', activeProd.price);
@@ -1208,10 +1208,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const prodBC = new BroadcastChannel('blinjo_products_channel');
-      prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: list });
+      prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: cleaned });
       prodBC.close();
     } catch(e) {}
-    window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: list }));
+    window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: cleaned }));
   }
 
   let productsList = getStoredProducts();
@@ -1220,8 +1220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (typeof syncProducts === 'function') {
     syncProducts((syncedProds) => {
-      if (syncedProds && Array.isArray(syncedProds)) {
-        productsList = syncedProds;
+      if (syncedProds) {
+        productsList = syncedProds.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
         updateProductKPIs();
         renderProductsTable();
       }

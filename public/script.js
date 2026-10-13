@@ -26,68 +26,52 @@ document.addEventListener('DOMContentLoaded', () => {
   let slideshowTimer = null;
 
   function renderStorefrontSlideshow(passedSlides = null) {
+    const defaultSlides = [];
+
     let slides = passedSlides;
     if (!slides) {
       const saved = localStorage.getItem('blinjo_slideshow_v2');
       slides = saved ? JSON.parse(saved) : [];
     }
 
-    // ONLY show active slides configured in admin panel
-    activeSlidesList = (slides || []).filter(s => s && s.active !== false && s.image);
+    activeSlidesList = (slides || []).filter(s => s.active !== false);
 
-    if (activeSlidesList.length > 0) {
-      if (carouselTrack) {
-        carouselTrack.innerHTML = '';
-        activeSlidesList.forEach((slide, index) => {
-          const card = document.createElement('div');
-          card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
-          card.setAttribute('data-index', index);
+    if (carouselTrack) {
+      carouselTrack.innerHTML = '';
+      activeSlidesList.forEach((slide, index) => {
+        const card = document.createElement('div');
+        card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
+        card.setAttribute('data-index', index);
 
-          if (slide.mediaType === 'video') {
-            card.innerHTML = `
-              <img src="${slide.image || 'assets/hero_banner.jpg'}" alt="Watch Video">
-              <div class="play-overlay">
-                <div class="play-circle">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </div>
+        if (slide.mediaType === 'video') {
+          card.innerHTML = `
+            <img src="${slide.image || 'assets/hero_banner.jpg'}" alt="Watch Video">
+            <div class="play-overlay">
+              <div class="play-circle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               </div>
-            `;
-            card.addEventListener('click', () => {
-              goToHeroSlide(index);
-              openVideoModal();
-              resetSlideshowTimer();
-            });
-          } else {
-            card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
-            card.addEventListener('click', () => {
-              goToHeroSlide(index);
-              resetSlideshowTimer();
-            });
-          }
+            </div>
+          `;
+          card.addEventListener('click', () => {
+            goToHeroSlide(index);
+            openVideoModal();
+            resetSlideshowTimer();
+          });
+        } else {
+          card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
+          card.addEventListener('click', () => {
+            goToHeroSlide(index);
+            resetSlideshowTimer();
+          });
+        }
 
-          carouselTrack.appendChild(card);
-        });
-      }
-
-      if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
-      updateHeroDisplay(currentSlideIndex, false);
-
-      if (activeSlidesList.length > 1) {
-        if (heroPrevBtn) heroPrevBtn.style.display = 'flex';
-        if (heroNextBtn) heroNextBtn.style.display = 'flex';
-        startSlideshowTimer();
-      } else {
-        if (heroPrevBtn) heroPrevBtn.style.display = 'none';
-        if (heroNextBtn) heroNextBtn.style.display = 'none';
-        stopSlideshowTimer();
-      }
-    } else {
-      // If no admin slides configured yet, show fallback banner without cycling
-      if (carouselTrack) carouselTrack.innerHTML = '';
-      if (heroPrevBtn) heroPrevBtn.style.display = 'none';
-      if (heroNextBtn) heroNextBtn.style.display = 'none';
-      stopSlideshowTimer();
+        carouselTrack.appendChild(card);
+      });
     }
+
+    if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
+    updateHeroDisplay(currentSlideIndex, false);
+    startSlideshowTimer();
   }
 
   function goToHeroSlide(index) {
@@ -97,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateHeroDisplay(index, transition = true) {
-    if (!activeSlidesList.length) return;
     const slide = activeSlidesList[index];
     if (!slide || !mainHeroImg) return;
 
@@ -134,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeSlidesList.length > 1) {
       slideshowTimer = setInterval(() => {
         goToHeroSlide(currentSlideIndex + 1);
-      }, 3500);
+      }, 2000);
     }
   }
 
@@ -295,24 +278,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const offerSection = document.querySelector('.offer-section');
     const storedProdsStr = localStorage.getItem('blinjo_products_v3');
     let storedProds = storedProdsStr ? JSON.parse(storedProdsStr) : [];
+    storedProds = storedProds.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+
+    if (storedProds.length === 0) {
+      if (offerSection) offerSection.style.display = 'none';
+      return;
+    } else {
+      if (offerSection) offerSection.style.display = 'block';
+    }
 
     const activeProdData = localStorage.getItem('blinjo_active_product');
     let activeProd = null;
     if (activeProdData) {
       try {
         const parsed = JSON.parse(activeProdData);
-        if (parsed && parsed.title) {
+        if (parsed && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(parsed.id)) {
           activeProd = parsed;
         }
       } catch(e) {}
     }
 
-    if (!activeProd && storedProds.length > 0) {
+    if (!activeProd) {
       activeProd = storedProds.find(p => p.active) || storedProds[0];
-    }
-
-    if (offerSection) {
-      offerSection.style.display = 'block';
     }
 
     if (!activeProd) return;
@@ -554,28 +541,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
 
     let prods = passedProducts;
-    if (!prods || !prods.length) {
+    if (!prods) {
       const stored = localStorage.getItem('blinjo_products_v3');
       prods = stored ? JSON.parse(stored) : [];
     }
 
+    // Clean out dummy sample products if present
+    prods = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+
     grid.innerHTML = '';
 
-    if (!prods || prods.length === 0) {
-      const activeStored = localStorage.getItem('blinjo_active_product');
-      if (activeStored) {
-        try {
-          const ap = JSON.parse(activeStored);
-          if (ap && ap.title) prods = [ap];
-        } catch(e) {}
-      }
+    if (prods.length === 0) {
+      if (catalogSection) catalogSection.style.display = 'none';
+      return;
+    } else {
+      if (catalogSection) catalogSection.style.display = 'block';
     }
-
-    if (catalogSection) {
-      catalogSection.style.display = (prods && prods.length > 0) ? 'block' : 'none';
-    }
-
-    if (!prods || prods.length === 0) return;
 
     prods.forEach(p => {
       const card = document.createElement('div');
