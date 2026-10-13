@@ -26,52 +26,68 @@ document.addEventListener('DOMContentLoaded', () => {
   let slideshowTimer = null;
 
   function renderStorefrontSlideshow(passedSlides = null) {
-    const defaultSlides = [];
-
     let slides = passedSlides;
     if (!slides) {
       const saved = localStorage.getItem('blinjo_slideshow_v2');
       slides = saved ? JSON.parse(saved) : [];
     }
 
-    activeSlidesList = (slides || []).filter(s => s.active !== false);
+    // ONLY show active slides configured in admin panel
+    activeSlidesList = (slides || []).filter(s => s && s.active !== false && s.image);
 
-    if (carouselTrack) {
-      carouselTrack.innerHTML = '';
-      activeSlidesList.forEach((slide, index) => {
-        const card = document.createElement('div');
-        card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
-        card.setAttribute('data-index', index);
+    if (activeSlidesList.length > 0) {
+      if (carouselTrack) {
+        carouselTrack.innerHTML = '';
+        activeSlidesList.forEach((slide, index) => {
+          const card = document.createElement('div');
+          card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
+          card.setAttribute('data-index', index);
 
-        if (slide.mediaType === 'video') {
-          card.innerHTML = `
-            <img src="${slide.image || 'assets/hero_banner.jpg'}" alt="Watch Video">
-            <div class="play-overlay">
-              <div class="play-circle">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          if (slide.mediaType === 'video') {
+            card.innerHTML = `
+              <img src="${slide.image || 'assets/hero_banner.jpg'}" alt="Watch Video">
+              <div class="play-overlay">
+                <div class="play-circle">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </div>
               </div>
-            </div>
-          `;
-          card.addEventListener('click', () => {
-            goToHeroSlide(index);
-            openVideoModal();
-            resetSlideshowTimer();
-          });
-        } else {
-          card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
-          card.addEventListener('click', () => {
-            goToHeroSlide(index);
-            resetSlideshowTimer();
-          });
-        }
+            `;
+            card.addEventListener('click', () => {
+              goToHeroSlide(index);
+              openVideoModal();
+              resetSlideshowTimer();
+            });
+          } else {
+            card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
+            card.addEventListener('click', () => {
+              goToHeroSlide(index);
+              resetSlideshowTimer();
+            });
+          }
 
-        carouselTrack.appendChild(card);
-      });
+          carouselTrack.appendChild(card);
+        });
+      }
+
+      if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
+      updateHeroDisplay(currentSlideIndex, false);
+
+      if (activeSlidesList.length > 1) {
+        if (heroPrevBtn) heroPrevBtn.style.display = 'flex';
+        if (heroNextBtn) heroNextBtn.style.display = 'flex';
+        startSlideshowTimer();
+      } else {
+        if (heroPrevBtn) heroPrevBtn.style.display = 'none';
+        if (heroNextBtn) heroNextBtn.style.display = 'none';
+        stopSlideshowTimer();
+      }
+    } else {
+      // If no admin slides configured yet, show fallback banner without cycling
+      if (carouselTrack) carouselTrack.innerHTML = '';
+      if (heroPrevBtn) heroPrevBtn.style.display = 'none';
+      if (heroNextBtn) heroNextBtn.style.display = 'none';
+      stopSlideshowTimer();
     }
-
-    if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
-    updateHeroDisplay(currentSlideIndex, false);
-    startSlideshowTimer();
   }
 
   function goToHeroSlide(index) {
@@ -81,18 +97,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateHeroDisplay(index, transition = true) {
+    if (!activeSlidesList.length) return;
     const slide = activeSlidesList[index];
     if (!slide || !mainHeroImg) return;
 
+    const heroBlurBackdrop = document.getElementById('heroBlurBackdrop');
+
     if (transition) {
-      mainHeroImg.style.opacity = '0.3';
+      mainHeroImg.style.opacity = '0.35';
+      if (heroBlurBackdrop) heroBlurBackdrop.style.opacity = '0.6';
       setTimeout(() => {
         mainHeroImg.src = slide.image;
         mainHeroImg.style.opacity = '1';
-      }, 180);
+        if (heroBlurBackdrop) {
+          heroBlurBackdrop.style.backgroundImage = `url('${slide.image}')`;
+          heroBlurBackdrop.style.opacity = '1';
+        }
+      }, 160);
     } else {
       mainHeroImg.src = slide.image;
       mainHeroImg.style.opacity = '1';
+      if (heroBlurBackdrop) {
+        heroBlurBackdrop.style.backgroundImage = `url('${slide.image}')`;
+      }
     }
 
     const cards = carouselTrack ? carouselTrack.querySelectorAll('.thumb-card') : [];
@@ -107,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeSlidesList.length > 1) {
       slideshowTimer = setInterval(() => {
         goToHeroSlide(currentSlideIndex + 1);
-      }, 2000);
+      }, 3500);
     }
   }
 
@@ -268,28 +295,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const offerSection = document.querySelector('.offer-section');
     const storedProdsStr = localStorage.getItem('blinjo_products_v3');
     let storedProds = storedProdsStr ? JSON.parse(storedProdsStr) : [];
-    storedProds = storedProds.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-
-    if (storedProds.length === 0) {
-      if (offerSection) offerSection.style.display = 'none';
-      return;
-    } else {
-      if (offerSection) offerSection.style.display = 'block';
-    }
 
     const activeProdData = localStorage.getItem('blinjo_active_product');
     let activeProd = null;
     if (activeProdData) {
       try {
         const parsed = JSON.parse(activeProdData);
-        if (parsed && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(parsed.id)) {
+        if (parsed && parsed.title) {
           activeProd = parsed;
         }
       } catch(e) {}
     }
 
-    if (!activeProd) {
+    if (!activeProd && storedProds.length > 0) {
       activeProd = storedProds.find(p => p.active) || storedProds[0];
+    }
+
+    if (offerSection) {
+      offerSection.style.display = 'block';
     }
 
     if (!activeProd) return;
@@ -348,6 +371,180 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadActiveProduct();
 
+  // 4a. Live Product Quick Edit on Storefront Product Page
+  const storefrontQuickEditBtn = document.getElementById('storefrontQuickEditBtn');
+  const storefrontEditModal = document.getElementById('storefrontEditModal');
+  const closeStorefrontEditModalBtn = document.getElementById('closeStorefrontEditModalBtn');
+  const cancelSfEditBtn = document.getElementById('cancelSfEditBtn');
+  const storefrontEditForm = document.getElementById('storefrontEditForm');
+  const sfEditFileInput = document.getElementById('sfEditFileInput');
+  const sfEditImgUrl = document.getElementById('sfEditImgUrl');
+  const sfEditImgPreview = document.getElementById('sfEditImgPreview');
+
+  const closeSfEditModal = () => {
+    if (storefrontEditModal) storefrontEditModal.classList.remove('active');
+  };
+
+  if (closeStorefrontEditModalBtn) closeStorefrontEditModalBtn.addEventListener('click', closeSfEditModal);
+  if (cancelSfEditBtn) cancelSfEditBtn.addEventListener('click', closeSfEditModal);
+  if (storefrontEditModal) {
+    storefrontEditModal.addEventListener('click', (e) => {
+      if (e.target === storefrontEditModal) closeSfEditModal();
+    });
+  }
+
+  if (storefrontQuickEditBtn) {
+    storefrontQuickEditBtn.addEventListener('click', () => {
+      let activeProd = null;
+      const stored = localStorage.getItem('blinjo_active_product');
+      if (stored) {
+        try { activeProd = JSON.parse(stored); } catch(e) {}
+      }
+      if (!activeProd) {
+        const prods = JSON.parse(localStorage.getItem('blinjo_products_v3') || '[]');
+        activeProd = prods.find(p => p.active) || prods[0] || {
+          id: 'PROD-STORE-1',
+          title: 'BLINJO PREMIUM ROSE URLI SET',
+          subtitle: 'Handcrafted brass decorative bowl with artificial red roses & marigolds',
+          price: 2999,
+          mrp: 5999,
+          stock: 14,
+          badge: '🔥 BESTSELLER',
+          image: 'assets/bestseller.jpg'
+        };
+      }
+
+      const tEl = document.getElementById('sfEditTitle');
+      const sEl = document.getElementById('sfEditSubtitle');
+      const pEl = document.getElementById('sfEditPrice');
+      const mEl = document.getElementById('sfEditMrp');
+      const stEl = document.getElementById('sfEditStock');
+      const bEl = document.getElementById('sfEditBadge');
+
+      if (tEl) tEl.value = activeProd.title || '';
+      if (sEl) sEl.value = activeProd.subtitle || '';
+      if (pEl) pEl.value = activeProd.price || 2999;
+      if (mEl) mEl.value = activeProd.mrp || 5999;
+      if (stEl) stEl.value = activeProd.stock !== undefined ? activeProd.stock : 14;
+      if (bEl) bEl.value = activeProd.badge || '🔥 BESTSELLER';
+      if (sfEditImgUrl) sfEditImgUrl.value = activeProd.image || '';
+      if (sfEditImgPreview) sfEditImgPreview.src = activeProd.image || 'assets/bestseller.jpg';
+
+      if (storefrontEditModal) storefrontEditModal.classList.add('active');
+    });
+  }
+
+  if (sfEditFileInput) {
+    sfEditFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const res = re.target.result;
+          if (sfEditImgPreview) sfEditImgPreview.src = res;
+          if (sfEditImgUrl) sfEditImgUrl.value = res;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  if (sfEditImgUrl) {
+    sfEditImgUrl.addEventListener('input', () => {
+      if (sfEditImgPreview && sfEditImgUrl.value.trim()) {
+        sfEditImgPreview.src = sfEditImgUrl.value.trim();
+      }
+    });
+  }
+
+  if (storefrontEditForm) {
+    storefrontEditForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('sfEditTitle').value.trim();
+      const subtitle = document.getElementById('sfEditSubtitle').value.trim();
+      const price = parseFloat(document.getElementById('sfEditPrice').value) || 2999;
+      const mrp = parseFloat(document.getElementById('sfEditMrp').value) || (price * 1.5);
+      const stock = parseInt(document.getElementById('sfEditStock').value) || 0;
+      const badge = document.getElementById('sfEditBadge').value.trim() || '🔥 BESTSELLER';
+      const image = sfEditImgUrl ? sfEditImgUrl.value.trim() || 'assets/bestseller.jpg' : 'assets/bestseller.jpg';
+
+      let activeProd = null;
+      try {
+        activeProd = JSON.parse(localStorage.getItem('blinjo_active_product') || '{}');
+      } catch(err) {}
+
+      if (!activeProd || !activeProd.id) {
+        activeProd = { id: 'PROD-STORE-1' };
+      }
+
+      activeProd.title = title;
+      activeProd.subtitle = subtitle;
+      activeProd.price = price;
+      activeProd.mrp = mrp;
+      activeProd.stock = stock;
+      activeProd.badge = badge;
+      activeProd.image = image;
+      activeProd.active = true;
+
+      localStorage.setItem('blinjo_active_product', JSON.stringify(activeProd));
+      localStorage.setItem('blinjo_offer_price', price);
+      localStorage.setItem('blinjo_stock', stock);
+
+      // Also update in blinjo_products_v3 catalog
+      let allProds = [];
+      try {
+        allProds = JSON.parse(localStorage.getItem('blinjo_products_v3') || '[]');
+      } catch(err) {}
+      const existingIdx = allProds.findIndex(p => p.id === activeProd.id);
+      if (existingIdx >= 0) {
+        allProds[existingIdx] = { ...allProds[existingIdx], ...activeProd };
+      } else {
+        allProds.unshift(activeProd);
+      }
+      localStorage.setItem('blinjo_products_v3', JSON.stringify(allProds));
+
+      if (typeof addOrUpdateProductFirestore === 'function') {
+        addOrUpdateProductFirestore(activeProd);
+      }
+
+      try {
+        const prodBC = new BroadcastChannel('blinjo_products_channel');
+        prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: allProds });
+        prodBC.close();
+      } catch(err) {}
+
+      window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: allProds }));
+
+      loadActiveProduct();
+      renderCustomerProductsGrid(allProds);
+      closeSfEditModal();
+
+      // Show toast
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #047857;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 13.5px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 9999999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: sfToastIn 0.3s ease;
+      `;
+      toast.innerHTML = '<span>✅</span> Product updated live on storefront!';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3500);
+    });
+  }
+
   // 4b. Render Products Catalog Grid dynamically from LocalStorage (Sync with Admin)
   const defaultStoreProducts = [];
 
@@ -357,22 +554,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
 
     let prods = passedProducts;
-    if (!prods) {
+    if (!prods || !prods.length) {
       const stored = localStorage.getItem('blinjo_products_v3');
       prods = stored ? JSON.parse(stored) : [];
     }
 
-    // Clean out dummy sample products if present
-    prods = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-
     grid.innerHTML = '';
 
-    if (prods.length === 0) {
-      if (catalogSection) catalogSection.style.display = 'none';
-      return;
-    } else {
-      if (catalogSection) catalogSection.style.display = 'block';
+    if (!prods || prods.length === 0) {
+      const activeStored = localStorage.getItem('blinjo_active_product');
+      if (activeStored) {
+        try {
+          const ap = JSON.parse(activeStored);
+          if (ap && ap.title) prods = [ap];
+        } catch(e) {}
+      }
     }
+
+    if (catalogSection) {
+      catalogSection.style.display = (prods && prods.length > 0) ? 'block' : 'none';
+    }
+
+    if (!prods || prods.length === 0) return;
 
     prods.forEach(p => {
       const card = document.createElement('div');

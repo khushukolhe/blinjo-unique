@@ -1186,18 +1186,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function getStoredProducts() {
     const data = localStorage.getItem('blinjo_products_v3');
     if (!data) return [];
-    const parsed = JSON.parse(data);
-    const cleaned = parsed.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-    if (cleaned.length !== parsed.length) {
-      localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
+    try {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch(e) {
+      return [];
     }
-    return cleaned;
   }
 
   function saveStoredProducts(prods) {
-    const cleaned = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-    localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
-    const activeProd = cleaned.find(p => p.active) || cleaned[0];
+    const list = Array.isArray(prods) ? prods : [];
+    localStorage.setItem('blinjo_products_v3', JSON.stringify(list));
+    const activeProd = list.find(p => p.active) || list[0];
     if (activeProd) {
       localStorage.setItem('blinjo_active_product', JSON.stringify(activeProd));
       localStorage.setItem('blinjo_offer_price', activeProd.price);
@@ -1208,10 +1208,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const prodBC = new BroadcastChannel('blinjo_products_channel');
-      prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: cleaned });
+      prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: list });
       prodBC.close();
     } catch(e) {}
-    window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: cleaned }));
+    window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: list }));
   }
 
   let productsList = getStoredProducts();
@@ -1220,8 +1220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (typeof syncProducts === 'function') {
     syncProducts((syncedProds) => {
-      if (syncedProds) {
-        productsList = syncedProds.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      if (syncedProds && Array.isArray(syncedProds)) {
+        productsList = syncedProds;
         updateProductKPIs();
         renderProductsTable();
       }
@@ -1418,6 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentViewingProd = p;
 
     const discountPct = Math.round(((p.mrp - p.price) / p.mrp) * 100) || 0;
+    const savings = Math.max(0, p.mrp - p.price);
 
     const nameEl = document.getElementById('viewProdModalName');
     const titleEl = document.getElementById('viewProdModalTitle');
@@ -1427,10 +1428,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceEl = document.getElementById('viewProdModalPrice');
     const mrpEl = document.getElementById('viewProdModalMrp');
     const discEl = document.getElementById('viewProdModalDiscount');
+    const savingsEl = document.getElementById('viewProdModalSavings');
     const catEl = document.getElementById('viewProdModalCategory');
     const stockEl = document.getElementById('viewProdModalStock');
     const statusEl = document.getElementById('viewProdModalStatus');
+    const roleEl = document.getElementById('viewProdModalRole');
+    const tagEl = document.getElementById('viewProdModalStorefrontTag');
     const descEl = document.getElementById('viewProdModalDesc');
+    const setMainBtn = document.getElementById('setMainStoreProdBtn');
+    const viewStoreLink = document.getElementById('viewOnStorefrontLink');
 
     if (titleEl) titleEl.textContent = `Product Details - ${p.title}`;
     if (imgEl) imgEl.src = p.image || 'assets/bestseller.jpg';
@@ -1440,17 +1446,104 @@ document.addEventListener('DOMContentLoaded', () => {
     if (priceEl) priceEl.textContent = `₹${p.price.toLocaleString('en-IN')}`;
     if (mrpEl) mrpEl.textContent = `₹${p.mrp.toLocaleString('en-IN')}`;
     if (discEl) discEl.textContent = `${discountPct}% OFF`;
+    if (savingsEl) savingsEl.textContent = `₹${savings.toLocaleString('en-IN')}`;
     if (catEl) catEl.textContent = p.category || 'Home Decor';
     if (stockEl) stockEl.textContent = `${p.stock} units`;
     if (statusEl) statusEl.textContent = p.status === 'Active' ? '🟢 Active' : (p.status === 'Low Stock' ? '🟡 Low Stock' : '🔴 Out of Stock');
+    if (roleEl) roleEl.textContent = p.active ? '🌟 Main Featured Product' : '📦 In Store Catalog';
+    if (tagEl) {
+      tagEl.textContent = p.active ? '🌟 Active on Storefront' : '📦 In Catalog Grid';
+      tagEl.style.background = p.active ? '#dcfce7' : '#f1f5f9';
+      tagEl.style.color = p.active ? '#15803d' : '#475569';
+    }
     if (descEl) descEl.textContent = p.subtitle || 'Handcrafted premium quality decorative item.';
+
+    if (setMainBtn) {
+      setMainBtn.onclick = () => {
+        productsList.forEach(item => item.active = (item.id === p.id));
+        p.active = true;
+        saveStoredProducts(productsList);
+        if (typeof addOrUpdateProductFirestore === 'function') {
+          addOrUpdateProductFirestore(p);
+        }
+        if (roleEl) roleEl.textContent = '🌟 Main Featured Product';
+        if (tagEl) {
+          tagEl.textContent = '🌟 Active on Storefront';
+          tagEl.style.background = '#dcfce7';
+          tagEl.style.color = '#15803d';
+        }
+        renderProductsTable();
+        if (typeof showAdminToast === 'function') {
+          showAdminToast('🌟 Product set as the Main Product on Storefront!');
+        }
+      };
+    }
+
+    if (viewStoreLink) {
+      viewStoreLink.href = '/#purchase';
+    }
 
     viewProductDetailsModal.classList.add('active');
     viewProductDetailsModal.style.display = 'flex';
   }
 
+  window.openViewProductDetailsModal = openViewProductDetailsModal;
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.view-prod-btn, .btn-details-prod');
+    if (btn) {
+      const idx = parseInt(btn.getAttribute('data-index'));
+      const p = productsList[idx] || productsList[0];
+      if (p) openViewProductDetailsModal(p);
+    }
+  });
+
   const editProductModal = document.getElementById('editProductModal');
   const editProductForm = document.getElementById('editProductForm');
+  const editProdFileInput = document.getElementById('editProdFileInput');
+  const editProdImgPreview = document.getElementById('editProdImgPreview');
+  const editProdPriceInput = document.getElementById('editProdPrice');
+  const editProdMrpInput = document.getElementById('editProdMrp');
+  const editProdDiscountInput = document.getElementById('editProdDiscount');
+
+  function calcEditDiscount() {
+    const price = parseFloat(editProdPriceInput?.value) || 0;
+    const mrp = parseFloat(editProdMrpInput?.value) || 0;
+    if (mrp > 0 && price > 0 && mrp > price) {
+      const pct = Math.round(((mrp - price) / mrp) * 100);
+      if (editProdDiscountInput) editProdDiscountInput.value = pct;
+    } else {
+      if (editProdDiscountInput) editProdDiscountInput.value = 0;
+    }
+  }
+
+  if (editProdPriceInput) editProdPriceInput.addEventListener('input', calcEditDiscount);
+  if (editProdMrpInput) editProdMrpInput.addEventListener('input', calcEditDiscount);
+
+  if (editProdFileInput) {
+    editProdFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const res = re.target.result;
+          if (editProdImgPreview) editProdImgPreview.src = res;
+          const imgInput = document.getElementById('editProdImage');
+          if (imgInput) imgInput.value = res;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  const editProdImgInput = document.getElementById('editProdImage');
+  if (editProdImgInput) {
+    editProdImgInput.addEventListener('input', () => {
+      if (editProdImgPreview && editProdImgInput.value.trim()) {
+        editProdImgPreview.src = editProdImgInput.value.trim();
+      }
+    });
+  }
 
   window.closeEditProductModal = function() {
     if (editProductModal) {
@@ -1470,6 +1563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stockEl = document.getElementById('editProdStock');
     const catEl = document.getElementById('editProdCategory');
     const statusEl = document.getElementById('editProdStatus');
+    const badgeEl = document.getElementById('editProdBadge');
     const imgEl = document.getElementById('editProdImage');
     const descEl = document.getElementById('editProdDesc');
 
@@ -1480,8 +1574,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (stockEl) stockEl.value = p.stock !== undefined ? p.stock : 0;
     if (catEl) catEl.value = p.category || 'Home Decor';
     if (statusEl) statusEl.value = p.status || 'Active';
+    if (badgeEl) badgeEl.value = p.badge || '🔥 BESTSELLER';
     if (imgEl) imgEl.value = p.image || '';
+    if (editProdImgPreview) editProdImgPreview.src = p.image || 'assets/bestseller.jpg';
     if (descEl) descEl.value = p.subtitle || '';
+
+    calcEditDiscount();
 
     editProductModal.classList.add('active');
     editProductModal.style.display = 'flex';
@@ -1507,6 +1605,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const stock = parseInt(document.getElementById('editProdStock').value) || 0;
       const category = document.getElementById('editProdCategory').value;
       const status = document.getElementById('editProdStatus').value;
+      const badge = document.getElementById('editProdBadge') ? document.getElementById('editProdBadge').value.trim() : '🔥 BESTSELLER';
       const image = document.getElementById('editProdImage').value.trim();
       const desc = document.getElementById('editProdDesc').value.trim();
 
@@ -1516,6 +1615,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentViewingProd.stock = stock;
       currentViewingProd.category = category;
       currentViewingProd.status = status;
+      currentViewingProd.badge = badge || '🔥 BESTSELLER';
       if (image) currentViewingProd.image = image;
       currentViewingProd.subtitle = desc;
 
@@ -1527,7 +1627,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderProductsTable();
       closeEditProductModal();
       if (typeof showAdminToast === 'function') {
-        showAdminToast('✅ Product updated successfully!');
+        showAdminToast('✅ Product updated successfully & synced with Storefront!');
       }
     });
   }
@@ -2292,11 +2392,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isVideo = slide.mediaType === 'video' || (slide.image && slide.image.endsWith('.mp4'));
       const mediaPreview = isVideo
-        ? `<video src="${slide.image}" autoplay loop muted style="width:100%; height:100%; object-fit:contain; object-position:center;"></video>`
-        : `<img src="${slide.image}" alt="Slide #${index+1}" style="width:100%; height:100%; object-fit:contain; object-position:center;">`;
+        ? `<video src="${slide.image}" autoplay loop muted style="width:100%; height:100%; object-fit:cover; object-position:center;"></video>`
+        : `<img src="${slide.image}" alt="Slide #${index+1}" style="width:100%; height:100%; object-fit:cover; object-position:center;">`;
 
       card.innerHTML = `
-        <div style="position:relative; width:100%; height:200px; background:#0f172a; overflow:hidden;">
+        <div style="position:relative; width:100%; height:200px; background:#f8fafc; overflow:hidden;">
           ${mediaPreview}
           <span style="position:absolute; top:12px; left:12px; background:#047857; color:#ffffff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px;">
             ${isVideo ? '🎥 VIDEO' : '🖼️ IMAGE'}

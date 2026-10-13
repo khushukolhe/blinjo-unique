@@ -209,10 +209,10 @@ button {
 .hero-section {
   position: relative;
   width: 100%;
-  height: auto;
-  min-height: 200px;
+  height: clamp(380px, 48vw, 640px);
+  min-height: 280px;
   overflow: hidden;
-  background-color: #0b1329;
+  background-color: #022c22 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -221,18 +221,34 @@ button {
 .hero-bg-container {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #022c22 !important;
+}
+
+.hero-blur-backdrop {
+  position: absolute;
+  inset: -30px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(36px) brightness(0.85);
+  transform: scale(1.15);
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.3s ease, background-image 0.4s ease;
 }
 
 .hero-bg-img {
-  width: 100%;
-  height: auto;
-  max-height: 650px;
-  object-fit: contain;
-  object-position: center;
+  position: relative;
+  z-index: 2;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center !important;
   display: block;
   transition: opacity 0.4s ease;
 }
@@ -1740,8 +1756,8 @@ button {
     display: none;
   }
   .hero-section {
-    height: auto !important;
-    min-height: 280px;
+    height: clamp(280px, 44vw, 420px) !important;
+    min-height: 240px;
   }
   .dash-charts-grid, .dash-bottom-grid {
     grid-template-columns: 1fr !important;
@@ -1767,7 +1783,7 @@ button {
     display: none !important;
   }
   .hero-section {
-    height: auto !important;
+    height: clamp(230px, 50vw, 340px) !important;
     min-height: 200px;
   }
   .hero-nav-arrow {
@@ -1817,10 +1833,76 @@ button {
     font-size: 12.5px;
   }
   .hero-section {
-    height: auto !important;
+    height: clamp(190px, 58vw, 270px) !important;
     min-height: 160px;
   }
   .customer-products-grid {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* Storefront Quick Edit Product Button & Modal */
+.storefront-edit-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #047857;
+  border: 1.5px solid #10b981;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: auto;
+}
+
+.storefront-edit-pill-btn:hover {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+}
+
+.storefront-edit-pill-btn:active {
+  transform: translateY(0);
+}
+
+.storefront-edit-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 999999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.storefront-edit-modal-overlay.active {
+  display: flex !important;
+}
+
+.storefront-edit-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+  padding: 24px;
+  animation: sfModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sfModalPop {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }

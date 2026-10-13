@@ -1221,56 +1221,90 @@
   </div>
 
   <!-- View Product Details Modal -->
-  <div class="modal" id="viewProductDetailsModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
-    <div class="modal-content" style="width:100%; max-width:540px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
-        <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;" id="viewProdModalTitle">Product Details</h3>
+  <!-- View Product Details Modal -->
+  <div class="modal" id="viewProductDetailsModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.55); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:620px; background:#ffffff; border-radius:18px; padding:26px; box-shadow:0 24px 48px rgba(0,0,0,0.2); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #f1f5f9; padding-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:22px;">📄</span>
+          <div>
+            <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;" id="viewProdModalTitle">Product Details</h3>
+            <span style="font-size:12px; color:#64748b;" id="viewProdModalSubtitle">Comprehensive product specification and store status</span>
+          </div>
+        </div>
         <button type="button" id="closeViewProductDetailsModalBtn" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
       </div>
 
-      <div style="display:flex; gap:20px; align-items:flex-start;">
-        <div style="width:180px; height:180px; border-radius:12px; overflow:hidden; background:#f8fafc; flex-shrink:0; border:1px solid #e2e8f0; position:relative;">
+      <!-- Top Row: Image & Key Details -->
+      <div style="display:flex; gap:22px; align-items:flex-start;">
+        <div style="width:190px; height:190px; border-radius:14px; overflow:hidden; background:#f8fafc; flex-shrink:0; border:1px solid #e2e8f0; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
           <img id="viewProdModalImg" src="assets/bestseller.jpg" alt="Product" style="width:100%; height:100%; object-fit:cover;">
-          <span id="viewProdModalBadge" style="position:absolute; top:8px; left:8px; background:#047857; color:#fff; font-size:10px; font-weight:800; padding:3px 8px; border-radius:8px;">🔥 BESTSELLER</span>
+          <span id="viewProdModalBadge" style="position:absolute; top:8px; left:8px; background:#047857; color:#fff; font-size:10px; font-weight:800; padding:4px 9px; border-radius:8px;">🔥 BESTSELLER</span>
         </div>
 
-        <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+        <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
           <div>
-            <h4 id="viewProdModalName" style="margin:0 0 4px 0; font-size:18px; font-weight:800; color:#0f172a;">Brass Urli Bowl</h4>
-            <span id="viewProdModalSku" style="font-size:12px; color:#64748b; font-weight:600; font-family:monospace;">SKU: BLJ001</span>
+            <h4 id="viewProdModalName" style="margin:0 0 4px 0; font-size:20px; font-weight:800; color:#0f172a;">Brass Urli Bowl</h4>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span id="viewProdModalSku" style="font-size:12px; color:#475569; font-weight:700; font-family:monospace; background:#f1f5f9; padding:2px 8px; border-radius:6px;">SKU: BLJ001</span>
+              <span id="viewProdModalStorefrontTag" style="font-size:11.5px; font-weight:700; padding:3px 10px; border-radius:12px; background:#dcfce7; color:#15803d;">🌟 Active on Storefront</span>
+            </div>
           </div>
 
-          <div style="display:flex; align-items:center; gap:8px;">
-            <strong id="viewProdModalPrice" style="font-size:22px; font-weight:800; color:#047857;">₹599</strong>
-            <span id="viewProdModalMrp" style="font-size:14px; text-decoration:line-through; color:#94a3b8;">₹999</span>
-            <span id="viewProdModalDiscount" style="background:#dcfce7; color:#15803d; font-weight:800; font-size:12px; padding:2px 8px; border-radius:6px;">40% OFF</span>
+          <!-- Pricing & Savings Box -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px 14px;">
+            <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:4px;">
+              <strong id="viewProdModalPrice" style="font-size:24px; font-weight:800; color:#047857;">₹1,499</strong>
+              <span id="viewProdModalMrp" style="font-size:15px; text-decoration:line-through; color:#94a3b8;">₹1,999</span>
+              <span id="viewProdModalDiscount" style="background:#dcfce7; color:#15803d; font-weight:800; font-size:12px; padding:2px 8px; border-radius:6px;">25% OFF</span>
+            </div>
+            <div style="font-size:12px; color:#64748b;">
+              Customer Saves: <strong id="viewProdModalSavings" style="color:#0f172a;">₹500</strong>
+            </div>
           </div>
 
-          <div style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:#334155; margin-top:4px;">
-            <div><span style="color:#64748b; font-size:12px;">Category:</span> <strong id="viewProdModalCategory">Home Decor</strong></div>
-            <div><span style="color:#64748b; font-size:12px;">Stock Level:</span> <strong id="viewProdModalStock">50 units</strong></div>
-            <div><span style="color:#64748b; font-size:12px;">Status:</span> <span id="viewProdModalStatus" style="font-weight:700;">🟢 Active</span></div>
+          <!-- Attributes Grid -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12.5px; color:#334155;">
+            <div><span style="color:#64748b; font-size:11.5px;">Category:</span> <strong id="viewProdModalCategory">Home Decor</strong></div>
+            <div><span style="color:#64748b; font-size:11.5px;">Stock Level:</span> <strong id="viewProdModalStock">25 units</strong></div>
+            <div><span style="color:#64748b; font-size:11.5px;">Visibility Status:</span> <span id="viewProdModalStatus" style="font-weight:700;">🟢 Active</span></div>
+            <div><span style="color:#64748b; font-size:11.5px;">Storefront Role:</span> <strong id="viewProdModalRole">Main Offer Product</strong></div>
           </div>
         </div>
       </div>
 
+      <!-- Short Description -->
       <div style="margin-top:16px; background:#f8fafc; padding:12px 14px; border-radius:10px; border:1px solid #e2e8f0;">
-        <span style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px; text-transform:uppercase;">Short Description</span>
-        <p id="viewProdModalDesc" style="margin:0; font-size:13px; color:#334155; line-height:1.4;">Traditional Brass Urli for Home Decor</p>
+        <span style="font-size:11px; font-weight:700; color:#64748b; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Short Description</span>
+        <p id="viewProdModalDesc" style="margin:0; font-size:13px; color:#334155; line-height:1.5;">Traditional Handcrafted Brass Urli Bowl for festive decoration.</p>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px; border-top:1px solid #f1f5f9; padding-top:14px;">
-        <button type="button" id="closeViewProdDetailsBtn" style="border:1px solid #cbd5e1; background:#ffffff; color:#475569; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Close</button>
-        <button type="button" id="editFromViewProdBtn" style="border:none; background:#047857; color:#ffffff; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">✏️ Edit Product</button>
+      <!-- Action Buttons Row -->
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:22px; border-top:1px solid #f1f5f9; padding-top:16px; flex-wrap:wrap;">
+        <div style="display:flex; gap:8px;">
+          <button type="button" id="setMainStoreProdBtn" style="border:1.5px solid #047857; background:#ecfdf5; color:#047857; padding:9px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12.5px; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s;">
+            🌟 Set as Main Product
+          </button>
+          <a id="viewOnStorefrontLink" href="/#purchase" target="_blank" style="border:1px solid #cbd5e1; background:#ffffff; color:#334155; padding:9px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:12.5px; text-decoration:none; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s;">
+            👁️ View on Product Page
+          </a>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" id="closeViewProdDetailsBtn" style="border:1px solid #cbd5e1; background:#ffffff; color:#475569; padding:9px 18px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Close</button>
+          <button type="button" id="editFromViewProdBtn" style="border:none; background:#047857; color:#ffffff; padding:9px 20px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px; box-shadow:0 3px 10px rgba(4,120,87,0.25);">✏️ Edit Product</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Edit Product Modal -->
-  <div class="modal" id="editProductModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
-    <div class="modal-content" style="width:100%; max-width:540px; background:#ffffff; border-radius:16px; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.2); overflow:hidden;">
+  <div class="modal" id="editProductModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.55); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-content" style="width:100%; max-width:580px; max-height:92vh; overflow-y:auto; background:#ffffff; border-radius:18px; padding:26px; box-shadow:0 24px 48px rgba(0,0,0,0.2);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
-        <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;" id="editProdModalTitle">Edit Product Details</h3>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:20px;">✏️</span>
+          <h3 style="margin:0; font-size:20px; font-weight:800; color:#0f172a;" id="editProdModalTitle">Edit Product Details</h3>
+        </div>
         <button type="button" id="closeEditProductModalBtn" onclick="closeEditProductModal()" style="border:none; background:none; font-size:24px; color:#94a3b8; cursor:pointer;">✕</button>
       </div>
 
@@ -1279,17 +1313,21 @@
 
         <div style="margin-bottom:12px;">
           <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Product Name <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="editProdTitle" class="add-prod-input" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+          <input type="text" id="editProdTitle" class="add-prod-input" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:600;">
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px;">
           <div>
             <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Selling Price (₹) <span style="color:#ef4444;">*</span></label>
-            <input type="number" id="editProdPrice" class="add-prod-input" step="0.01" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+            <input type="number" id="editProdPrice" class="add-prod-input" step="0.01" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-weight:700; color:#047857;">
           </div>
           <div>
             <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">MRP (₹) <span style="color:#ef4444;">*</span></label>
             <input type="number" id="editProdMrp" class="add-prod-input" step="0.01" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Discount (%)</label>
+            <input type="number" id="editProdDiscount" class="add-prod-input" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-weight:700; color:#15803d;">
           </div>
         </div>
 
@@ -1308,28 +1346,46 @@
           </div>
         </div>
 
-        <div style="margin-bottom:12px;">
-          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Product Status <span style="color:#ef4444;">*</span></label>
-          <select id="editProdStatus" class="add-prod-select" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
-            <option value="Active">🟢 Active</option>
-            <option value="Draft">🔴 Draft</option>
-            <option value="Out of Stock">🟡 Out of Stock</option>
-          </select>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Product Status <span style="color:#ef4444;">*</span></label>
+            <select id="editProdStatus" class="add-prod-select" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+              <option value="Active">🟢 Active</option>
+              <option value="Draft">🔴 Draft</option>
+              <option value="Out of Stock">🟡 Out of Stock</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Badge Ribbon</label>
+            <input type="text" id="editProdBadge" class="add-prod-input" placeholder="🔥 BESTSELLER" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+          </div>
         </div>
 
-        <div style="margin-bottom:12px;">
-          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Image Source URL / Path <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="editProdImage" class="add-prod-input" required style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;">
+        <!-- Product Image Upload / Path -->
+        <div style="margin-bottom:14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:8px;">Product Image <span style="color:#ef4444;">*</span></label>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div style="width:70px; height:70px; border-radius:8px; overflow:hidden; border:1px solid #cbd5e1; background:#ffffff; flex-shrink:0;">
+              <img id="editProdImgPreview" src="assets/bestseller.jpg" alt="Preview" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+              <label for="editProdFileInput" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#047857; color:#fff; padding:7px 14px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; width:fit-content;">
+                📁 Upload New Image
+              </label>
+              <input type="file" id="editProdFileInput" accept="image/*" style="display:none;">
+              <input type="text" id="editProdImage" class="add-prod-input" required placeholder="Or image path / URL" style="width:100%; padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px;">
+            </div>
+          </div>
         </div>
 
         <div style="margin-bottom:16px;">
           <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">Short Description</label>
-          <textarea id="editProdDesc" class="add-prod-textarea" rows="2" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px;"></textarea>
+          <textarea id="editProdDesc" class="add-prod-textarea" rows="2" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px;"></textarea>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #f1f5f9; padding-top:14px;">
-          <button type="button" onclick="closeEditProductModal()" style="border:1px solid #cbd5e1; background:#ffffff; color:#475569; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Cancel</button>
-          <button type="submit" style="border:none; background:#047857; color:#ffffff; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">💾 Save Product Changes</button>
+          <button type="button" onclick="closeEditProductModal()" style="border:1px solid #cbd5e1; background:#ffffff; color:#475569; padding:9px 18px; border-radius:8px; font-weight:700; cursor:pointer;">Cancel</button>
+          <button type="submit" style="border:none; background:#047857; color:#ffffff; padding:9px 22px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(4,120,87,0.25);">💾 Save Product Changes</button>
         </div>
       </form>
     </div>
