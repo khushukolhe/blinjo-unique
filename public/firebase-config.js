@@ -49,7 +49,60 @@ function checkFirestoreActive() {
 // --------------------------------------------------------------------------
 // 1. PRODUCTS COLLECTION API (Firestore / LocalStorage Hybrid)
 // --------------------------------------------------------------------------
-const defaultProductsList = [];
+const defaultProductsList = [
+  {
+    id: 'PROD-001',
+    title: 'Blinjo Premium Rose Urli Set with Diya',
+    subtitle: 'Handcrafted pure brass decorative bowl with scented roses & floating diyas',
+    price: 2999,
+    mrp: 5999,
+    stock: 20,
+    status: 'Active',
+    badge: '🔥 BESTSELLER',
+    image: 'assets/bestseller.jpg',
+    images: ['assets/bestseller.jpg', 'assets/cat_1.jpg', 'assets/cat_2.jpg'],
+    active: true
+  },
+  {
+    id: 'PROD-002',
+    title: 'Royal Peacock Brass Floating Urli',
+    subtitle: 'Artisan hand-engraved peacock design urli for living room & entrance elegance',
+    price: 2499,
+    mrp: 4999,
+    stock: 15,
+    status: 'Active',
+    badge: '👑 TRENDING',
+    image: 'assets/cat_1.jpg',
+    images: ['assets/cat_1.jpg'],
+    active: false
+  },
+  {
+    id: 'PROD-003',
+    title: 'Divine Pooja Room Lotus Diya Urli',
+    subtitle: 'Sacred lotus leaf design brass diya bowl for mandir, aarti & daily spiritual rituals',
+    price: 1999,
+    mrp: 3999,
+    stock: 25,
+    status: 'Active',
+    badge: '✨ DIVINE',
+    image: 'assets/cat_2.jpg',
+    images: ['assets/cat_2.jpg'],
+    active: false
+  },
+  {
+    id: 'PROD-004',
+    title: 'Diwali Festive Glow Floating Diya Set',
+    subtitle: 'Complete festival celebration set with 12 brass floating lamps and decorative flowers',
+    price: 1699,
+    mrp: 3499,
+    stock: 30,
+    status: 'Active',
+    badge: '🪔 FESTIVE',
+    image: 'assets/cat_3.jpg',
+    images: ['assets/cat_3.jpg'],
+    active: false
+  }
+];
 
 function fallbackProducts(callback) {
   const saved = localStorage.getItem('blinjo_products_v3');
@@ -57,8 +110,18 @@ function fallbackProducts(callback) {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         products = parsed.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      }
+    } catch(e) {}
+  }
+  if (!products || products.length === 0) {
+    products = [...defaultProductsList];
+    try {
+      localStorage.setItem('blinjo_products_v3', JSON.stringify(products));
+      const activeProd = products.find(p => p.active) || products[0];
+      if (activeProd && !localStorage.getItem('blinjo_active_product')) {
+        localStorage.setItem('blinjo_active_product', JSON.stringify(activeProd));
       }
     } catch(e) {}
   }

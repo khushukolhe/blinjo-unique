@@ -425,7 +425,13 @@ document.addEventListener('DOMContentLoaded', () => {
       prods = [];
     }
 
-    // Fallback to active product if prods is still empty
+    // Fallback to defaultProductsList or active product if prods is still empty
+    if (!prods || prods.length === 0) {
+      if (typeof defaultProductsList !== 'undefined' && Array.isArray(defaultProductsList) && defaultProductsList.length > 0) {
+        prods = [...defaultProductsList];
+      }
+    }
+
     if (!prods || prods.length === 0) {
       const activeStored = localStorage.getItem('blinjo_active_product');
       if (activeStored) {
