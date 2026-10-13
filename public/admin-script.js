@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('blinjo_data_cleaned_v2', 'true');
   }
 
+  // Purge any legacy dummy hero banner image from slideshow storage
+  try {
+    const rawSlides = localStorage.getItem('blinjo_slideshow_v2');
+    if (rawSlides) {
+      const parsedSlides = JSON.parse(rawSlides);
+      const filteredSlides = parsedSlides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+      if (filteredSlides.length !== parsedSlides.length) {
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(filteredSlides));
+      }
+    }
+  } catch(e) {}
+
   // Initial Orders DB starting empty for manual entry
   const defaultOrders = [];
 
@@ -1186,12 +1198,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function getStoredProducts() {
     const data = localStorage.getItem('blinjo_products_v3');
     if (!data) return [];
-    const parsed = JSON.parse(data);
-    const cleaned = parsed.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-    if (cleaned.length !== parsed.length) {
-      localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
+    try {
+      const parsed = JSON.parse(data);
+      if (!Array.isArray(parsed)) return [];
+      const cleaned = parsed.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      if (cleaned.length !== parsed.length) {
+        localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
+      }
+      return cleaned;
+    } catch(e) {
+      return [];
     }
-    return cleaned;
   }
 
   function saveStoredProducts(prods) {
@@ -2328,7 +2345,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function getSlidesData() {
     const saved = localStorage.getItem('blinjo_slideshow_v2');
     if (saved) {
-      try { return JSON.parse(saved); } catch(e){}
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+          if (cleaned.length !== parsed.length) {
+            localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(cleaned));
+          }
+          return cleaned;
+        }
+      } catch(e){}
     }
     return [];
   }
@@ -2458,6 +2484,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const slideForm = document.getElementById('slideForm');
   const slideFileInput = document.getElementById('slideFileInput');
 
+  function updateSlideModalPreview(mediaUrl, isVideo = false) {
+    const previewBox = document.getElementById('slideMediaPreviewBox');
+    const placeholder = document.getElementById('slideMediaPlaceholder');
+    const imgEl = document.getElementById('slideImgPreview');
+    const vidEl = document.getElementById('slideVideoPreview');
+    if (!previewBox) return;
+
+    if (!mediaUrl) {
+      if (placeholder) placeholder.style.display = 'block';
+      if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
+      if (vidEl) { vidEl.style.display = 'none'; vidEl.src = ''; }
+      return;
+    }
+
+    if (placeholder) placeholder.style.display = 'none';
+    const isVid = isVideo || mediaUrl.endsWith('.mp4') || (mediaUrl.indexOf('data:video') === 0);
+    if (isVid) {
+      if (imgEl) { imgEl.style.display = 'none'; }
+      if (vidEl) { vidEl.style.display = 'block'; vidEl.src = mediaUrl; }
+    } else {
+      if (vidEl) { vidEl.style.display = 'none'; }
+      if (imgEl) { imgEl.style.display = 'block'; imgEl.src = mediaUrl; }
+    }
+  }
+
   window.openSlideModal = function(slide = null) {
     const addSlideModal = document.getElementById('addSlideModal') || document.getElementById('slideModal');
     if (!addSlideModal) return;
@@ -2476,12 +2527,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const isVid = slide.mediaType === 'video' || (slide.image && slide.image.endsWith('.mp4'));
       if (isVid && mediaTypeVideo) mediaTypeVideo.checked = true;
       else if (mediaTypeImg) mediaTypeImg.checked = true;
+      updateSlideModalPreview(slide.image, isVid);
     } else {
       if (modalTitle) modalTitle.textContent = 'Add Slide Image or Video';
       if (editId) editId.value = '';
-      if (imgInput) imgInput.value = 'assets/hero_banner.jpg';
+      if (imgInput) imgInput.value = '';
       if (activeCheckbox) activeCheckbox.checked = true;
       if (mediaTypeImg) mediaTypeImg.checked = true;
+      updateSlideModalPreview('', false);
     }
 
     if (addSlideModal.parentElement !== document.body) {
@@ -2545,6 +2598,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             const imgInput = document.getElementById('slideImgInput');
             if (imgInput) imgInput.value = optimizedDataUrl;
+            updateSlideModalPreview(optimizedDataUrl, false);
             if (typeof showAdminOrderToast === 'function') {
               showAdminOrderToast('📸 Slide image loaded and optimized!');
             }
@@ -2557,12 +2611,23 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = function(evt) {
           const imgInput = document.getElementById('slideImgInput');
           if (imgInput) imgInput.value = evt.target.result;
+          updateSlideModalPreview(evt.target.result, true);
           if (typeof showAdminOrderToast === 'function') {
             showAdminOrderToast('🎥 Video slide loaded!');
           }
         };
         reader.readAsDataURL(file);
       }
+    });
+  }
+
+  // Live input change listener for URL field
+  const slideImgInputEl = document.getElementById('slideImgInput');
+  if (slideImgInputEl) {
+    slideImgInputEl.addEventListener('input', () => {
+      const val = slideImgInputEl.value.trim();
+      const isVid = document.getElementById('mediaTypeVideo')?.checked;
+      updateSlideModalPreview(val, isVid);
     });
   }
 
@@ -2579,6 +2644,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const mediaTypeImg = document.getElementById('mediaTypeImg');
       if (dataType === 'video' && mediaTypeVideo) mediaTypeVideo.checked = true;
       else if (mediaTypeImg) mediaTypeImg.checked = true;
+
+      updateSlideModalPreview(imgPath, dataType === 'video');
     });
   });
 
@@ -2596,9 +2663,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedMediaType = document.querySelector('input[name="slideMediaType"]:checked')?.value || 'image';
 
     if (!image) {
-      image = 'assets/hero_banner.jpg';
-      const input = document.getElementById('slideImgInput');
-      if (input) input.value = image;
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast('⚠️ Please upload an image or enter a media URL');
+      } else {
+        alert('Please upload an image or enter a media URL');
+      }
+      return false;
+    }
+
+    if (image.includes('hero_banner.jpg')) {
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast('⚠️ Please upload or choose a new slide image');
+      } else {
+        alert('Please upload or choose a new slide image');
+      }
+      return false;
     }
 
     try {

@@ -25,16 +25,16 @@
 </head>
 <body>
 
-  <!-- Hero Section -->
-  <section class="hero-section" id="home">
+  <!-- Hero Section (Dynamically rendered from Admin Panel Slideshow) -->
+  <section class="hero-section" id="home" style="display: none;">
     <div class="hero-bg-container">
-      <div class="hero-blur-backdrop" id="heroBlurBackdrop" style="background-image: url('assets/hero_banner.jpg');"></div>
-      <img src="assets/hero_banner.jpg" alt="Blinjo Premium Rose Urli with Diya & Decorative Idol" class="hero-bg-img" id="mainHeroImg">
+      <div class="hero-blur-backdrop" id="heroBlurBackdrop"></div>
+      <img src="" alt="Blinjo Slideshow" class="hero-bg-img" id="mainHeroImg">
     </div>
 
     <!-- Hero Slideshow Navigation Arrows -->
-    <button class="hero-nav-arrow hero-prev-arrow" id="heroPrevBtn" aria-label="Previous Slide">‹</button>
-    <button class="hero-nav-arrow hero-next-arrow" id="heroNextBtn" aria-label="Next Slide">›</button>
+    <button class="hero-nav-arrow hero-prev-arrow" id="heroPrevBtn" aria-label="Previous Slide" style="display: none;">‹</button>
+    <button class="hero-nav-arrow hero-next-arrow" id="heroNextBtn" aria-label="Next Slide" style="display: none;">›</button>
 
     <!-- Floating Corner Buy Now Button on Slideshow -->
     <div class="hero-corner-buy-wrap">
@@ -42,8 +42,29 @@
         <span class="hero-buy-flash">⚡</span> BUY NOW <span class="hero-buy-arrow">➔</span>
       </button>
     </div>
-
   </section>
+
+  <!-- Immediate Initializer: show only admin-configured slides without layout shift -->
+  <script>
+    (function() {
+      try {
+        var raw = localStorage.getItem('blinjo_slideshow_v2');
+        if (raw) {
+          var list = JSON.parse(raw).filter(function(s) {
+            return s && s.active !== false && s.image && s.image.indexOf('hero_banner.jpg') === -1;
+          });
+          if (list.length > 0) {
+            var homeEl = document.getElementById('home');
+            var imgEl = document.getElementById('mainHeroImg');
+            var blurEl = document.getElementById('heroBlurBackdrop');
+            if (homeEl) homeEl.style.display = 'block';
+            if (imgEl) imgEl.src = list[0].image;
+            if (blurEl) blurEl.style.backgroundImage = 'url("' + list[0].image + '")';
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Occasion / Use-Case Section -->
   <section class="usecase-section">

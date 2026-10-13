@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('blinjo_data_cleaned_v2', 'true');
   }
 
+  // Purge any legacy dummy hero banner image from slideshow storage
+  try {
+    const rawSlides = localStorage.getItem('blinjo_slideshow_v2');
+    if (rawSlides) {
+      const parsedSlides = JSON.parse(rawSlides);
+      const filteredSlides = parsedSlides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+      if (filteredSlides.length !== parsedSlides.length) {
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(filteredSlides));
+      }
+    }
+  } catch(e) {}
+
   // 1. Dynamic Gallery Carousel & Hero Image Slideshow
   const mainHeroImg = document.getElementById('mainHeroImg');
   const videoModal = document.getElementById('videoModal');
@@ -26,52 +38,80 @@ document.addEventListener('DOMContentLoaded', () => {
   let slideshowTimer = null;
 
   function renderStorefrontSlideshow(passedSlides = null) {
-    const defaultSlides = [];
-
+    const heroSection = document.getElementById('home');
     let slides = passedSlides;
     if (!slides) {
       const saved = localStorage.getItem('blinjo_slideshow_v2');
       slides = saved ? JSON.parse(saved) : [];
     }
 
-    activeSlidesList = (slides || []).filter(s => s.active !== false);
-
-    if (carouselTrack) {
-      carouselTrack.innerHTML = '';
-      activeSlidesList.forEach((slide, index) => {
-        const card = document.createElement('div');
-        card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
-        card.setAttribute('data-index', index);
-
-        if (slide.mediaType === 'video') {
-          card.innerHTML = `
-            <img src="${slide.image || 'assets/hero_banner.jpg'}" alt="Watch Video">
-            <div class="play-overlay">
-              <div class="play-circle">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              </div>
-            </div>
-          `;
-          card.addEventListener('click', () => {
-            goToHeroSlide(index);
-            openVideoModal();
-            resetSlideshowTimer();
-          });
-        } else {
-          card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
-          card.addEventListener('click', () => {
-            goToHeroSlide(index);
-            resetSlideshowTimer();
-          });
-        }
-
-        carouselTrack.appendChild(card);
-      });
+    // Clean out legacy hero_banner.jpg
+    const cleanedSlides = (slides || []).filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+    if (slides && cleanedSlides.length !== slides.length) {
+      try {
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(cleanedSlides));
+      } catch(e) {}
     }
 
-    if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
-    updateHeroDisplay(currentSlideIndex, false);
-    startSlideshowTimer();
+    // ONLY show active slides configured in admin panel
+    activeSlidesList = cleanedSlides.filter(s => s.active !== false && s.image);
+
+    if (activeSlidesList.length > 0) {
+      if (heroSection) heroSection.style.display = 'block';
+
+      if (carouselTrack) {
+        carouselTrack.innerHTML = '';
+        activeSlidesList.forEach((slide, index) => {
+          const card = document.createElement('div');
+          card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
+          card.setAttribute('data-index', index);
+
+          if (slide.mediaType === 'video') {
+            card.innerHTML = `
+              <img src="${slide.image}" alt="Watch Video">
+              <div class="play-overlay">
+                <div class="play-circle">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              </div>
+            `;
+            card.addEventListener('click', () => {
+              goToHeroSlide(index);
+              openVideoModal();
+              resetSlideshowTimer();
+            });
+          } else {
+            card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
+            card.addEventListener('click', () => {
+              goToHeroSlide(index);
+              resetSlideshowTimer();
+            });
+          }
+
+          carouselTrack.appendChild(card);
+        });
+      }
+
+      if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
+      updateHeroDisplay(currentSlideIndex, false);
+
+      if (activeSlidesList.length > 1) {
+        if (heroPrevBtn) heroPrevBtn.style.display = 'flex';
+        if (heroNextBtn) heroNextBtn.style.display = 'flex';
+        startSlideshowTimer();
+      } else {
+        if (heroPrevBtn) heroPrevBtn.style.display = 'none';
+        if (heroNextBtn) heroNextBtn.style.display = 'none';
+        stopSlideshowTimer();
+      }
+    } else {
+      // If no admin slides configured, do not show hero slideshow
+      if (heroSection) heroSection.style.display = 'none';
+      if (carouselTrack) carouselTrack.innerHTML = '';
+      if (heroPrevBtn) heroPrevBtn.style.display = 'none';
+      if (heroNextBtn) heroNextBtn.style.display = 'none';
+      stopSlideshowTimer();
+    }
   }
 
   function goToHeroSlide(index) {
@@ -81,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateHeroDisplay(index, transition = true) {
+    if (!activeSlidesList.length) return;
     const slide = activeSlidesList[index];
     if (!slide || !mainHeroImg) return;
 
@@ -117,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeSlidesList.length > 1) {
       slideshowTimer = setInterval(() => {
         goToHeroSlide(currentSlideIndex + 1);
-      }, 2000);
+      }, 3500);
     }
   }
 
@@ -278,28 +319,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const offerSection = document.querySelector('.offer-section');
     const storedProdsStr = localStorage.getItem('blinjo_products_v3');
     let storedProds = storedProdsStr ? JSON.parse(storedProdsStr) : [];
-    storedProds = storedProds.filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-
-    if (storedProds.length === 0) {
-      if (offerSection) offerSection.style.display = 'none';
-      return;
-    } else {
-      if (offerSection) offerSection.style.display = 'block';
-    }
 
     const activeProdData = localStorage.getItem('blinjo_active_product');
     let activeProd = null;
     if (activeProdData) {
       try {
         const parsed = JSON.parse(activeProdData);
-        if (parsed && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(parsed.id)) {
+        if (parsed && parsed.title) {
           activeProd = parsed;
         }
       } catch(e) {}
     }
 
-    if (!activeProd) {
+    if (!activeProd && storedProds.length > 0) {
       activeProd = storedProds.find(p => p.active) || storedProds[0];
+    }
+
+    if (offerSection) {
+      offerSection.style.display = 'block';
     }
 
     if (!activeProd) return;
@@ -541,22 +578,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
 
     let prods = passedProducts;
-    if (!prods) {
+    if (!prods || !prods.length) {
       const stored = localStorage.getItem('blinjo_products_v3');
       prods = stored ? JSON.parse(stored) : [];
     }
 
-    // Clean out dummy sample products if present
-    prods = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-
     grid.innerHTML = '';
 
-    if (prods.length === 0) {
-      if (catalogSection) catalogSection.style.display = 'none';
-      return;
-    } else {
-      if (catalogSection) catalogSection.style.display = 'block';
+    if (!prods || prods.length === 0) {
+      const activeStored = localStorage.getItem('blinjo_active_product');
+      if (activeStored) {
+        try {
+          const ap = JSON.parse(activeStored);
+          if (ap && ap.title) prods = [ap];
+        } catch(e) {}
+      }
     }
+
+    if (catalogSection) {
+      catalogSection.style.display = (prods && prods.length > 0) ? 'block' : 'none';
+    }
+
+    if (!prods || prods.length === 0) return;
 
     prods.forEach(p => {
       const card = document.createElement('div');

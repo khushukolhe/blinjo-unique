@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('blinjo_data_cleaned_v2', 'true');
   }
 
+  // Purge any legacy dummy hero banner image from slideshow storage
+  try {
+    const rawSlides = localStorage.getItem('blinjo_slideshow_v2');
+    if (rawSlides) {
+      const parsedSlides = JSON.parse(rawSlides);
+      const filteredSlides = parsedSlides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+      if (filteredSlides.length !== parsedSlides.length) {
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(filteredSlides));
+      }
+    }
+  } catch(e) {}
+
   // 1. Dynamic Gallery Carousel & Hero Image Slideshow
   const mainHeroImg = document.getElementById('mainHeroImg');
   const videoModal = document.getElementById('videoModal');
@@ -26,16 +38,27 @@ document.addEventListener('DOMContentLoaded', () => {
   let slideshowTimer = null;
 
   function renderStorefrontSlideshow(passedSlides = null) {
+    const heroSection = document.getElementById('home');
     let slides = passedSlides;
     if (!slides) {
       const saved = localStorage.getItem('blinjo_slideshow_v2');
       slides = saved ? JSON.parse(saved) : [];
     }
 
+    // Clean out legacy hero_banner.jpg
+    const cleanedSlides = (slides || []).filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+    if (slides && cleanedSlides.length !== slides.length) {
+      try {
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(cleanedSlides));
+      } catch(e) {}
+    }
+
     // ONLY show active slides configured in admin panel
-    activeSlidesList = (slides || []).filter(s => s && s.active !== false && s.image);
+    activeSlidesList = cleanedSlides.filter(s => s.active !== false && s.image);
 
     if (activeSlidesList.length > 0) {
+      if (heroSection) heroSection.style.display = 'block';
+
       if (carouselTrack) {
         carouselTrack.innerHTML = '';
         activeSlidesList.forEach((slide, index) => {
@@ -45,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (slide.mediaType === 'video') {
             card.innerHTML = `
-              <img src="${slide.image || 'assets/hero_banner.jpg'}" alt="Watch Video">
+              <img src="${slide.image}" alt="Watch Video">
               <div class="play-overlay">
                 <div class="play-circle">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -82,7 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
         stopSlideshowTimer();
       }
     } else {
-      // If no admin slides configured yet, show fallback banner without cycling
+      // If no admin slides configured, do not show hero slideshow
+      if (heroSection) heroSection.style.display = 'none';
       if (carouselTrack) carouselTrack.innerHTML = '';
       if (heroPrevBtn) heroPrevBtn.style.display = 'none';
       if (heroNextBtn) heroNextBtn.style.display = 'none';

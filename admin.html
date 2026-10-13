@@ -108,7 +108,7 @@
           </div>
           <div class="welcome-banner-img-group">
             <div class="banner-tagline">Beautiful Products for Every Occasion</div>
-            <img src="assets/hero_banner.jpg" alt="Brass Urli Set" class="banner-prod-img img-1">
+            <img src="assets/cat_1.jpg" alt="Brass Urli Set" class="banner-prod-img img-1">
             <img src="assets/cat_3.jpg" alt="Floating Flowers" class="banner-prod-img img-2">
             <img src="assets/bestseller.jpg" alt="Diya Urli" class="banner-prod-img img-3">
           </div>
@@ -841,7 +841,7 @@
               <button type="button" class="remove-thumb-btn">&times;</button>
             </div>
             <div class="preview-thumb-box">
-              <img src="assets/hero_banner.jpg" alt="Review 2">
+              <img src="assets/cat_1.jpg" alt="Review 2">
               <button type="button" class="remove-thumb-btn">&times;</button>
             </div>
             <div class="preview-thumb-box">
@@ -1576,22 +1576,34 @@
 
         <!-- Image or Video Source URL / Upload -->
         <div style="margin-bottom:16px;">
-          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Image or Video Source URL / Path <span style="color:#ef4444;">*</span></label>
-          <input type="text" id="slideImgInput" class="add-prod-input" value="assets/hero_banner.jpg" placeholder="Enter image URL or video file path (e.g. assets/hero_banner.jpg or video.mp4)" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px;">
-          
-          <!-- File Upload Button & Quick Presets -->
-          <div style="display:flex; flex-direction:column; gap:8px;">
-            <label style="display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#f1f5f9; border:1px dashed #94a3b8; padding:8px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:#475569;">
-              <span>📁 Upload File from Computer</span>
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:8px;">Slide Media (Image or Video) <span style="color:#ef4444;">*</span></label>
+
+          <!-- Upload Button & File Input -->
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <label style="display:inline-flex; align-items:center; gap:8px; background:#047857; color:#ffffff; padding:10px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#065f46'" onmouseout="this.style.background='#047857'">
+              <span>📤 Upload Image / Video</span>
               <input type="file" id="slideFileInput" accept="image/*,video/*" style="display:none;">
             </label>
+            <span style="font-size:12px; color:#64748b;">Supports JPG, PNG, WebP or MP4</span>
+          </div>
 
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button type="button" class="preset-img-btn" data-img="assets/hero_banner.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Hero Banner</button>
-              <button type="button" class="preset-img-btn" data-img="assets/bestseller.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Urli Photo</button>
-              <button type="button" class="preset-img-btn" data-img="assets/cat_3.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Flowers Photo</button>
-              <button type="button" class="preset-img-btn" data-img="https://www.w3schools.com/html/mov_bbb.mp4" data-type="video" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🎥 Sample Video (MP4)</button>
-            </div>
+          <!-- URL input -->
+          <input type="text" id="slideImgInput" class="add-prod-input" value="" placeholder="Or paste image URL or video file link..." style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px;">
+          
+          <!-- Live Media Preview Box -->
+          <div id="slideMediaPreviewBox" style="width:100%; height:170px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+            <span id="slideMediaPlaceholder" style="font-size:12.5px; color:#94a3b8; font-weight:600;">No media selected. Upload an image or enter URL.</span>
+            <img id="slideImgPreview" src="" alt="Slide Preview" style="display:none; width:100%; height:100%; object-fit:contain;">
+            <video id="slideVideoPreview" src="" autoplay loop muted playsinline style="display:none; width:100%; height:100%; object-fit:contain;"></video>
+          </div>
+
+          <!-- Quick Samples (without hero_banner.jpg) -->
+          <div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:11px; font-weight:700; color:#64748b;">Presets:</span>
+            <button type="button" class="preset-img-btn" data-img="assets/bestseller.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Urli Photo</button>
+            <button type="button" class="preset-img-btn" data-img="assets/cat_3.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Flowers Photo</button>
+            <button type="button" class="preset-img-btn" data-img="assets/cat_1.jpg" data-type="image" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🖼️ Living Room</button>
+            <button type="button" class="preset-img-btn" data-img="https://www.w3schools.com/html/mov_bbb.mp4" data-type="video" style="border:1px solid #cbd5e1; background:#ffffff; padding:4px 8px; border-radius:6px; font-size:11px; cursor:pointer;">🎥 Sample Video (MP4)</button>
           </div>
         </div>
 

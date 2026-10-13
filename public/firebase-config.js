@@ -307,7 +307,12 @@ async function syncSlideshow(callback) {
         const slides = [];
         if (!snapshot.empty) {
           snapshot.forEach((doc) => {
-            slides.push({ id: doc.id, ...doc.data() });
+            const data = doc.data();
+            if (data && data.image && !data.image.includes('hero_banner.jpg')) {
+              slides.push({ id: doc.id, ...data });
+            } else if (data && data.image && data.image.includes('hero_banner.jpg')) {
+              try { db.collection('slideshow').doc(doc.id).delete(); } catch(de){}
+            }
           });
         }
         localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
@@ -323,11 +328,13 @@ async function syncSlideshow(callback) {
 
 function fallbackSlideshow(callback) {
   const saved = localStorage.getItem('blinjo_slideshow_v2');
-  const slides = saved ? JSON.parse(saved) : [];
+  let slides = saved ? JSON.parse(saved) : [];
+  slides = slides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
   if (callback) callback(slides);
 }
 
 async function saveSlideFirestore(slideData) {
+  if (slideData.image && slideData.image.includes('hero_banner.jpg')) return;
   if (checkFirestoreActive()) {
     try {
       const docId = slideData.id || 'SLD-' + Math.floor(100 + Math.random() * 900);
@@ -339,6 +346,7 @@ async function saveSlideFirestore(slideData) {
   try {
     const saved = localStorage.getItem('blinjo_slideshow_v2');
     let slides = saved ? JSON.parse(saved) : defaultSlideshow;
+    slides = slides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
     const idx = slides.findIndex(s => s.id === slideData.id);
     if (idx !== -1) slides[idx] = { ...slides[idx], ...slideData };
     else slides.unshift(slideData);
