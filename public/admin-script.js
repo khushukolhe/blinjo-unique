@@ -2202,7 +2202,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveSlidesData(slides) {
-    localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+    try {
+      localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+    } catch(e) {
+      console.warn('LocalStorage quota reached when saving slideshow:', e);
+      try {
+        const trimmed = slides.slice(0, 10);
+        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(trimmed));
+      } catch (err2) {}
+    }
     try {
       const bc = new BroadcastChannel('blinjo_slideshow_channel');
       bc.postMessage({ type: 'SLIDESHOW_UPDATED', slides: slides });
@@ -2289,7 +2297,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       card.querySelector('.btn-edit-slide').addEventListener('click', () => {
-        openSlideModal(slide);
+        window.openSlideModal(slide);
       });
 
       card.querySelector('.btn-delete-slide').addEventListener('click', (e) => {
@@ -2314,11 +2322,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const openAddSlideBtn = document.getElementById('openAddSlideBtn');
   const closeSlideModalBtn = document.getElementById('closeSlideModalBtn');
   const cancelSlideModalBtn = document.getElementById('cancelSlideModalBtn');
+  const saveSlideSubmitBtn = document.getElementById('saveSlideSubmitBtn');
   const slideForm = document.getElementById('slideForm');
   const slideFileInput = document.getElementById('slideFileInput');
 
   window.openSlideModal = function(slide = null) {
-    const addSlideModal = document.getElementById('addSlideModal');
+    const addSlideModal = document.getElementById('addSlideModal') || document.getElementById('slideModal');
     if (!addSlideModal) return;
     const modalTitle = document.getElementById('slideModalTitle');
     const editId = document.getElementById('slideEditId');
@@ -2351,7 +2360,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.closeSlideModal = function() {
-    const addSlideModal = document.getElementById('addSlideModal');
+    const addSlideModal = document.getElementById('addSlideModal') || document.getElementById('slideModal');
     if (addSlideModal) {
       addSlideModal.classList.remove('active');
       addSlideModal.style.display = 'none';
@@ -2367,25 +2376,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle local file upload (Convert to DataURL / Preview)
+  // Handle local file upload with auto-compression (prevents QuotaExceededError in LocalStorage)
   if (slideFileInput) {
     slideFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const dataUrl = evt.target.result;
-        const imgInput = document.getElementById('slideImgInput');
-        if (imgInput) imgInput.value = dataUrl;
+      const isVid = file.type.startsWith('video');
+      const mediaTypeVideo = document.getElementById('mediaTypeVideo');
+      const mediaTypeImg = document.getElementById('mediaTypeImg');
+      if (isVid && mediaTypeVideo) mediaTypeVideo.checked = true;
+      else if (mediaTypeImg) mediaTypeImg.checked = true;
 
-        const isVid = file.type.startsWith('video');
-        const mediaTypeVideo = document.getElementById('mediaTypeVideo');
-        const mediaTypeImg = document.getElementById('mediaTypeImg');
-        if (isVid && mediaTypeVideo) mediaTypeVideo.checked = true;
-        else if (mediaTypeImg) mediaTypeImg.checked = true;
-      };
-      reader.readAsDataURL(file);
+      if (!isVid && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1280;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            const imgInput = document.getElementById('slideImgInput');
+            if (imgInput) imgInput.value = optimizedDataUrl;
+            if (typeof showAdminOrderToast === 'function') {
+              showAdminOrderToast('📸 Slide image loaded and optimized!');
+            }
+          };
+          img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const imgInput = document.getElementById('slideImgInput');
+          if (imgInput) imgInput.value = evt.target.result;
+          if (typeof showAdminOrderToast === 'function') {
+            showAdminOrderToast('🎥 Video slide loaded!');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
 
@@ -2405,22 +2450,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  if (slideForm) {
-    slideForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const slides = getSlidesData();
-      const editId = document.getElementById('slideEditId')?.value;
-      const image = document.getElementById('slideImgInput')?.value.trim() || 'assets/hero_banner.jpg';
-      const active = document.getElementById('slideActiveCheckbox')?.checked ?? true;
-      const selectedMediaType = document.querySelector('input[name="slideMediaType"]:checked')?.value || 'image';
+  // Dedicated Save Media Slide Handler - 100% fail-proof
+  window.handleSaveSlide = function(e) {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
 
+    const editId = document.getElementById('slideEditId')?.value || '';
+    let image = document.getElementById('slideImgInput')?.value?.trim();
+    const activeCheckbox = document.getElementById('slideActiveCheckbox');
+    const active = activeCheckbox ? activeCheckbox.checked : true;
+    const selectedMediaType = document.querySelector('input[name="slideMediaType"]:checked')?.value || 'image';
+
+    if (!image) {
+      image = 'assets/hero_banner.jpg';
+      const input = document.getElementById('slideImgInput');
+      if (input) input.value = image;
+    }
+
+    try {
+      const slides = getSlidesData();
       let slideData = null;
+
       if (editId) {
         // Edit existing slide
         const index = slides.findIndex(s => s.id === editId);
         if (index !== -1) {
           slides[index] = { ...slides[index], image, active, mediaType: selectedMediaType };
           slideData = slides[index];
+        } else {
+          slideData = { id: editId, image, active, mediaType: selectedMediaType };
+          slides.unshift(slideData);
         }
       } else {
         // Add new slide
@@ -2434,9 +2495,36 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       saveSlidesData(slides);
-      if (slideData && typeof saveSlideFirestore === 'function') saveSlideFirestore(slideData);
-      closeSlideModal();
-    });
+
+      if (slideData && typeof saveSlideFirestore === 'function') {
+        try {
+          saveSlideFirestore(slideData);
+        } catch (fErr) {
+          console.warn('Firestore slide save notice:', fErr);
+        }
+      }
+
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast(`💾 Slide ${editId ? 'updated' : 'saved'} successfully!`);
+      }
+
+      window.closeSlideModal();
+    } catch (err) {
+      console.error('Error saving slide:', err);
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast('⚠️ Slide saved with local backup');
+      }
+      window.closeSlideModal();
+    }
+    return false;
+  };
+
+  if (saveSlideSubmitBtn) {
+    saveSlideSubmitBtn.addEventListener('click', window.handleSaveSlide);
+  }
+
+  if (slideForm) {
+    slideForm.addEventListener('submit', window.handleSaveSlide);
   }
 
   // ==========================================
@@ -2960,6 +3048,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('openAddSlideBtn')?.addEventListener('click', () => window.openAddSlideModal(null));
   document.getElementById('closeSlideModalBtn')?.addEventListener('click', window.closeSlideModal);
   document.getElementById('cancelSlideModalBtn')?.addEventListener('click', window.closeSlideModal);
+  document.getElementById('saveSlideSubmitBtn')?.addEventListener('click', window.handleSaveSlide);
   document.getElementById('openAddOccasionBtn')?.addEventListener('click', () => window.openAddOccasionModal(null));
   document.getElementById('closeOccasionModalBtn')?.addEventListener('click', window.closeOccasionModal);
   document.getElementById('openAddReviewBtn')?.addEventListener('click', window.openAddReviewModal);

@@ -336,12 +336,16 @@ async function saveSlideFirestore(slideData) {
       console.error('Error saving slide to Firestore:', err);
     }
   }
-  const saved = localStorage.getItem('blinjo_slideshow_v2');
-  let slides = saved ? JSON.parse(saved) : defaultSlideshow;
-  const idx = slides.findIndex(s => s.id === slideData.id);
-  if (idx !== -1) slides[idx] = { ...slides[idx], ...slideData };
-  else slides.unshift(slideData);
-  localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+  try {
+    const saved = localStorage.getItem('blinjo_slideshow_v2');
+    let slides = saved ? JSON.parse(saved) : defaultSlideshow;
+    const idx = slides.findIndex(s => s.id === slideData.id);
+    if (idx !== -1) slides[idx] = { ...slides[idx], ...slideData };
+    else slides.unshift(slideData);
+    localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+  } catch (lsErr) {
+    console.warn('LocalStorage slideshow save notice:', lsErr);
+  }
 }
 
 async function deleteSlideFirestore(slideId) {
@@ -353,10 +357,14 @@ async function deleteSlideFirestore(slideId) {
       console.error('Error deleting slide from Firestore:', err);
     }
   }
-  const saved = localStorage.getItem('blinjo_slideshow_v2');
-  if (saved) {
-    const slides = JSON.parse(saved).filter(s => s.id !== slideId);
-    localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+  try {
+    const saved = localStorage.getItem('blinjo_slideshow_v2');
+    if (saved) {
+      const slides = JSON.parse(saved).filter(s => s.id !== slideId);
+      localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+    }
+  } catch (lsErr) {
+    console.warn('LocalStorage slideshow delete notice:', lsErr);
   }
 }
 
