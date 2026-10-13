@@ -209,10 +209,10 @@ button {
 .hero-section {
   position: relative;
   width: 100%;
-  height: auto;
-  min-height: 200px;
+  height: clamp(380px, 48vw, 640px);
+  min-height: 280px;
   overflow: hidden;
-  background-color: #0b1329;
+  background-color: #022c22;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -221,17 +221,31 @@ button {
 .hero-bg-container {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.hero-blur-backdrop {
+  position: absolute;
+  inset: -30px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(36px) brightness(0.85);
+  transform: scale(1.15);
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.3s ease, background-image 0.4s ease;
+}
+
 .hero-bg-img {
+  position: relative;
+  z-index: 2;
   width: 100%;
-  height: auto;
-  max-height: 650px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
   display: block;
   transition: opacity 0.4s ease;
@@ -1740,8 +1754,8 @@ button {
     display: none;
   }
   .hero-section {
-    height: auto !important;
-    min-height: 280px;
+    height: clamp(280px, 44vw, 420px) !important;
+    min-height: 240px;
   }
   .dash-charts-grid, .dash-bottom-grid {
     grid-template-columns: 1fr !important;
@@ -1767,7 +1781,7 @@ button {
     display: none !important;
   }
   .hero-section {
-    height: auto !important;
+    height: clamp(230px, 50vw, 340px) !important;
     min-height: 200px;
   }
   .hero-nav-arrow {
@@ -1817,10 +1831,12 @@ button {
     font-size: 12.5px;
   }
   .hero-section {
-    height: auto !important;
+    height: clamp(190px, 58vw, 270px) !important;
     min-height: 160px;
   }
   .customer-products-grid {
     grid-template-columns: 1fr !important;
   }
 }
+
+
