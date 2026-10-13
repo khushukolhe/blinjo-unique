@@ -209,32 +209,32 @@ button {
 .hero-section {
   position: relative;
   width: 100%;
-  height: clamp(380px, 48vw, 640px);
-  min-height: 280px;
+  height: auto;
+  min-height: unset;
   overflow: hidden;
   background-color: #022c22;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
 .hero-bg-container {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: auto;
   overflow: hidden;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
 .hero-blur-backdrop {
   position: absolute;
-  inset: -30px;
+  inset: -15px;
   background-size: cover;
-  background-position: center;
-  filter: blur(36px) brightness(0.85);
-  transform: scale(1.15);
+  background-position: top center;
+  filter: blur(28px) brightness(0.7);
+  transform: scale(1.08);
   z-index: 1;
   pointer-events: none;
   transition: opacity 0.3s ease, background-image 0.4s ease;
@@ -244,10 +244,12 @@ button {
   position: relative;
   z-index: 2;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  height: auto;
+  max-height: 85vh;
+  object-fit: contain;
+  object-position: top center;
   display: block;
+  margin: 0 auto;
   transition: opacity 0.4s ease;
 }
 
@@ -1630,7 +1632,8 @@ button {
 
 @media (max-width: 768px) {
   .hero-section {
-    height: 360px;
+    height: auto !important;
+    min-height: unset !important;
   }
   .title-bold {
     font-size: 38px;
@@ -1754,8 +1757,8 @@ button {
     display: none;
   }
   .hero-section {
-    height: clamp(280px, 44vw, 420px) !important;
-    min-height: 240px;
+    height: auto !important;
+    min-height: unset !important;
   }
   .dash-charts-grid, .dash-bottom-grid {
     grid-template-columns: 1fr !important;
@@ -1781,8 +1784,8 @@ button {
     display: none !important;
   }
   .hero-section {
-    height: clamp(230px, 50vw, 340px) !important;
-    min-height: 200px;
+    height: auto !important;
+    min-height: unset !important;
   }
   .hero-nav-arrow {
     width: 36px;
@@ -1831,8 +1834,8 @@ button {
     font-size: 12.5px;
   }
   .hero-section {
-    height: clamp(190px, 58vw, 270px) !important;
-    min-height: 160px;
+    height: auto !important;
+    min-height: unset !important;
   }
   .customer-products-grid {
     grid-template-columns: 1fr !important;
