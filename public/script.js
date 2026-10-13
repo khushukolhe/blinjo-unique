@@ -33,21 +33,97 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroNextBtn = document.getElementById('heroNextBtn');
   const carouselTrack = document.querySelector('.carousel-track');
 
+  // Store default authentic product slides
+  const defaultSlidesList = [
+    {
+      id: 'SLD-001',
+      image: 'assets/bestseller.jpg',
+      title: 'Handcrafted Brass Urli Bowl with Floating Diya',
+      subtitle: 'Infuse divine warmth & royal elegance into your festive home decor',
+      active: true,
+      mediaType: 'image'
+    },
+    {
+      id: 'SLD-002',
+      image: 'assets/cat_1.jpg',
+      title: 'Exquisite Living Room Centerpiece',
+      subtitle: 'Artisanal decorative bowl with scented roses & radiant glow',
+      active: true,
+      mediaType: 'image'
+    },
+    {
+      id: 'SLD-003',
+      image: 'assets/cat_2.jpg',
+      title: 'Divine Pooja Room Lotus Urli',
+      subtitle: 'Pure brass blessing for mandir, aarti & daily spiritual celebrations',
+      active: true,
+      mediaType: 'image'
+    },
+    {
+      id: 'SLD-004',
+      image: 'assets/cat_3.jpg',
+      title: 'Festive Diwali Diya & Floral Glow',
+      subtitle: 'Captivating handcrafted festive decor for joyful celebrations',
+      active: true,
+      mediaType: 'image'
+    }
+  ];
+
   let activeSlidesList = [];
   let currentSlideIndex = 0;
   let slideshowTimer = null;
 
+  function renderHeroDots() {
+    const dotsContainer = document.getElementById('heroDotsContainer');
+    if (!dotsContainer) return;
+    dotsContainer.innerHTML = '';
+    if (activeSlidesList.length <= 1) {
+      dotsContainer.style.display = 'none';
+      return;
+    }
+    dotsContainer.style.display = 'flex';
+    activeSlidesList.forEach((_, idx) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `hero-dot ${idx === currentSlideIndex ? 'active' : ''}`;
+      dot.setAttribute('aria-label', `Go to slide ${idx + 1}`);
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        goToHeroSlide(idx);
+        resetSlideshowTimer();
+      });
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  function updateHeroDots(index) {
+    const dotsContainer = document.getElementById('heroDotsContainer');
+    if (!dotsContainer) return;
+    const dots = dotsContainer.querySelectorAll('.hero-dot');
+    dots.forEach((dot, idx) => {
+      if (idx === index) dot.classList.add('active');
+      else dot.classList.remove('active');
+    });
+  }
+
   function renderStorefrontSlideshow(passedSlides = null) {
     const heroSection = document.getElementById('home');
     let slides = passedSlides;
-    if (!slides) {
+    if (!slides || !Array.isArray(slides)) {
       const saved = localStorage.getItem('blinjo_slideshow_v2');
-      slides = saved ? JSON.parse(saved) : [];
+      if (saved) {
+        try {
+          slides = JSON.parse(saved);
+        } catch(e) {}
+      }
     }
 
-    // Clean out legacy hero_banner.jpg
-    const cleanedSlides = (slides || []).filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
-    if (slides && cleanedSlides.length !== slides.length) {
+    // Clean out legacy dummy hero_banner.jpg
+    let cleanedSlides = (slides || []).filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+
+    // Fall back to defaultSlidesList if empty
+    if (!cleanedSlides || cleanedSlides.length === 0) {
+      cleanedSlides = [...defaultSlidesList];
       try {
         localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(cleanedSlides));
       } catch(e) {}
@@ -55,59 +131,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ONLY show active slides configured in admin panel
     activeSlidesList = cleanedSlides.filter(s => s.active !== false && s.image);
+    if (!activeSlidesList.length) {
+      activeSlidesList = [...cleanedSlides];
+    }
 
-    if (activeSlidesList.length > 0) {
-      if (heroSection) heroSection.style.display = 'block';
+    if (heroSection) heroSection.style.display = 'flex';
 
-      if (carouselTrack) {
-        carouselTrack.innerHTML = '';
-        activeSlidesList.forEach((slide, index) => {
-          const card = document.createElement('div');
-          card.className = `thumb-card ${index === currentSlideIndex ? 'active' : ''}`;
-          card.setAttribute('data-index', index);
+    renderHeroDots();
 
-          if (slide.mediaType === 'video') {
-            card.innerHTML = `
-              <img src="${slide.image}" alt="Watch Video">
-              <div class="play-overlay">
-                <div class="play-circle">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-              </div>
-            `;
-            card.addEventListener('click', () => {
-              goToHeroSlide(index);
-              openVideoModal();
-              resetSlideshowTimer();
-            });
-          } else {
-            card.innerHTML = `<img src="${slide.image}" alt="Slide ${index + 1}">`;
-            card.addEventListener('click', () => {
-              goToHeroSlide(index);
-              resetSlideshowTimer();
-            });
-          }
+    if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
+    updateHeroDisplay(currentSlideIndex, false);
 
-          carouselTrack.appendChild(card);
-        });
-      }
-
-      if (currentSlideIndex >= activeSlidesList.length) currentSlideIndex = 0;
-      updateHeroDisplay(currentSlideIndex, false);
-
-      if (activeSlidesList.length > 1) {
-        if (heroPrevBtn) heroPrevBtn.style.display = 'flex';
-        if (heroNextBtn) heroNextBtn.style.display = 'flex';
-        startSlideshowTimer();
-      } else {
-        if (heroPrevBtn) heroPrevBtn.style.display = 'none';
-        if (heroNextBtn) heroNextBtn.style.display = 'none';
-        stopSlideshowTimer();
-      }
+    if (activeSlidesList.length > 1) {
+      if (heroPrevBtn) heroPrevBtn.style.display = 'flex';
+      if (heroNextBtn) heroNextBtn.style.display = 'flex';
+      startSlideshowTimer();
     } else {
-      // If no admin slides configured, do not show hero slideshow
-      if (heroSection) heroSection.style.display = 'none';
-      if (carouselTrack) carouselTrack.innerHTML = '';
       if (heroPrevBtn) heroPrevBtn.style.display = 'none';
       if (heroNextBtn) heroNextBtn.style.display = 'none';
       stopSlideshowTimer();
@@ -126,31 +165,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!slide || !mainHeroImg) return;
 
     const heroBlurBackdrop = document.getElementById('heroBlurBackdrop');
+    const heroSlideCaption = document.getElementById('heroSlideCaption');
+    const heroSlideTitle = document.getElementById('heroSlideTitle');
+    const heroSlideDesc = document.getElementById('heroSlideDesc');
 
-    if (transition) {
-      mainHeroImg.style.opacity = '0.35';
-      if (heroBlurBackdrop) heroBlurBackdrop.style.opacity = '0.6';
-      setTimeout(() => {
-        mainHeroImg.src = slide.image;
-        mainHeroImg.style.opacity = '1';
-        if (heroBlurBackdrop) {
-          heroBlurBackdrop.style.backgroundImage = `url('${slide.image}')`;
-          heroBlurBackdrop.style.opacity = '1';
-        }
-      }, 160);
-    } else {
+    const updateMediaAndCaption = () => {
       mainHeroImg.src = slide.image;
       mainHeroImg.style.opacity = '1';
       if (heroBlurBackdrop) {
         heroBlurBackdrop.style.backgroundImage = `url('${slide.image}')`;
+        heroBlurBackdrop.style.opacity = '1';
       }
+      if (heroSlideCaption && heroSlideTitle && heroSlideDesc) {
+        if (slide.title || slide.subtitle) {
+          heroSlideTitle.textContent = slide.title || '';
+          heroSlideDesc.textContent = slide.subtitle || '';
+          heroSlideCaption.style.display = 'block';
+        } else {
+          heroSlideCaption.style.display = 'none';
+        }
+      }
+    };
+
+    if (transition) {
+      mainHeroImg.style.opacity = '0.35';
+      if (heroBlurBackdrop) heroBlurBackdrop.style.opacity = '0.6';
+      setTimeout(updateMediaAndCaption, 160);
+    } else {
+      updateMediaAndCaption();
     }
 
-    const cards = carouselTrack ? carouselTrack.querySelectorAll('.thumb-card') : [];
-    cards.forEach((c, idx) => {
-      if (idx === index) c.classList.add('active');
-      else c.classList.remove('active');
-    });
+    updateHeroDots(index);
   }
 
   function startSlideshowTimer() {
@@ -158,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeSlidesList.length > 1) {
       slideshowTimer = setInterval(() => {
         goToHeroSlide(currentSlideIndex + 1);
-      }, 3500);
+      }, 4500);
     }
   }
 
@@ -185,6 +230,26 @@ document.addEventListener('DOMContentLoaded', () => {
       goToHeroSlide(currentSlideIndex + 1);
       resetSlideshowTimer();
     });
+  }
+
+  // Mobile Touch Swipe Navigation for Storefront Slideshow
+  const homeHeroEl = document.getElementById('home');
+  if (homeHeroEl) {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    homeHeroEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    homeHeroEl.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchStartX - touchEndX > 50) {
+        goToHeroSlide(currentSlideIndex + 1);
+        resetSlideshowTimer();
+      } else if (touchEndX - touchStartX > 50) {
+        goToHeroSlide(currentSlideIndex - 1);
+        resetSlideshowTimer();
+      }
+    }, { passive: true });
   }
 
   window.addEventListener('storage', (e) => {

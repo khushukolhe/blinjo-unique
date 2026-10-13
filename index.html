@@ -26,15 +26,24 @@
 <body>
 
   <!-- Hero Section (Dynamically rendered from Admin Panel Slideshow) -->
-  <section class="hero-section" id="home" style="display: none;">
+  <section class="hero-section" id="home">
     <div class="hero-bg-container">
-      <div class="hero-blur-backdrop" id="heroBlurBackdrop"></div>
-      <img src="" alt="Blinjo Slideshow" class="hero-bg-img" id="mainHeroImg">
+      <div class="hero-blur-backdrop" id="heroBlurBackdrop" style="background-image: url('assets/bestseller.jpg');"></div>
+      <img src="assets/bestseller.jpg" alt="Blinjo Store Slideshow" class="hero-bg-img" id="mainHeroImg">
+    </div>
+
+    <!-- Optional Slide Caption Banner -->
+    <div class="hero-slide-caption" id="heroSlideCaption" style="display: none;">
+      <h3 class="hero-slide-title" id="heroSlideTitle"></h3>
+      <p class="hero-slide-desc" id="heroSlideDesc"></p>
     </div>
 
     <!-- Hero Slideshow Navigation Arrows -->
-    <button class="hero-nav-arrow hero-prev-arrow" id="heroPrevBtn" aria-label="Previous Slide" style="display: none;">‹</button>
-    <button class="hero-nav-arrow hero-next-arrow" id="heroNextBtn" aria-label="Next Slide" style="display: none;">›</button>
+    <button type="button" class="hero-nav-arrow hero-prev-arrow" id="heroPrevBtn" aria-label="Previous Slide">‹</button>
+    <button type="button" class="hero-nav-arrow hero-next-arrow" id="heroNextBtn" aria-label="Next Slide">›</button>
+
+    <!-- Slide Indicator Dots -->
+    <div class="hero-dots-container" id="heroDotsContainer"></div>
 
     <!-- Floating Corner Buy Now Button on Slideshow -->
     <div class="hero-corner-buy-wrap">
@@ -44,24 +53,36 @@
     </div>
   </section>
 
-  <!-- Immediate Initializer: show only admin-configured slides without layout shift -->
+  <!-- Immediate Initializer: load admin-configured slides without layout shift -->
   <script>
     (function() {
       try {
         var raw = localStorage.getItem('blinjo_slideshow_v2');
+        var list = null;
         if (raw) {
-          var list = JSON.parse(raw).filter(function(s) {
-            return s && s.active !== false && s.image && s.image.indexOf('hero_banner.jpg') === -1;
-          });
-          if (list.length > 0) {
-            var homeEl = document.getElementById('home');
-            var imgEl = document.getElementById('mainHeroImg');
-            var blurEl = document.getElementById('heroBlurBackdrop');
-            if (homeEl) homeEl.style.display = 'block';
-            if (imgEl) imgEl.src = list[0].image;
-            if (blurEl) blurEl.style.backgroundImage = 'url("' + list[0].image + '")';
-          }
+          try {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              list = parsed.filter(function(s) {
+                return s && s.active !== false && s.image && s.image.indexOf('hero_banner.jpg') === -1;
+              });
+            }
+          } catch(e) {}
         }
+        if (!list || list.length === 0) {
+          list = [
+            { image: 'assets/bestseller.jpg', title: 'Handcrafted Brass Urli Bowl with Floating Diya', subtitle: 'Infuse divine warmth & royal elegance into your festive home decor' },
+            { image: 'assets/cat_1.jpg', title: 'Exquisite Living Room Centerpiece', subtitle: 'Artisanal decorative bowl with scented roses & radiant glow' },
+            { image: 'assets/cat_2.jpg', title: 'Divine Pooja Room Lotus Urli', subtitle: 'Pure brass blessing for mandir, aarti & daily spiritual celebrations' },
+            { image: 'assets/cat_3.jpg', title: 'Festive Diwali Diya & Floral Glow', subtitle: 'Captivating handcrafted festive decor for joyful celebrations' }
+          ];
+        }
+        var homeEl = document.getElementById('home');
+        var imgEl = document.getElementById('mainHeroImg');
+        var blurEl = document.getElementById('heroBlurBackdrop');
+        if (homeEl) homeEl.style.display = 'flex';
+        if (imgEl && list[0] && list[0].image) imgEl.src = list[0].image;
+        if (blurEl && list[0] && list[0].image) blurEl.style.backgroundImage = 'url("' + list[0].image + '")';
       } catch (e) {}
     })();
   </script>

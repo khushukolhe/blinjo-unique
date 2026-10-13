@@ -2364,23 +2364,62 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // SLIDESHOW & BANNER MANAGEMENT MODULE (Media Only)
   // ==========================================
-  const defaultSlides = [];
+  const defaultSlides = [
+    {
+      id: 'SLD-001',
+      image: 'assets/bestseller.jpg',
+      title: 'Handcrafted Brass Urli Bowl with Floating Diya',
+      subtitle: 'Infuse divine warmth & royal elegance into your festive home decor',
+      active: true,
+      mediaType: 'image'
+    },
+    {
+      id: 'SLD-002',
+      image: 'assets/cat_1.jpg',
+      title: 'Exquisite Living Room Centerpiece',
+      subtitle: 'Artisanal decorative bowl with scented roses & radiant glow',
+      active: true,
+      mediaType: 'image'
+    },
+    {
+      id: 'SLD-003',
+      image: 'assets/cat_2.jpg',
+      title: 'Divine Pooja Room Lotus Urli',
+      subtitle: 'Pure brass blessing for mandir, aarti & daily spiritual celebrations',
+      active: true,
+      mediaType: 'image'
+    },
+    {
+      id: 'SLD-004',
+      image: 'assets/cat_3.jpg',
+      title: 'Festive Diwali Diya & Floral Glow',
+      subtitle: 'Captivating handcrafted festive decor for joyful celebrations',
+      active: true,
+      mediaType: 'image'
+    }
+  ];
 
   function getSlidesData() {
     const saved = localStorage.getItem('blinjo_slideshow_v2');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
-          if (cleaned.length !== parsed.length) {
-            localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(cleaned));
+          if (cleaned.length > 0) {
+            if (cleaned.length !== parsed.length) {
+              localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(cleaned));
+            }
+            return cleaned;
           }
-          return cleaned;
         }
       } catch(e){}
     }
-    return [];
+    const initial = [...defaultSlides];
+    try {
+      localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(initial));
+    } catch(e) {}
+    return initial;
   }
 
   function saveSlidesData(slides) {
@@ -2458,8 +2497,12 @@ document.addEventListener('DOMContentLoaded', () => {
             Slide #${index + 1}
           </span>
         </div>
-
-        <div style="padding:14px 16px; background:#ffffff; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        ${slide.title ? `
+        <div style="padding:10px 16px 4px 16px; background:#ffffff;">
+          <strong style="font-size:13.5px; color:#0f172a; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${slide.title}</strong>
+          ${slide.subtitle ? `<span style="font-size:12px; color:#64748b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${slide.subtitle}</span>` : ''}
+        </div>` : ''}
+        <div style="padding:14px 16px; background:#ffffff; display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #f1f5f9;">
           <button type="button" class="btn-toggle-slide" data-id="${slide.id}" style="border:1px solid #cbd5e1; background:#f8fafc; color:#334155; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;">
             ${slide.active ? 'Disable' : 'Enable'}
           </button>
@@ -2539,6 +2582,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('slideModalTitle');
     const editId = document.getElementById('slideEditId');
     const imgInput = document.getElementById('slideImgInput');
+    const titleInput = document.getElementById('slideTitleInput');
+    const subtitleInput = document.getElementById('slideSubtitleInput');
     const activeCheckbox = document.getElementById('slideActiveCheckbox');
     const mediaTypeImg = document.getElementById('mediaTypeImg');
     const mediaTypeVideo = document.getElementById('mediaTypeVideo');
@@ -2547,6 +2592,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (modalTitle) modalTitle.textContent = 'Edit Slide Media';
       if (editId) editId.value = slide.id;
       if (imgInput) imgInput.value = slide.image;
+      if (titleInput) titleInput.value = slide.title || '';
+      if (subtitleInput) subtitleInput.value = slide.subtitle || '';
       if (activeCheckbox) activeCheckbox.checked = slide.active;
       const isVid = slide.mediaType === 'video' || (slide.image && slide.image.endsWith('.mp4'));
       if (isVid && mediaTypeVideo) mediaTypeVideo.checked = true;
@@ -2556,6 +2603,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (modalTitle) modalTitle.textContent = 'Add Slide Image or Video';
       if (editId) editId.value = '';
       if (imgInput) imgInput.value = '';
+      if (titleInput) titleInput.value = '';
+      if (subtitleInput) subtitleInput.value = '';
       if (activeCheckbox) activeCheckbox.checked = true;
       if (mediaTypeImg) mediaTypeImg.checked = true;
       updateSlideModalPreview('', false);
@@ -2682,6 +2731,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editId = document.getElementById('slideEditId')?.value || '';
     let image = document.getElementById('slideImgInput')?.value?.trim();
+    const title = document.getElementById('slideTitleInput')?.value?.trim() || '';
+    const subtitle = document.getElementById('slideSubtitleInput')?.value?.trim() || '';
     const activeCheckbox = document.getElementById('slideActiveCheckbox');
     const active = activeCheckbox ? activeCheckbox.checked : true;
     const selectedMediaType = document.querySelector('input[name="slideMediaType"]:checked')?.value || 'image';
@@ -2712,10 +2763,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Edit existing slide
         const index = slides.findIndex(s => s.id === editId);
         if (index !== -1) {
-          slides[index] = { ...slides[index], image, active, mediaType: selectedMediaType };
+          slides[index] = { ...slides[index], image, title, subtitle, active, mediaType: selectedMediaType };
           slideData = slides[index];
         } else {
-          slideData = { id: editId, image, active, mediaType: selectedMediaType };
+          slideData = { id: editId, image, title, subtitle, active, mediaType: selectedMediaType };
           slides.unshift(slideData);
         }
       } else {
@@ -2723,6 +2774,8 @@ document.addEventListener('DOMContentLoaded', () => {
         slideData = {
           id: 'SLD-' + Math.floor(100 + Math.random() * 900),
           image,
+          title,
+          subtitle,
           active,
           mediaType: selectedMediaType
         };
@@ -2740,7 +2793,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (typeof showAdminOrderToast === 'function') {
-        showAdminOrderToast(`💾 Slide ${editId ? 'updated' : 'saved'} successfully!`);
+        showAdminOrderToast(`💾 Slide ${editId ? 'updated' : 'saved'} successfully! Live on storefront.`);
       }
 
       window.closeSlideModal();

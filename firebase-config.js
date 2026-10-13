@@ -469,25 +469,124 @@ async function addReviewFirestore(reviewData) {
 // --------------------------------------------------------------------------
 // 4. SLIDESHOW BANNERS COLLECTION API
 // --------------------------------------------------------------------------
-const defaultSlideshow = [];
+const defaultSlideshow = [
+  {
+    id: 'SLD-001',
+    image: 'assets/bestseller.jpg',
+    title: 'Handcrafted Brass Urli Bowl with Floating Diya',
+    subtitle: 'Infuse divine warmth & royal elegance into your festive home decor',
+    active: true,
+    mediaType: 'image'
+  },
+  {
+    id: 'SLD-002',
+    image: 'assets/cat_1.jpg',
+    title: 'Exquisite Living Room Centerpiece',
+    subtitle: 'Artisanal decorative bowl with scented roses & radiant glow',
+    active: true,
+    mediaType: 'image'
+  },
+  {
+    id: 'SLD-003',
+    image: 'assets/cat_2.jpg',
+    title: 'Divine Pooja Room Lotus Urli',
+    subtitle: 'Pure brass blessing for mandir, aarti & daily spiritual celebrations',
+    active: true,
+    mediaType: 'image'
+  },
+  {
+    id: 'SLD-004',
+    image: 'assets/cat_3.jpg',
+    title: 'Festive Diwali Diya & Floral Glow',
+    subtitle: 'Captivating handcrafted festive decor for joyful celebrations',
+    active: true,
+    mediaType: 'image'
+  }
+];
+
+function fallbackSlideshow(callback) {
+  const saved = localStorage.getItem('blinjo_slideshow_v2');
+  let slides = [];
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        slides = parsed.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+      }
+    } catch(e) {}
+  }
+  if (!slides || slides.length === 0) {
+    slides = [...defaultSlideshow];
+    try {
+      localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
+    } catch(e) {}
+  }
+  if (callback) callback(slides);
+  return slides;
+}
 
 async function syncSlideshow(callback) {
+  // 1. Immediately provide local slides so UI renders without latency
+  fallbackSlideshow(callback);
+
   if (checkFirestoreActive()) {
     try {
       return db.collection('slideshow').onSnapshot((snapshot) => {
-        const slides = [];
         if (!snapshot.empty) {
+          const firestoreSlides = [];
           snapshot.forEach((doc) => {
             const data = doc.data();
             if (data && data.image && !data.image.includes('hero_banner.jpg')) {
-              slides.push({ id: doc.id, ...data });
-            } else if (data && data.image && data.image.includes('hero_banner.jpg')) {
-              try { db.collection('slideshow').doc(doc.id).delete(); } catch(de){}
+              firestoreSlides.push({ id: doc.id, ...data });
             }
           });
+
+          // Merge with local storage slides so local admin additions are preserved
+          const saved = localStorage.getItem('blinjo_slideshow_v2');
+          let localSlides = [];
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              if (Array.isArray(parsed)) {
+                localSlides = parsed.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
+              }
+            } catch(e) {}
+          }
+
+          const mergedMap = new Map();
+          localSlides.forEach(s => { if (s && s.id) mergedMap.set(s.id, s); });
+          firestoreSlides.forEach(s => {
+            if (s && s.id) {
+              const existing = mergedMap.get(s.id) || {};
+              mergedMap.set(s.id, { ...existing, ...s });
+            }
+          });
+
+          const merged = Array.from(mergedMap.values());
+          if (merged.length > 0) {
+            try {
+              localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(merged));
+            } catch(e) {}
+            if (callback) callback(merged);
+          }
+        } else {
+          // If Firestore is empty, seed it with current local/default slides so Firestore has them
+          const currentSlides = fallbackSlideshow(null);
+          if (currentSlides && currentSlides.length > 0) {
+            try {
+              const batch = db.batch();
+              currentSlides.forEach(s => {
+                const docRef = db.collection('slideshow').doc(s.id);
+                batch.set(docRef, s, { merge: true });
+              });
+              batch.commit().catch(() => {});
+            } catch(be) {}
+          }
+          if (callback) callback(currentSlides);
         }
-        localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
-        if (callback) callback(slides);
+      }, (err) => {
+        console.warn('Firestore slideshow snapshot fallback:', err);
+        fallbackSlideshow(callback);
       });
     } catch (e) {
       fallbackSlideshow(callback);
@@ -497,34 +596,37 @@ async function syncSlideshow(callback) {
   }
 }
 
-function fallbackSlideshow(callback) {
-  const saved = localStorage.getItem('blinjo_slideshow_v2');
-  let slides = saved ? JSON.parse(saved) : [];
-  slides = slides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
-  if (callback) callback(slides);
-}
-
 async function saveSlideFirestore(slideData) {
   if (slideData.image && slideData.image.includes('hero_banner.jpg')) return;
+  const docId = slideData.id || 'SLD-' + Math.floor(100 + Math.random() * 900);
+  const cleanSlide = { ...slideData, id: docId };
+
   if (checkFirestoreActive()) {
     try {
-      const docId = slideData.id || 'SLD-' + Math.floor(100 + Math.random() * 900);
-      await db.collection('slideshow').doc(docId).set({ ...slideData, id: docId }, { merge: true });
+      await db.collection('slideshow').doc(docId).set(cleanSlide, { merge: true });
     } catch (err) {
       console.error('Error saving slide to Firestore:', err);
     }
   }
+
   try {
     const saved = localStorage.getItem('blinjo_slideshow_v2');
     let slides = saved ? JSON.parse(saved) : defaultSlideshow;
     slides = slides.filter(s => s && s.image && !s.image.includes('hero_banner.jpg'));
-    const idx = slides.findIndex(s => s.id === slideData.id);
-    if (idx !== -1) slides[idx] = { ...slides[idx], ...slideData };
-    else slides.unshift(slideData);
+    const idx = slides.findIndex(s => s.id === cleanSlide.id);
+    if (idx !== -1) slides[idx] = { ...slides[idx], ...cleanSlide };
+    else slides.unshift(cleanSlide);
     localStorage.setItem('blinjo_slideshow_v2', JSON.stringify(slides));
   } catch (lsErr) {
     console.warn('LocalStorage slideshow save notice:', lsErr);
   }
+
+  try {
+    const bc = new BroadcastChannel('blinjo_slideshow_channel');
+    bc.postMessage({ type: 'SLIDESHOW_UPDATED', slides: fallbackSlideshow(null) });
+    bc.close();
+  } catch(e) {}
+  window.dispatchEvent(new CustomEvent('blinjo_slideshow_updated', { detail: fallbackSlideshow(null) }));
 }
 
 async function deleteSlideFirestore(slideId) {
@@ -545,6 +647,13 @@ async function deleteSlideFirestore(slideId) {
   } catch (lsErr) {
     console.warn('LocalStorage slideshow delete notice:', lsErr);
   }
+
+  try {
+    const bc = new BroadcastChannel('blinjo_slideshow_channel');
+    bc.postMessage({ type: 'SLIDESHOW_UPDATED', slides: fallbackSlideshow(null) });
+    bc.close();
+  } catch(e) {}
+  window.dispatchEvent(new CustomEvent('blinjo_slideshow_updated', { detail: fallbackSlideshow(null) }));
 }
 
 async function deleteOrderFirestore(orderId) {
