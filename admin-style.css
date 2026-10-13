@@ -3073,20 +3073,21 @@
   justify-content: space-between;
 }
 
-/* 4 KPI Cards Row Alignment */
+/* 4 KPI Cards Row Alignment - Strictly 1 Line */
 .prod-kpi-grid, .kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 16px;
   margin-bottom: 24px;
   align-items: stretch;
+  width: 100%;
 }
 
 .order-kpi-card {
   background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: 14px;
-  padding: 20px;
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -3094,6 +3095,7 @@
   transition: all 0.2s ease;
   height: 100%;
   box-sizing: border-box;
+  min-width: 0;
 }
 
 .order-kpi-card:hover {
@@ -3105,7 +3107,7 @@
 .order-kpi-top {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
 }
 
 .order-kpi-icon {
@@ -3122,16 +3124,21 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .order-kpi-title {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .order-kpi-val {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--text-black);
   line-height: 1.2;
@@ -3188,7 +3195,8 @@
 /* Responsive Alignment Breakpoints */
 @media (max-width: 1280px) {
   .prod-kpi-grid, .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px;
   }
   .dash-bottom-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -3196,6 +3204,10 @@
 }
 
 @media (max-width: 1024px) {
+  .prod-kpi-grid, .kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
   .dash-charts-grid {
     grid-template-columns: 1fr;
   }
@@ -3221,8 +3233,18 @@
     max-width: 100%;
     padding: 16px;
   }
-  .prod-kpi-grid, .kpi-grid, .dash-bottom-grid {
+  .prod-kpi-grid, .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+  .dash-bottom-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .prod-kpi-grid, .kpi-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

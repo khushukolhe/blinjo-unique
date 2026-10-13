@@ -1590,14 +1590,46 @@ document.addEventListener('DOMContentLoaded', () => {
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (event) => {
-          const grid = document.getElementById('imagePreviewGrid');
-          if (grid && addMoreThumbBtn) {
-            const div = document.createElement('div');
-            div.className = 'preview-thumb-box';
-            div.innerHTML = `<img src="${event.target.result}" alt="Uploaded"><button type="button" class="remove-thumb-btn">&times;</button>`;
-            div.querySelector('.remove-thumb-btn').addEventListener('click', () => div.remove());
-            grid.insertBefore(div, addMoreThumbBtn);
-          }
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1000;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const optimized = canvas.toDataURL('image/jpeg', 0.85);
+
+            const grid = document.getElementById('imagePreviewGrid');
+            const addMore = document.getElementById('addMoreThumbBtn');
+            if (grid) {
+              const div = document.createElement('div');
+              div.className = 'preview-thumb-box';
+              div.style.cssText = 'position:relative; width:80px; height:80px; border-radius:10px; overflow:hidden; border:1px solid #e2e8f0; background:#f8fafc;';
+              div.innerHTML = `
+                <img src="${optimized}" alt="Uploaded" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" class="remove-thumb-btn" style="position:absolute; top:4px; right:4px; width:20px; height:20px; border-radius:50%; background:rgba(239,68,68,0.9); color:#ffffff; border:none; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1;">&times;</button>
+              `;
+              div.querySelector('.remove-thumb-btn').addEventListener('click', () => div.remove());
+              if (addMore) grid.insertBefore(div, addMore);
+              else grid.appendChild(div);
+            }
+            if (typeof showAdminOrderToast === 'function') {
+              showAdminOrderToast('📸 Product image uploaded & ready!');
+            }
+          };
+          img.src = event.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -2985,6 +3017,15 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openAddProductModal = function() {
     const addProductModal = document.getElementById('addProductModal');
     if (addProductModal) {
+      const grid = document.getElementById('imagePreviewGrid');
+      if (grid) {
+        grid.querySelectorAll('.preview-thumb-box').forEach(b => b.remove());
+      }
+      const title = document.getElementById('prodTitle');
+      if (title && !title.value) {
+        const form = document.getElementById('newProductForm');
+        if (form) form.reset();
+      }
       addProductModal.classList.add('active');
       addProductModal.style.display = 'flex';
     }

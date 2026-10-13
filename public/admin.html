@@ -115,7 +115,7 @@
         </div>
 
         <!-- 4 Stat Metric Cards Row -->
-        <div class="prod-kpi-grid mb-24">
+        <div class="prod-kpi-grid mb-24" style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; width:100%;">
           <div class="order-kpi-card" onclick="document.querySelector('[data-tab=tab-orders]').click()" style="cursor:pointer;">
             <div class="order-kpi-top">
               <div class="order-kpi-icon kpi-circle-green">
@@ -553,7 +553,7 @@
         </div>
 
         <!-- 4 KPI Stat Cards Row (Strictly in 1 line) -->
-        <div class="prod-kpi-grid mb-24">
+        <div class="prod-kpi-grid mb-24" style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; width:100%;">
           
           <div class="order-kpi-card" data-prod-kpi="all">
             <div class="order-kpi-top">
@@ -946,43 +946,30 @@
         <!-- Right Column: Product Image Upload Box & Grid -->
         <div class="add-prod-right-col">
           <div class="add-prod-card h-full">
-            <label class="field-label">Product Image <span class="text-red">*</span></label>
+            <label class="field-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <span>Product Image <span class="text-red">*</span></span>
+              <span style="font-size:12px; font-weight:600; color:#64748b;">(JPG, PNG, WebP)</span>
+            </label>
             
-            <!-- Dashed Drag & Drop Zone -->
-            <div class="image-drag-drop-zone" id="dropZoneBtn">
-              <div class="cloud-upload-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16l-4-4-4 4"></path><path d="M12 12v9"></path><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
-              </div>
-              <div class="drag-title">Drag & drop product images here</div>
-              <div class="drag-subtitle">or click to browse</div>
+            <!-- Clean Upload Image Button & Input -->
+            <div class="upload-image-action-wrap" style="margin-bottom:16px;">
+              <label for="prodImgFileInput" id="dropZoneBtn" style="display:flex; align-items:center; justify-content:center; gap:10px; background:#047857; color:#ffffff; padding:13px 20px; border-radius:10px; cursor:pointer; font-weight:700; font-size:14px; box-shadow:0 3px 10px rgba(4,120,87,0.25); transition:all 0.2s; user-select:none;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Upload Image</span>
+              </label>
               <input type="file" id="prodImgFileInput" accept="image/*" multiple style="display:none;">
             </div>
 
-            <div class="image-upload-specs">
-              <span>Upload up to 10 images (JPG, PNG, WebP)</span>
-              <span>Recommended size: 1000 x 1000 px</span>
-            </div>
-
-            <!-- Image Thumbnails Grid (Matches Screenshot) -->
-            <div class="product-preview-grid" id="imagePreviewGrid">
-              <div class="preview-thumb-box">
-                <img src="assets/bestseller.jpg" alt="Preview 1">
-                <button type="button" class="remove-thumb-btn">&times;</button>
-              </div>
-              <div class="preview-thumb-box">
-                <img src="assets/cat_3.jpg" alt="Preview 2">
-                <button type="button" class="remove-thumb-btn">&times;</button>
-              </div>
-              <div class="preview-thumb-box">
-                <img src="assets/thumb_3.jpg" alt="Preview 3">
-                <button type="button" class="remove-thumb-btn">&times;</button>
-              </div>
-              <div class="add-more-thumb-box" id="addMoreThumbBtn">
-                <span class="plus-sign">+</span>
+            <!-- Image Thumbnails Grid -->
+            <div class="product-preview-grid" id="imagePreviewGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:10px;">
+              <div class="add-more-thumb-box" id="addMoreThumbBtn" style="min-height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; border:2px dashed #cbd5e1; border-radius:10px; cursor:pointer; background:#f8fafc; color:#64748b; font-size:11px; font-weight:700; gap:4px;">
+                <span class="plus-sign" style="font-size:20px; line-height:1; color:#047857;">+</span>
                 <span>Add Image</span>
               </div>
-            </div>
-
             </div>
 
           </div>
