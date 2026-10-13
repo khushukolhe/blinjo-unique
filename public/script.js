@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // 4b. Render Products Catalog Grid dynamically from LocalStorage (Sync with Admin)
+  // 4b. Render Products Catalog Grid dynamically from LocalStorage & Firestore (Sync with Admin)
   const defaultStoreProducts = [];
 
   function renderCustomerProductsGrid(passedProducts = null) {
@@ -406,28 +406,55 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
 
     let prods = passedProducts;
-    if (!prods || !prods.length) {
+    if (!prods || !Array.isArray(prods) || prods.length === 0) {
       const stored = localStorage.getItem('blinjo_products_v3');
-      prods = stored ? JSON.parse(stored) : [];
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            prods = parsed;
+          }
+        } catch(e) {}
+      }
     }
 
-    grid.innerHTML = '';
+    // Clean legacy dummy items (BLJ001-BLJ008)
+    if (Array.isArray(prods)) {
+      prods = prods.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+    } else {
+      prods = [];
+    }
 
+    // Fallback to active product if prods is still empty
     if (!prods || prods.length === 0) {
       const activeStored = localStorage.getItem('blinjo_active_product');
       if (activeStored) {
         try {
           const ap = JSON.parse(activeStored);
-          if (ap && ap.title) prods = [ap];
+          if (ap && ap.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(ap.id)) {
+            prods = [ap];
+          }
         } catch(e) {}
       }
     }
 
+    grid.innerHTML = '';
+
+    // Always keep section visible so users see the collection area
     if (catalogSection) {
-      catalogSection.style.display = (prods && prods.length > 0) ? 'block' : 'none';
+      catalogSection.style.display = 'block';
     }
 
-    if (!prods || prods.length === 0) return;
+    if (!prods || prods.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; color: #64748b;">
+          <div style="font-size: 32px; margin-bottom: 8px;">🪔</div>
+          <h4 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">New Collection Arriving Soon</h4>
+          <p style="margin: 0; font-size: 14px; color: #64748b;">All handcrafted festive products added from the admin panel will appear here.</p>
+        </div>
+      `;
+      return;
+    }
 
     prods.forEach(p => {
       const card = document.createElement('div');
@@ -438,45 +465,75 @@ document.addEventListener('DOMContentLoaded', () => {
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
         display: flex;
         flex-direction: column;
+        cursor: pointer;
       `;
 
-      const discountPct = Math.round(((p.mrp - p.price) / p.mrp) * 100) || 40;
+      const numPrice = Number(p.price) || 0;
+      const numMrp = Number(p.mrp) || Math.round(numPrice * 1.5) || numPrice;
+      const discountPct = (numMrp > numPrice && numMrp > 0) ? Math.round(((numMrp - numPrice) / numMrp) * 100) : 0;
+      const isOutOfStock = p.stock <= 0 || p.status === 'Out of Stock';
+      const imgSrc = p.image || (Array.isArray(p.images) && p.images[0]) || 'assets/bestseller.jpg';
+      let badgeText = p.badge || (p.status === 'Active' ? '🔥 BESTSELLER' : 'NEW');
+      if (isOutOfStock) badgeText = 'OUT OF STOCK';
 
       card.innerHTML = `
-        <div style="position:relative; width:100%; height:200px; background:#f8fafc; overflow:hidden;">
-          <img src="${p.image}" alt="${p.title}" style="width:100%; height:100%; object-fit:cover;">
-          <span style="position:absolute; top:12px; left:12px; background:#047857; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; text-transform:uppercase;">${p.badge || 'NEW'}</span>
-          <span style="position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:11px; font-weight:800; padding:4px 8px; border-radius:8px;">${discountPct}% OFF</span>
+        <div style="position:relative; width:100%; height:220px; background:#f8fafc; overflow:hidden;">
+          <img src="${imgSrc}" alt="${p.title}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s ease;" onerror="this.onerror=null; this.src='assets/bestseller.jpg';">
+          <span style="position:absolute; top:12px; left:12px; background:${isOutOfStock ? '#64748b' : '#047857'}; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px;">${badgeText}</span>
+          ${discountPct > 0 ? `<span style="position:absolute; top:12px; right:12px; background:#ef4444; color:#fff; font-size:11px; font-weight:800; padding:4px 8px; border-radius:8px;">${discountPct}% OFF</span>` : ''}
         </div>
         
         <div style="padding:16px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
           <div>
-            <h4 style="margin:0 0 4px 0; font-size:16px; font-weight:800; color:#0f172a;">${p.title}</h4>
-            <p style="margin:0 0 12px 0; font-size:12px; color:#64748b; line-height:1.4;">${p.subtitle || 'Timeless handcrafted festive decor item'}</p>
+            <h4 style="margin:0 0 6px 0; font-size:16px; font-weight:800; color:#0f172a; line-height:1.3;">${p.title}</h4>
+            <p style="margin:0 0 12px 0; font-size:12.5px; color:#64748b; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${p.subtitle || 'Authentic handcrafted festive decor item'}</p>
           </div>
 
           <div>
             <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:14px;">
-              <strong style="font-size:20px; font-weight:800; color:#ff5722;">₹${p.price.toLocaleString('en-IN')}</strong>
-              <span style="text-decoration:line-through; color:#94a3b8; font-size:13px;">₹${p.mrp.toLocaleString('en-IN')}</span>
+              <strong style="font-size:20px; font-weight:800; color:#047857;">₹${numPrice.toLocaleString('en-IN')}</strong>
+              ${numMrp > numPrice ? `<span style="text-decoration:line-through; color:#94a3b8; font-size:13px;">₹${numMrp.toLocaleString('en-IN')}</span>` : ''}
             </div>
 
-            <button type="button" class="select-prod-btn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:10px; padding:12px; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 3px 10px rgba(4,120,87,0.25); transition:background 0.2s;">
-              <span>Buy Now</span> ➔
+            <button type="button" class="select-prod-btn" ${isOutOfStock ? 'disabled' : ''} style="width:100%; background:${isOutOfStock ? '#94a3b8' : '#047857'}; color:#ffffff; border:none; border-radius:10px; padding:12px; font-size:14px; font-weight:800; cursor:${isOutOfStock ? 'not-allowed' : 'pointer'}; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:${isOutOfStock ? 'none' : '0 3px 10px rgba(4,120,87,0.25)'}; transition:all 0.2s;">
+              <span>${isOutOfStock ? 'Out of Stock' : 'Buy Now'}</span> ${isOutOfStock ? '' : '➔'}
             </button>
           </div>
         </div>
       `;
 
-      card.querySelector('.select-prod-btn').addEventListener('click', () => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-4px)';
+        card.style.boxShadow = '0 12px 24px rgba(0,0,0,0.08)';
+        const cardImg = card.querySelector('img');
+        if (cardImg) cardImg.style.transform = 'scale(1.04)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0)';
+        card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.04)';
+        const cardImg = card.querySelector('img');
+        if (cardImg) cardImg.style.transform = 'scale(1)';
+      });
+
+      card.addEventListener('click', (e) => {
+        if (isOutOfStock) return;
+
         prods.forEach(item => item.active = (item.id === p.id));
         localStorage.setItem('blinjo_products_v3', JSON.stringify(prods));
         localStorage.setItem('blinjo_active_product', JSON.stringify(p));
         loadActiveProduct();
-        openAddedToCartModal(p.title);
+
+        if (e.target.closest('.select-prod-btn')) {
+          openAddedToCartModal(p.title);
+        } else {
+          const offerSection = document.querySelector('.festive-offer-section') || document.querySelector('.hero-section') || document.getElementById('purchase');
+          if (offerSection) {
+            offerSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
       });
 
       grid.appendChild(card);

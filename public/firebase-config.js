@@ -51,19 +51,92 @@ function checkFirestoreActive() {
 // --------------------------------------------------------------------------
 const defaultProductsList = [];
 
+function fallbackProducts(callback) {
+  const saved = localStorage.getItem('blinjo_products_v3');
+  let products = [];
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        products = parsed.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      }
+    } catch(e) {}
+  }
+  if (callback) callback(products);
+  return products;
+}
+
+async function seedInitialProducts(callback) {
+  const localSaved = localStorage.getItem('blinjo_products_v3');
+  let prods = [];
+  if (localSaved) {
+    try {
+      const parsed = JSON.parse(localSaved);
+      if (Array.isArray(parsed)) {
+        prods = parsed.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      }
+    } catch(e) {}
+  }
+
+  if (prods.length > 0 && checkFirestoreActive()) {
+    try {
+      const batch = db.batch();
+      prods.forEach((prod) => {
+        const docRef = db.collection('products').doc(prod.id);
+        batch.set(docRef, prod, { merge: true });
+      });
+      await batch.commit();
+      console.log('🌱 Firestore seeded with local products:', prods.length);
+    } catch(err) {
+      console.warn('Could not seed local products to Firestore:', err);
+    }
+  }
+  if (callback) callback(prods);
+}
+
 async function syncProducts(callback) {
+  // 1. Provide immediate local products so UI loads without any latency
+  fallbackProducts(callback);
+
   if (checkFirestoreActive()) {
     try {
       return db.collection('products').onSnapshot((snapshot) => {
         if (!snapshot.empty) {
-          const products = [];
+          const firestoreProducts = [];
           snapshot.forEach((doc) => {
-            products.push({ id: doc.id, ...doc.data() });
+            firestoreProducts.push({ id: doc.id, ...doc.data() });
           });
-          localStorage.setItem('blinjo_products_v3', JSON.stringify(products));
-          if (callback) callback(products);
+
+          const cleanedFs = firestoreProducts.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+
+          // Merge with any local storage products so locally added items are never lost
+          const localSaved = localStorage.getItem('blinjo_products_v3');
+          let localProds = [];
+          if (localSaved) {
+            try {
+              const parsed = JSON.parse(localSaved);
+              if (Array.isArray(parsed)) {
+                localProds = parsed.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+              }
+            } catch(e) {}
+          }
+
+          const mergedMap = new Map();
+          // Add local products first
+          localProds.forEach(p => { if (p && p.id) mergedMap.set(p.id, p); });
+          // Merge or supplement with firestore products
+          cleanedFs.forEach(p => {
+            if (p && p.id) {
+              const existing = mergedMap.get(p.id) || {};
+              mergedMap.set(p.id, { ...existing, ...p });
+            }
+          });
+
+          const merged = Array.from(mergedMap.values());
+          localStorage.setItem('blinjo_products_v3', JSON.stringify(merged));
+          if (callback) callback(merged);
         } else {
-          // Seed default products to Firestore if empty
+          // Empty snapshot: preserve and seed from local storage if available
           seedInitialProducts(callback);
         }
       }, (err) => {
@@ -78,44 +151,53 @@ async function syncProducts(callback) {
   }
 }
 
-async function seedInitialProducts(callback) {
-  if (!checkFirestoreActive()) return;
-  const batch = db.batch();
-  defaultProductsList.forEach((prod) => {
-    const docRef = db.collection('products').doc(prod.id);
-    batch.set(docRef, prod);
-  });
-  await batch.commit();
-  console.log('🌱 Firestore seeded with initial real products!');
-  if (callback) callback(defaultProductsList);
-}
-
-function fallbackProducts(callback) {
-  const saved = localStorage.getItem('blinjo_products_v3');
-  const products = saved ? JSON.parse(saved) : defaultProductsList;
-  if (callback) callback(products);
-}
-
 async function addOrUpdateProductFirestore(productData) {
+  const docId = productData.id || ('PROD-' + Date.now());
+  const cleanProd = { ...productData, id: docId };
+
   if (checkFirestoreActive()) {
     try {
-      const docId = productData.id || 'BLJ' + Math.floor(100 + Math.random() * 900);
-      await db.collection('products').doc(docId).set({ ...productData, id: docId }, { merge: true });
+      await db.collection('products').doc(docId).set(cleanProd, { merge: true });
       console.log('✅ Product saved to Firestore:', docId);
     } catch (err) {
-      console.error('Error saving product to Firestore:', err);
+      console.warn('Firestore product save note:', err.message);
     }
   }
-  // Also sync LocalStorage
+
+  // Sync to LocalStorage
   const saved = localStorage.getItem('blinjo_products_v3');
-  let products = saved ? JSON.parse(saved) : defaultProductsList;
-  const index = products.findIndex(p => p.id === productData.id);
-  if (index !== -1) {
-    products[index] = { ...products[index], ...productData };
-  } else {
-    products.unshift(productData);
+  let products = [];
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) products = parsed;
+    } catch(e) {}
   }
+
+  const index = products.findIndex(p => p.id === docId);
+  if (index !== -1) {
+    products[index] = { ...products[index], ...cleanProd };
+  } else {
+    products.unshift(cleanProd);
+  }
+
+  // Filter out any legacy dummy records
+  products = products.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
   localStorage.setItem('blinjo_products_v3', JSON.stringify(products));
+
+  if (cleanProd.active) {
+    localStorage.setItem('blinjo_active_product', JSON.stringify(cleanProd));
+    localStorage.setItem('blinjo_offer_price', cleanProd.price);
+    if (cleanProd.stock !== undefined) localStorage.setItem('blinjo_stock', cleanProd.stock);
+  }
+
+  // Broadcast to other tabs & storefront in real-time
+  try {
+    const prodBC = new BroadcastChannel('blinjo_products_channel');
+    prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: products });
+    prodBC.close();
+  } catch(e) {}
+  window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: products }));
 }
 
 async function deleteProductFirestore(productId) {
@@ -124,13 +206,39 @@ async function deleteProductFirestore(productId) {
       await db.collection('products').doc(productId).delete();
       console.log('🗑️ Product deleted from Firestore:', productId);
     } catch (err) {
-      console.error('Error deleting product from Firestore:', err);
+      console.warn('Firestore product delete note:', err.message);
     }
   }
+
   const saved = localStorage.getItem('blinjo_products_v3');
   if (saved) {
-    const products = JSON.parse(saved).filter(p => p.id !== productId);
-    localStorage.setItem('blinjo_products_v3', JSON.stringify(products));
+    try {
+      let products = JSON.parse(saved);
+      if (Array.isArray(products)) {
+        products = products.filter(p => p.id !== productId);
+        localStorage.setItem('blinjo_products_v3', JSON.stringify(products));
+
+        const activeStored = localStorage.getItem('blinjo_active_product');
+        if (activeStored) {
+          const ap = JSON.parse(activeStored);
+          if (ap.id === productId) {
+            if (products.length > 0) {
+              products[0].active = true;
+              localStorage.setItem('blinjo_active_product', JSON.stringify(products[0]));
+            } else {
+              localStorage.removeItem('blinjo_active_product');
+            }
+          }
+        }
+
+        try {
+          const prodBC = new BroadcastChannel('blinjo_products_channel');
+          prodBC.postMessage({ type: 'PRODUCTS_UPDATED', prods: products });
+          prodBC.close();
+        } catch(e) {}
+        window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: products }));
+      }
+    } catch(e) {}
   }
 }
 
