@@ -49,7 +49,72 @@ function checkFirestoreActive() {
 // --------------------------------------------------------------------------
 // 1. PRODUCTS COLLECTION API (Firestore / LocalStorage Hybrid)
 // --------------------------------------------------------------------------
-const defaultProductsList = [];
+const defaultProductsList = [
+  {
+    id: 'PROD-ADMIN-01',
+    title: 'Blinjo Royal Peacock Brass Floating Urli',
+    subtitle: 'Artisanal hand-engraved peacock design urli with diya holders for Diwali & pooja decor',
+    price: 2499,
+    mrp: 4999,
+    stock: 35,
+    status: 'Active',
+    badge: '🔥 BESTSELLER',
+    image: 'assets/cat_1.webp',
+    images: ['assets/cat_1.webp'],
+    category: 'Urli Bowls',
+    active: false,
+    addedByAdmin: true,
+    fromAdmin: true
+  },
+  {
+    id: 'PROD-ADMIN-02',
+    title: 'Blinjo Divine Lotus Brass Diya Urli Bowl',
+    subtitle: 'Handcrafted blooming lotus petal brass urli with central diya for home mandir & entrance',
+    price: 1999,
+    mrp: 3999,
+    stock: 28,
+    status: 'Active',
+    badge: '🔥 BESTSELLER',
+    image: 'assets/cat_2.webp',
+    images: ['assets/cat_2.webp'],
+    category: 'Diya Sets',
+    active: false,
+    addedByAdmin: true,
+    fromAdmin: true
+  },
+  {
+    id: 'PROD-ADMIN-03',
+    title: 'Blinjo Festive Glow Floating Diya Urli Set',
+    subtitle: 'Grand festive celebration set with handcrafted floating brass lamps and floral accents',
+    price: 1699,
+    mrp: 3499,
+    stock: 42,
+    status: 'Active',
+    badge: '🔥 BESTSELLER',
+    image: 'assets/cat_3.webp',
+    images: ['assets/cat_3.webp'],
+    category: 'Festive Decor',
+    active: false,
+    addedByAdmin: true,
+    fromAdmin: true
+  },
+  {
+    id: 'PROD-ADMIN-04',
+    title: 'Blinjo Traditional Hand-Hammered Brass Urli',
+    subtitle: 'Heavy-gauge brass bowl with traditional hammered finish for flower petals and floating candles',
+    price: 2199,
+    mrp: 4499,
+    stock: 20,
+    status: 'Active',
+    badge: '🔥 BESTSELLER',
+    image: 'assets/cat_4.webp',
+    images: ['assets/cat_4.webp'],
+    category: 'Urli Bowls',
+    active: false,
+    addedByAdmin: true,
+    fromAdmin: true
+  }
+];
 const dummyProductIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
 
 function fallbackProducts(callback) {
@@ -61,6 +126,12 @@ function fallbackProducts(callback) {
       if (Array.isArray(parsed) && parsed.length > 0) {
         products = parsed.filter(p => p && p.title && !dummyProductIds.includes(p.id));
       }
+    } catch(e) {}
+  }
+  if (!products || products.length === 0) {
+    products = defaultProductsList.map(p => ({ ...p }));
+    try {
+      localStorage.setItem('blinjo_products_v3', JSON.stringify(products));
     } catch(e) {}
   }
   if (callback) callback(products);

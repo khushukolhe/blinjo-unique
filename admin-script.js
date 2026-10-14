@@ -1198,17 +1198,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getStoredProducts() {
     const data = localStorage.getItem('blinjo_products_v3');
-    if (!data) return [];
+    if (!data) return (typeof defaultProductsList !== 'undefined' && defaultProductsList.length > 0) ? defaultProductsList.map(p => ({ ...p })) : [];
     try {
       const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed) || parsed.length === 0) return [];
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        return (typeof defaultProductsList !== 'undefined' && defaultProductsList.length > 0) ? defaultProductsList.map(p => ({ ...p })) : [];
+      }
       const cleaned = parsed.filter(p => p && p.title && !dummyProductIds.includes(p.id));
+      if (cleaned.length === 0 && typeof defaultProductsList !== 'undefined' && defaultProductsList.length > 0) {
+        return defaultProductsList.map(p => ({ ...p }));
+      }
       if (cleaned.length !== parsed.length) {
         localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
       }
       return cleaned;
     } catch(e) {
-      return [];
+      return (typeof defaultProductsList !== 'undefined' && defaultProductsList.length > 0) ? defaultProductsList.map(p => ({ ...p })) : [];
     }
   }
 
@@ -1835,9 +1840,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const stock = parseInt(document.getElementById('prodStock').value) || 10;
       const status = document.getElementById('prodStatus')?.value || 'Active';
 
-      // Pick all preview images
+      // Pick all preview images or direct image URL input
       const allImgs = Array.from(document.querySelectorAll('#imagePreviewGrid .preview-thumb-box img')).map(img => img.src);
-      const firstImg = allImgs[0] || 'assets/bestseller.jpg';
+      const urlInput = document.getElementById('prodImgUrl')?.value.trim();
+      if (urlInput && !allImgs.includes(urlInput)) {
+        allImgs.unshift(urlInput);
+      }
+      const firstImg = allImgs[0] || urlInput || 'assets/bestseller.webp';
 
       const newProd = {
         id: 'PROD-' + Date.now(),
@@ -1850,6 +1859,7 @@ document.addEventListener('DOMContentLoaded', () => {
         badge: status === 'Active' ? '🔥 BESTSELLER' : (status === 'Out of Stock' ? 'OUT OF STOCK' : 'NEW'),
         image: firstImg,
         images: allImgs.length > 0 ? allImgs : [firstImg],
+        category: 'Festive Decor',
         active: true,
         addedByAdmin: true,
         fromAdmin: true
@@ -1863,7 +1873,11 @@ document.addEventListener('DOMContentLoaded', () => {
       updateProductKPIs();
       renderProductsTable();
 
-      alert(`🎉 Product "${title}" saved successfully & published to live store!`);
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast(`Product "${title}" saved & published!`);
+      } else {
+        console.log(`Product "${title}" saved`);
+      }
       addProductModal.classList.remove('active');
       addProductModal.style.display = 'none';
       newProductForm.reset();

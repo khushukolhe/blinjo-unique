@@ -249,7 +249,7 @@
   </section>
 
   <!-- Customer Products Catalog Grid Section (Dynamically populated from Admin) -->
-  <section class="products-catalog-section" id="products-catalog" style="display:none; padding:60px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+  <section class="products-catalog-section" id="products-catalog" style="padding:60px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
     <div style="max-width:1200px; margin:0 auto;">
       <div style="text-align:center; margin-bottom:40px;">
         <span style="background:#e6f4ea; color:#047857; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:8px;">Handcrafted Elegance</span>
@@ -261,20 +261,24 @@
     </div>
   </section>
 
-  <!-- Immediate Products Initializer: show section only when admin-added products exist -->
+  <!-- Products Initializer: ensures festive collection renders cleanly -->
   <script>
     (function() {
       try {
         var raw = localStorage.getItem('blinjo_products_v3');
         var sec = document.getElementById('products-catalog');
-        if (raw && sec) {
-          var parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            var dummyIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
-            var valid = parsed.filter(function(p) {
-              return p && p.title && dummyIds.indexOf(p.id) === -1;
-            });
-            sec.style.display = valid.length > 0 ? 'block' : 'none';
+        if (sec) {
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              var dummyIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
+              var valid = parsed.filter(function(p) {
+                return p && p.title && dummyIds.indexOf(p.id) === -1;
+              });
+              sec.style.display = valid.length > 0 ? 'block' : 'none';
+            }
+          } else {
+            sec.style.display = 'block';
           }
         }
       } catch(e) {}

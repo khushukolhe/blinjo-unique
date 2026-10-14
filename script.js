@@ -605,11 +605,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dummyIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
 
-    // Clean legacy dummy items and only retain products added from admin panel
+    // Clean legacy dummy items and retain authentic products
     if (Array.isArray(prods)) {
       prods = prods.filter(p => p && p.title && !dummyIds.includes(p.id));
     } else {
       prods = [];
+    }
+
+    if ((!prods || prods.length === 0) && typeof defaultProductsList !== 'undefined' && defaultProductsList.length > 0) {
+      prods = defaultProductsList.map(p => ({ ...p }));
     }
 
     grid.innerHTML = '';
