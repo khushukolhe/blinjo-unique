@@ -251,12 +251,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const delivered = ordersList.filter(o => o.status === 'Delivered').length;
     const cancelled = ordersList.filter(o => o.status === 'Cancelled').length;
 
+    const kpiTotalOrdersVal = document.getElementById('kpiTotalOrdersVal');
+    const kpiPendingVal = document.getElementById('kpiPendingVal');
+    const kpiProcessingVal = document.getElementById('kpiProcessingVal');
+    const kpiShippedVal = document.getElementById('kpiShippedVal');
+    const kpiDeliveredVal = document.getElementById('kpiDeliveredVal');
+    const kpiCancelledVal = document.getElementById('kpiCancelledVal');
+
     if (kpiTotalOrdersVal) kpiTotalOrdersVal.textContent = total.toLocaleString('en-IN');
     if (kpiPendingVal) kpiPendingVal.textContent = pending;
     if (kpiProcessingVal) kpiProcessingVal.textContent = processing;
     if (kpiShippedVal) kpiShippedVal.textContent = shipped;
     if (kpiDeliveredVal) kpiDeliveredVal.textContent = delivered;
     if (kpiCancelledVal) kpiCancelledVal.textContent = cancelled;
+
+    const tabAllCount = document.getElementById('tabAllCount');
+    const tabPendingCount = document.getElementById('tabPendingCount');
+    const tabProcessingCount = document.getElementById('tabProcessingCount');
+    const tabShippedCount = document.getElementById('tabShippedCount');
+    const tabDeliveredCount = document.getElementById('tabDeliveredCount');
+    const tabCancelledCount = document.getElementById('tabCancelledCount');
+    const sidebarOrdersCount = document.getElementById('sidebarOrdersCount');
 
     if (tabAllCount) tabAllCount.textContent = total.toLocaleString('en-IN');
     if (tabPendingCount) tabPendingCount.textContent = pending;
@@ -1238,45 +1253,30 @@ document.addEventListener('DOMContentLoaded', () => {
     window.dispatchEvent(new CustomEvent('blinjo_products_updated', { detail: cleaned }));
   }
 
+  // ==========================================
+  // PRODUCTS MANAGEMENT SYSTEM CONTROLLER
+  // ==========================================
   let productsList = getStoredProducts();
   let currentProdPage = 1;
   const prodPageSize = 10;
+  let currentViewingProd = null;
 
-  if (typeof syncProducts === 'function') {
-    syncProducts((syncedProds) => {
-      if (syncedProds && Array.isArray(syncedProds)) {
-        const cleaned = syncedProds.filter(p => p && p.title && !dummyProductIds.includes(p.id));
-        productsList = cleaned;
-        updateProductKPIs();
-        renderProductsTable();
-      }
-    });
-  }
-
-  const productsTableBody = document.getElementById('productsTableBody');
-  const kpiTotalProdVal = document.getElementById('kpiTotalProdVal');
-  const kpiActiveProdVal = document.getElementById('kpiActiveProdVal');
-  const kpiOutOfStockVal = document.getElementById('kpiOutOfStockVal');
-  const kpiLowStockVal = document.getElementById('kpiLowStockVal');
-
-  const prodSearchInput = document.getElementById('prodSearchInput');
-  const filterProdCategory = document.getElementById('filterProdCategory');
-  const filterProdStatus = document.getElementById('filterProdStatus');
-  const filterStockStatus = document.getElementById('filterStockStatus');
-  const resetProdFiltersBtn = document.getElementById('resetProdFiltersBtn');
-  const applyProdFiltersBtn = document.getElementById('applyProdFiltersBtn');
-
-  // Dynamic Products KPI calculation
+  // Dynamic Products KPI calculation (DOM-safe, zero TDZ errors)
   function updateProductKPIs() {
     const total = productsList.length;
     const active = productsList.filter(p => p.status === 'Active').length;
     const outOfStock = productsList.filter(p => p.stock === 0 || p.status === 'Out of Stock').length;
     const lowStock = productsList.filter(p => (p.stock > 0 && p.stock <= 20) || p.status === 'Low Stock').length;
 
-    if (kpiTotalProdVal) kpiTotalProdVal.textContent = total;
-    if (kpiActiveProdVal) kpiActiveProdVal.textContent = active;
-    if (kpiOutOfStockVal) kpiOutOfStockVal.textContent = outOfStock;
-    if (kpiLowStockVal) kpiLowStockVal.textContent = lowStock;
+    const totalEl = document.getElementById('kpiTotalProdVal');
+    const activeEl = document.getElementById('kpiActiveProdVal');
+    const outEl = document.getElementById('kpiOutOfStockVal');
+    const lowEl = document.getElementById('kpiLowStockVal');
+
+    if (totalEl) totalEl.textContent = total;
+    if (activeEl) activeEl.textContent = active;
+    if (outEl) outEl.textContent = outOfStock;
+    if (lowEl) lowEl.textContent = lowStock;
   }
 
   // Render Product Pagination
@@ -1321,8 +1321,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Render Products Table
   function renderProductsTable() {
+    const productsTableBody = document.getElementById('productsTableBody');
     if (!productsTableBody) return;
     productsTableBody.innerHTML = '';
+
+    const prodSearchInput = document.getElementById('prodSearchInput');
+    const filterProdCategory = document.getElementById('filterProdCategory');
+    const filterProdStatus = document.getElementById('filterProdStatus');
+    const filterStockStatus = document.getElementById('filterStockStatus');
 
     const query = prodSearchInput ? prodSearchInput.value.toLowerCase().trim() : '';
     const selectedCat = filterProdCategory ? filterProdCategory.value : 'all';
@@ -1354,7 +1360,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pageProds.forEach((prod, index) => {
       const tr = document.createElement('tr');
-      const discountPct = Math.round(((prod.mrp - prod.price) / prod.mrp) * 100);
+      const discountPct = Math.round(((prod.mrp - prod.price) / prod.mrp) * 100) || 0;
       const rowNum = startIndex + index + 1;
 
       let statusBadge = `<span class="status-active-pill">🟢 Active</span>`;
@@ -1396,69 +1402,18 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       productsTableBody.appendChild(tr);
     });
-
-    // View Product Details listeners
-    productsTableBody.querySelectorAll('.view-prod-btn').forEach(btn => {
-      btn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const pId = btn.getAttribute('data-id');
-        const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(btn.getAttribute('data-index'))] || productsList[0];
-        if (p) openViewProductDetailsModal(p);
-      };
-    });
-
-    // Direct Edit Product listeners
-    productsTableBody.querySelectorAll('.edit-prod-btn').forEach(btn => {
-      btn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const pId = btn.getAttribute('data-id');
-        const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(btn.getAttribute('data-index'))] || productsList[0];
-        if (p) openEditProductModal(p);
-      };
-    });
-
-    // Delete Product listener
-    productsTableBody.querySelectorAll('.delete-prod-btn').forEach(btn => {
-      btn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const pId = btn.getAttribute('data-id');
-        const idx = productsList.findIndex(x => x && x.id === pId);
-        const p = idx !== -1 ? productsList[idx] : productsList[parseInt(btn.getAttribute('data-index'))];
-        if (p && confirm(`Are you sure you want to delete product "${p.title}"?`)) {
-          if (idx !== -1) {
-            productsList.splice(idx, 1);
-          }
-          saveStoredProducts(productsList);
-          if (typeof deleteProductFirestore === 'function') {
-            deleteProductFirestore(p.id || p.sku || `PROD-${idx}`);
-          }
-          updateProductKPIs();
-          renderProductsTable();
-        }
-      };
-    });
   }
 
-  // View Product Details Modal Controller
-  const viewProductDetailsModal = document.getElementById('viewProductDetailsModal');
-  const closeViewProductDetailsModalBtn = document.getElementById('closeViewProductDetailsModalBtn');
-  const closeViewProdDetailsBtn = document.getElementById('closeViewProdDetailsBtn');
-  const editFromViewProdBtn = document.getElementById('editFromViewProdBtn');
-  let currentViewingProd = null;
-
-  const closeViewProdModal = () => {
+  // View Product Details Modal Controllers
+  function closeViewProdModal() {
     const modal = document.getElementById('viewProductDetailsModal');
     if (modal) {
       modal.classList.remove('active');
       modal.style.display = 'none';
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
     }
-  };
-
-  if (closeViewProductDetailsModalBtn) closeViewProductDetailsModalBtn.addEventListener('click', closeViewProdModal);
-  if (closeViewProdDetailsBtn) closeViewProdDetailsBtn.addEventListener('click', closeViewProdModal);
+  }
 
   function openViewProductDetailsModal(p) {
     const modal = document.getElementById('viewProductDetailsModal');
@@ -1521,8 +1476,9 @@ document.addEventListener('DOMContentLoaded', () => {
           tagEl.style.color = '#15803d';
         }
         renderProductsTable();
-        if (typeof showAdminToast === 'function') {
-          showAdminToast('🌟 Product set as the Main Product on Storefront!');
+        const toastFn = window.showAdminToast || window.showAdminOrderToast;
+        if (typeof toastFn === 'function') {
+          toastFn('🌟 Product set as the Main Product on Storefront!');
         }
       };
     }
@@ -1538,37 +1494,21 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.style.zIndex = '999999';
   }
 
-  window.openViewProductDetailsModal = openViewProductDetailsModal;
-
-  document.addEventListener('click', (e) => {
-    const editBtn = e.target.closest('.edit-prod-btn');
-    if (editBtn) {
-      e.preventDefault();
-      const pId = editBtn.getAttribute('data-id');
-      const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(editBtn.getAttribute('data-index'))] || productsList[0];
-      if (p) openEditProductModal(p);
-      return;
+  // Edit Product Modal Controllers
+  function closeEditProductModal() {
+    const modal = document.getElementById('editProductModal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+      modal.style.opacity = '0';
+      modal.style.visibility = 'hidden';
     }
-
-    const viewBtn = e.target.closest('.view-prod-btn, .btn-details-prod');
-    if (viewBtn) {
-      e.preventDefault();
-      const pId = viewBtn.getAttribute('data-id');
-      const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(viewBtn.getAttribute('data-index'))] || productsList[0];
-      if (p) openViewProductDetailsModal(p);
-      return;
-    }
-  });
-
-  const editProductModal = document.getElementById('editProductModal');
-  const editProductForm = document.getElementById('editProductForm');
-  const editProdFileInput = document.getElementById('editProdFileInput');
-  const editProdImgPreview = document.getElementById('editProdImgPreview');
-  const editProdPriceInput = document.getElementById('editProdPrice');
-  const editProdMrpInput = document.getElementById('editProdMrp');
-  const editProdDiscountInput = document.getElementById('editProdDiscount');
+  }
 
   function calcEditDiscount() {
+    const editProdPriceInput = document.getElementById('editProdPrice');
+    const editProdMrpInput = document.getElementById('editProdMrp');
+    const editProdDiscountInput = document.getElementById('editProdDiscount');
     const price = parseFloat(editProdPriceInput?.value) || 0;
     const mrp = parseFloat(editProdMrpInput?.value) || 0;
     if (mrp > 0 && price > 0 && mrp > price) {
@@ -1579,43 +1519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (editProdPriceInput) editProdPriceInput.addEventListener('input', calcEditDiscount);
-  if (editProdMrpInput) editProdMrpInput.addEventListener('input', calcEditDiscount);
-
-  if (editProdFileInput) {
-    editProdFileInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (re) => {
-          const res = re.target.result;
-          if (editProdImgPreview) editProdImgPreview.src = res;
-          const imgInput = document.getElementById('editProdImage');
-          if (imgInput) imgInput.value = res;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-
-  const editProdImgInput = document.getElementById('editProdImage');
-  if (editProdImgInput) {
-    editProdImgInput.addEventListener('input', () => {
-      if (editProdImgPreview && editProdImgInput.value.trim()) {
-        editProdImgPreview.src = editProdImgInput.value.trim();
-      }
-    });
-  }
-
-  window.closeEditProductModal = function() {
-    const modal = document.getElementById('editProductModal');
-    if (modal) {
-      modal.classList.remove('active');
-      modal.style.display = 'none';
-    }
-  };
-
-  window.openEditProductModal = function(p) {
+  function openEditProductModal(p) {
     const modal = document.getElementById('editProductModal');
     if (!p || !modal) return;
     currentViewingProd = p;
@@ -1629,6 +1533,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('editProdStatus');
     const badgeEl = document.getElementById('editProdBadge');
     const imgEl = document.getElementById('editProdImage');
+    const previewEl = document.getElementById('editProdImgPreview');
     const descEl = document.getElementById('editProdDesc');
 
     if (idEl) idEl.value = p.id || p.sku || '';
@@ -1640,7 +1545,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (statusEl) statusEl.value = p.status || 'Active';
     if (badgeEl) badgeEl.value = p.badge || (p.status === 'Active' ? '🔥 BESTSELLER' : 'NEW');
     if (imgEl) imgEl.value = p.image || '';
-    if (editProdImgPreview) editProdImgPreview.src = p.image || 'assets/bestseller.jpg';
+    if (previewEl) previewEl.src = p.image || 'assets/bestseller.jpg';
     if (descEl) descEl.value = p.subtitle || '';
 
     calcEditDiscount();
@@ -1650,61 +1555,88 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.style.opacity = '1';
     modal.style.visibility = 'visible';
     modal.style.zIndex = '999999';
-  };
+  }
+
+  // Expose Modal & Table functions globally
+  window.openViewProductDetailsModal = openViewProductDetailsModal;
+  window.closeViewProdModal = closeViewProdModal;
+  window.openEditProductModal = openEditProductModal;
+  window.closeEditProductModal = closeEditProductModal;
+  window.renderProductsTable = renderProductsTable;
+  window.updateProductKPIs = updateProductKPIs;
+
+  // Global Event Delegation for Product Table Actions (Details, Edit, Delete)
+  document.addEventListener('click', (e) => {
+    // 1. Edit Product Button
+    const editBtn = e.target.closest('.edit-prod-btn');
+    if (editBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = editBtn.getAttribute('data-id');
+      const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(editBtn.getAttribute('data-index'))] || productsList[0];
+      if (p) openEditProductModal(p);
+      return;
+    }
+
+    // 2. View Product Details Button
+    const viewBtn = e.target.closest('.view-prod-btn');
+    if (viewBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = viewBtn.getAttribute('data-id');
+      const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(viewBtn.getAttribute('data-index'))] || productsList[0];
+      if (p) openViewProductDetailsModal(p);
+      return;
+    }
+
+    // 3. Delete Product Button
+    const delBtn = e.target.closest('.delete-prod-btn');
+    if (delBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = delBtn.getAttribute('data-id');
+      const idx = productsList.findIndex(x => x && x.id === pId);
+      const p = idx !== -1 ? productsList[idx] : productsList[parseInt(delBtn.getAttribute('data-index'))];
+      if (p && confirm(`Are you sure you want to delete product "${p.title}"?`)) {
+        if (idx !== -1) {
+          productsList.splice(idx, 1);
+        }
+        saveStoredProducts(productsList);
+        if (typeof deleteProductFirestore === 'function') {
+          deleteProductFirestore(p.id || p.sku || `PROD-${idx}`);
+        }
+        updateProductKPIs();
+        renderProductsTable();
+      }
+      return;
+    }
+  });
+
+  // Modal Buttons & Form Listeners
+  const closeViewProductDetailsModalBtn = document.getElementById('closeViewProductDetailsModalBtn');
+  const closeViewProdDetailsBtn = document.getElementById('closeViewProdDetailsBtn');
+  const editFromViewProdBtn = document.getElementById('editFromViewProdBtn');
+  const viewProductDetailsModal = document.getElementById('viewProductDetailsModal');
+
+  const editProductModal = document.getElementById('editProductModal');
+  const closeEditProductModalBtn = document.getElementById('closeEditProductModalBtn');
+  const editProductForm = document.getElementById('editProductForm');
+  const editProdFileInput = document.getElementById('editProdFileInput');
+  const editProdImgPreview = document.getElementById('editProdImgPreview');
+  const editProdImgInput = document.getElementById('editProdImage');
+  const editProdPriceInput = document.getElementById('editProdPrice');
+  const editProdMrpInput = document.getElementById('editProdMrp');
+
+  if (closeViewProductDetailsModalBtn) closeViewProductDetailsModalBtn.addEventListener('click', closeViewProdModal);
+  if (closeViewProdDetailsBtn) closeViewProdDetailsBtn.addEventListener('click', closeViewProdModal);
+  if (closeEditProductModalBtn) closeEditProductModalBtn.addEventListener('click', closeEditProductModal);
 
   if (editFromViewProdBtn) {
-    editFromViewProdBtn.onclick = (e) => {
+    editFromViewProdBtn.addEventListener('click', (e) => {
       e.preventDefault();
       if (currentViewingProd) {
         closeViewProdModal();
         openEditProductModal(currentViewingProd);
-      }
-    };
-  }
-
-  if (editProductForm) {
-    editProductForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!currentViewingProd) return;
-
-      const title = document.getElementById('editProdTitle').value.trim();
-      const price = parseFloat(document.getElementById('editProdPrice').value) || 0;
-      const mrp = parseFloat(document.getElementById('editProdMrp').value) || 0;
-      const stock = parseInt(document.getElementById('editProdStock').value) || 0;
-      const category = document.getElementById('editProdCategory').value;
-      const status = document.getElementById('editProdStatus').value;
-      const badge = document.getElementById('editProdBadge') ? document.getElementById('editProdBadge').value.trim() : '🔥 BESTSELLER';
-      const image = document.getElementById('editProdImage').value.trim() || currentViewingProd.image || 'assets/bestseller.webp';
-      const desc = document.getElementById('editProdDesc').value.trim();
-
-      currentViewingProd.title = title;
-      currentViewingProd.price = price;
-      currentViewingProd.mrp = mrp;
-      currentViewingProd.stock = stock;
-      currentViewingProd.category = category;
-      currentViewingProd.status = status;
-      currentViewingProd.badge = badge || (status === 'Active' ? '🔥 BESTSELLER' : 'NEW');
-      currentViewingProd.image = image;
-      currentViewingProd.images = [image];
-      currentViewingProd.subtitle = desc;
-      currentViewingProd.addedByAdmin = true;
-      currentViewingProd.fromAdmin = true;
-
-      // Update in productsList
-      const targetIdx = productsList.findIndex(x => x && x.id === currentViewingProd.id);
-      if (targetIdx !== -1) {
-        productsList[targetIdx] = { ...currentViewingProd };
-      }
-
-      saveStoredProducts(productsList);
-      if (typeof addOrUpdateProductFirestore === 'function') {
-        addOrUpdateProductFirestore(currentViewingProd);
-      }
-      updateProductKPIs();
-      renderProductsTable();
-      closeEditProductModal();
-      if (typeof showAdminOrderToast === 'function') {
-        showAdminOrderToast(`Product "${title}" updated successfully!`);
       }
     });
   }
@@ -1720,7 +1652,88 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (editProdPriceInput) editProdPriceInput.addEventListener('input', calcEditDiscount);
+  if (editProdMrpInput) editProdMrpInput.addEventListener('input', calcEditDiscount);
+
+  if (editProdFileInput) {
+    editProdFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const res = re.target.result;
+          if (editProdImgPreview) editProdImgPreview.src = res;
+          if (editProdImgInput) editProdImgInput.value = res;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  if (editProdImgInput) {
+    editProdImgInput.addEventListener('input', () => {
+      if (editProdImgPreview && editProdImgInput.value.trim()) {
+        editProdImgPreview.src = editProdImgInput.value.trim();
+      }
+    });
+  }
+
+  if (editProductForm) {
+    editProductForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!currentViewingProd) return;
+
+      const title = document.getElementById('editProdTitle')?.value.trim() || currentViewingProd.title;
+      const price = parseFloat(document.getElementById('editProdPrice')?.value) || 0;
+      const mrp = parseFloat(document.getElementById('editProdMrp')?.value) || 0;
+      const stock = parseInt(document.getElementById('editProdStock')?.value) || 0;
+      const category = document.getElementById('editProdCategory')?.value || 'Urli Bowls';
+      const status = document.getElementById('editProdStatus')?.value || 'Active';
+      const badge = document.getElementById('editProdBadge') ? document.getElementById('editProdBadge').value.trim() : '🔥 BESTSELLER';
+      const image = document.getElementById('editProdImage')?.value.trim() || currentViewingProd.image || 'assets/bestseller.webp';
+      const desc = document.getElementById('editProdDesc')?.value.trim() || '';
+
+      currentViewingProd.title = title;
+      currentViewingProd.price = price;
+      currentViewingProd.mrp = mrp;
+      currentViewingProd.stock = stock;
+      currentViewingProd.category = category;
+      currentViewingProd.status = status;
+      currentViewingProd.badge = badge || (status === 'Active' ? '🔥 BESTSELLER' : 'NEW');
+      currentViewingProd.image = image;
+      currentViewingProd.images = [image];
+      currentViewingProd.subtitle = desc;
+      currentViewingProd.addedByAdmin = true;
+      currentViewingProd.fromAdmin = true;
+
+      const targetIdx = productsList.findIndex(x => x && x.id === currentViewingProd.id);
+      if (targetIdx !== -1) {
+        productsList[targetIdx] = { ...currentViewingProd };
+      }
+
+      saveStoredProducts(productsList);
+      if (typeof addOrUpdateProductFirestore === 'function') {
+        addOrUpdateProductFirestore(currentViewingProd);
+      }
+      updateProductKPIs();
+      renderProductsTable();
+      closeEditProductModal();
+
+      const toastFn = window.showAdminToast || window.showAdminOrderToast;
+      if (typeof toastFn === 'function') {
+        toastFn(`Product "${title}" updated successfully!`);
+      }
+    });
+  }
+
   // Toolbar Event Listeners for Products
+  const prodSearchInput = document.getElementById('prodSearchInput');
+  const filterProdCategory = document.getElementById('filterProdCategory');
+  const filterProdStatus = document.getElementById('filterProdStatus');
+  const filterStockStatus = document.getElementById('filterStockStatus');
+  const resetProdFiltersBtn = document.getElementById('resetProdFiltersBtn');
+  const applyProdFiltersBtn = document.getElementById('applyProdFiltersBtn');
+
   if (prodSearchInput) prodSearchInput.addEventListener('input', () => { currentProdPage = 1; renderProductsTable(); });
   if (applyProdFiltersBtn) applyProdFiltersBtn.addEventListener('click', () => { currentProdPage = 1; renderProductsTable(); });
   if (resetProdFiltersBtn) {
@@ -1731,6 +1744,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (filterStockStatus) filterStockStatus.value = 'all';
       currentProdPage = 1;
       renderProductsTable();
+    });
+  }
+
+  // Initial Product rendering
+  updateProductKPIs();
+  renderProductsTable();
+
+  // Initialize Realtime Sync with Firestore for Products safely
+  if (typeof syncProducts === 'function') {
+    syncProducts((syncedProds) => {
+      if (syncedProds && Array.isArray(syncedProds)) {
+        const cleaned = syncedProds.filter(p => p && p.title && !dummyProductIds.includes(p.id));
+        productsList = cleaned;
+        updateProductKPIs();
+        renderProductsTable();
+      }
     });
   }
 
