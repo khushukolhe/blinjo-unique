@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => toast.remove(), 300);
     }, 4000);
   }
+  window.showAdminToast = showAdminOrderToast;
 
   // Real-time synchronization across browser tabs & local storage events
   window.addEventListener('storage', (e) => {
@@ -1382,33 +1383,54 @@ document.addEventListener('DOMContentLoaded', () => {
         <td><span class="stock-num ${stockColorClass}">${prod.stock}</span></td>
         <td>${statusBadge}</td>
         <td style="text-align:center;">
-          <div class="action-icon-group" style="justify-content: center; align-items: center;">
-            <button class="btn-details-prod view-prod-btn" data-index="${rowNum - 1}" title="View Details">
+          <div class="action-icon-group" style="justify-content: center; align-items: center; gap: 6px;">
+            <button type="button" class="btn-details-prod view-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="View Details">
               <span>📄</span> Details
             </button>
-            <button class="icon-action-btn-danger delete-prod-btn" data-index="${rowNum - 1}" title="Delete Product">🗑️</button>
+            <button type="button" class="btn-details-prod edit-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="Edit Product" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700;">
+              <span>✏️</span> Edit
+            </button>
+            <button type="button" class="icon-action-btn-danger delete-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="Delete Product">🗑️</button>
           </div>
         </td>
       `;
       productsTableBody.appendChild(tr);
     });
 
-    // View Product Details listener
-    document.querySelectorAll('.view-prod-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.getAttribute('data-index'));
-        const p = productsList[idx] || productsList[0];
-        openViewProductDetailsModal(p);
-      });
+    // View Product Details listeners
+    productsTableBody.querySelectorAll('.view-prod-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const pId = btn.getAttribute('data-id');
+        const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(btn.getAttribute('data-index'))] || productsList[0];
+        if (p) openViewProductDetailsModal(p);
+      };
+    });
+
+    // Direct Edit Product listeners
+    productsTableBody.querySelectorAll('.edit-prod-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const pId = btn.getAttribute('data-id');
+        const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(btn.getAttribute('data-index'))] || productsList[0];
+        if (p) openEditProductModal(p);
+      };
     });
 
     // Delete Product listener
-    document.querySelectorAll('.delete-prod-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.getAttribute('data-index'));
-        const p = productsList[idx];
+    productsTableBody.querySelectorAll('.delete-prod-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const pId = btn.getAttribute('data-id');
+        const idx = productsList.findIndex(x => x && x.id === pId);
+        const p = idx !== -1 ? productsList[idx] : productsList[parseInt(btn.getAttribute('data-index'))];
         if (p && confirm(`Are you sure you want to delete product "${p.title}"?`)) {
-          productsList.splice(idx, 1);
+          if (idx !== -1) {
+            productsList.splice(idx, 1);
+          }
           saveStoredProducts(productsList);
           if (typeof deleteProductFirestore === 'function') {
             deleteProductFirestore(p.id || p.sku || `PROD-${idx}`);
@@ -1416,7 +1438,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updateProductKPIs();
           renderProductsTable();
         }
-      });
+      };
     });
   }
 
@@ -1514,11 +1536,22 @@ document.addEventListener('DOMContentLoaded', () => {
   window.openViewProductDetailsModal = openViewProductDetailsModal;
 
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.view-prod-btn, .btn-details-prod');
-    if (btn) {
-      const idx = parseInt(btn.getAttribute('data-index'));
-      const p = productsList[idx] || productsList[0];
+    const editBtn = e.target.closest('.edit-prod-btn');
+    if (editBtn) {
+      e.preventDefault();
+      const pId = editBtn.getAttribute('data-id');
+      const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(editBtn.getAttribute('data-index'))] || productsList[0];
+      if (p) openEditProductModal(p);
+      return;
+    }
+
+    const viewBtn = e.target.closest('.view-prod-btn, .btn-details-prod');
+    if (viewBtn) {
+      e.preventDefault();
+      const pId = viewBtn.getAttribute('data-id');
+      const p = productsList.find(x => x && x.id === pId) || productsList[parseInt(viewBtn.getAttribute('data-index'))] || productsList[0];
       if (p) openViewProductDetailsModal(p);
+      return;
     }
   });
 
@@ -1577,7 +1610,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.openEditProductModal = function(p) {
-    if (!p || !editProductModal) return;
+    if (!p) return;
     currentViewingProd = p;
 
     const idEl = document.getElementById('editProdId');
@@ -1596,26 +1629,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (priceEl) priceEl.value = p.price || 0;
     if (mrpEl) mrpEl.value = p.mrp || 0;
     if (stockEl) stockEl.value = p.stock !== undefined ? p.stock : 0;
-    if (catEl) catEl.value = p.category || 'Home Decor';
+    if (catEl) catEl.value = p.category || 'Urli Bowls';
     if (statusEl) statusEl.value = p.status || 'Active';
-    if (badgeEl) badgeEl.value = p.badge || '🔥 BESTSELLER';
+    if (badgeEl) badgeEl.value = p.badge || (p.status === 'Active' ? '🔥 BESTSELLER' : 'NEW');
     if (imgEl) imgEl.value = p.image || '';
     if (editProdImgPreview) editProdImgPreview.src = p.image || 'assets/bestseller.jpg';
     if (descEl) descEl.value = p.subtitle || '';
 
     calcEditDiscount();
 
-    editProductModal.classList.add('active');
-    editProductModal.style.display = 'flex';
+    if (editProductModal) {
+      editProductModal.classList.add('active');
+      editProductModal.style.display = 'flex';
+    }
   };
 
   if (editFromViewProdBtn) {
-    editFromViewProdBtn.addEventListener('click', () => {
+    editFromViewProdBtn.onclick = (e) => {
+      e.preventDefault();
       if (currentViewingProd) {
         closeViewProdModal();
         openEditProductModal(currentViewingProd);
       }
-    });
+    };
   }
 
   if (editProductForm) {
@@ -1630,7 +1666,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const category = document.getElementById('editProdCategory').value;
       const status = document.getElementById('editProdStatus').value;
       const badge = document.getElementById('editProdBadge') ? document.getElementById('editProdBadge').value.trim() : '🔥 BESTSELLER';
-      const image = document.getElementById('editProdImage').value.trim();
+      const image = document.getElementById('editProdImage').value.trim() || currentViewingProd.image || 'assets/bestseller.webp';
       const desc = document.getElementById('editProdDesc').value.trim();
 
       currentViewingProd.title = title;
@@ -1639,9 +1675,18 @@ document.addEventListener('DOMContentLoaded', () => {
       currentViewingProd.stock = stock;
       currentViewingProd.category = category;
       currentViewingProd.status = status;
-      currentViewingProd.badge = badge || '🔥 BESTSELLER';
-      if (image) currentViewingProd.image = image;
+      currentViewingProd.badge = badge || (status === 'Active' ? '🔥 BESTSELLER' : 'NEW');
+      currentViewingProd.image = image;
+      currentViewingProd.images = [image];
       currentViewingProd.subtitle = desc;
+      currentViewingProd.addedByAdmin = true;
+      currentViewingProd.fromAdmin = true;
+
+      // Update in productsList
+      const targetIdx = productsList.findIndex(x => x && x.id === currentViewingProd.id);
+      if (targetIdx !== -1) {
+        productsList[targetIdx] = { ...currentViewingProd };
+      }
 
       saveStoredProducts(productsList);
       if (typeof addOrUpdateProductFirestore === 'function') {
@@ -1650,9 +1695,20 @@ document.addEventListener('DOMContentLoaded', () => {
       updateProductKPIs();
       renderProductsTable();
       closeEditProductModal();
-      if (typeof showAdminToast === 'function') {
-        showAdminToast('✅ Product updated successfully & synced with Storefront!');
+      if (typeof showAdminOrderToast === 'function') {
+        showAdminOrderToast(`Product "${title}" updated successfully!`);
       }
+    });
+  }
+
+  if (viewProductDetailsModal) {
+    viewProductDetailsModal.addEventListener('click', (e) => {
+      if (e.target === viewProductDetailsModal) closeViewProdModal();
+    });
+  }
+  if (editProductModal) {
+    editProductModal.addEventListener('click', (e) => {
+      if (e.target === editProductModal) closeEditProductModal();
     });
   }
 
