@@ -1450,9 +1450,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentViewingProd = null;
 
   const closeViewProdModal = () => {
-    if (viewProductDetailsModal) {
-      viewProductDetailsModal.classList.remove('active');
-      viewProductDetailsModal.style.display = 'none';
+    const modal = document.getElementById('viewProductDetailsModal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
     }
   };
 
@@ -1460,7 +1461,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeViewProdDetailsBtn) closeViewProdDetailsBtn.addEventListener('click', closeViewProdModal);
 
   function openViewProductDetailsModal(p) {
-    if (!p || !viewProductDetailsModal) return;
+    const modal = document.getElementById('viewProductDetailsModal');
+    if (!p || !modal) return;
     currentViewingProd = p;
 
     const discountPct = Math.round(((p.mrp - p.price) / p.mrp) * 100) || 0;
@@ -1529,8 +1531,11 @@ document.addEventListener('DOMContentLoaded', () => {
       viewStoreLink.href = '/#purchase';
     }
 
-    viewProductDetailsModal.classList.add('active');
-    viewProductDetailsModal.style.display = 'flex';
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+    modal.style.zIndex = '999999';
   }
 
   window.openViewProductDetailsModal = openViewProductDetailsModal;
@@ -1603,14 +1608,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.closeEditProductModal = function() {
-    if (editProductModal) {
-      editProductModal.classList.remove('active');
-      editProductModal.style.display = 'none';
+    const modal = document.getElementById('editProductModal');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.style.display = 'none';
     }
   };
 
   window.openEditProductModal = function(p) {
-    if (!p) return;
+    const modal = document.getElementById('editProductModal');
+    if (!p || !modal) return;
     currentViewingProd = p;
 
     const idEl = document.getElementById('editProdId');
@@ -1638,10 +1645,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     calcEditDiscount();
 
-    if (editProductModal) {
-      editProductModal.classList.add('active');
-      editProductModal.style.display = 'flex';
-    }
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+    modal.style.zIndex = '999999';
   };
 
   if (editFromViewProdBtn) {
