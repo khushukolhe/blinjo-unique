@@ -24,6 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   } catch(e) {}
 
+  // Purge any legacy dummy products from products storage
+  try {
+    const rawProds = localStorage.getItem('blinjo_products_v3');
+    if (rawProds) {
+      const parsedProds = JSON.parse(rawProds);
+      if (Array.isArray(parsedProds)) {
+        const dummyIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
+        const filteredProds = parsedProds.filter(p => p && p.title && !dummyIds.includes(p.id));
+        if (filteredProds.length !== parsedProds.length) {
+          localStorage.setItem('blinjo_products_v3', JSON.stringify(filteredProds));
+        }
+      }
+    }
+  } catch(e) {}
+
   // 1. Dynamic Gallery Carousel & Hero Image Slideshow
   const mainHeroImg = document.getElementById('mainHeroImg');
   const videoModal = document.getElementById('videoModal');
@@ -483,48 +498,28 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Clean legacy dummy items (BLJ001-BLJ008)
+    const dummyIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
+
+    // Clean legacy dummy items and only retain products added from admin panel
     if (Array.isArray(prods)) {
-      prods = prods.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      prods = prods.filter(p => p && p.title && !dummyIds.includes(p.id));
     } else {
       prods = [];
     }
 
-    // Fallback to defaultProductsList or active product if prods is still empty
-    if (!prods || prods.length === 0) {
-      if (typeof defaultProductsList !== 'undefined' && Array.isArray(defaultProductsList) && defaultProductsList.length > 0) {
-        prods = [...defaultProductsList];
-      }
-    }
-
-    if (!prods || prods.length === 0) {
-      const activeStored = localStorage.getItem('blinjo_active_product');
-      if (activeStored) {
-        try {
-          const ap = JSON.parse(activeStored);
-          if (ap && ap.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(ap.id)) {
-            prods = [ap];
-          }
-        } catch(e) {}
-      }
-    }
-
     grid.innerHTML = '';
 
-    // Always keep section visible so users see the collection area
-    if (catalogSection) {
-      catalogSection.style.display = 'block';
+    // If no products were added from the admin panel, hide the section entirely
+    if (!prods || prods.length === 0) {
+      if (catalogSection) {
+        catalogSection.style.display = 'none';
+      }
+      return;
     }
 
-    if (!prods || prods.length === 0) {
-      grid.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; color: #64748b;">
-          <div style="font-size: 32px; margin-bottom: 8px;">🪔</div>
-          <h4 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">New Collection Arriving Soon</h4>
-          <p style="margin: 0; font-size: 14px; color: #64748b;">All handcrafted festive products added from the admin panel will appear here.</p>
-        </div>
-      `;
-      return;
+    // Show section only when admin-added products exist
+    if (catalogSection) {
+      catalogSection.style.display = 'block';
     }
 
     prods.forEach(p => {

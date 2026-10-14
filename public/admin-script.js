@@ -1194,30 +1194,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4. Products Catalog & Inventory Manager (Exact Match to Screenshot)
   const defaultProducts = [];
+  const dummyProductIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
 
   function getStoredProducts() {
     const data = localStorage.getItem('blinjo_products_v3');
-    if (!data) {
-      if (typeof defaultProductsList !== 'undefined' && Array.isArray(defaultProductsList) && defaultProductsList.length > 0) {
-        try {
-          localStorage.setItem('blinjo_products_v3', JSON.stringify(defaultProductsList));
-        } catch(e) {}
-        return [...defaultProductsList];
-      }
-      return [];
-    }
+    if (!data) return [];
     try {
       const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed) || parsed.length === 0) {
-        if (typeof defaultProductsList !== 'undefined' && Array.isArray(defaultProductsList) && defaultProductsList.length > 0) {
-          try {
-            localStorage.setItem('blinjo_products_v3', JSON.stringify(defaultProductsList));
-          } catch(e) {}
-          return [...defaultProductsList];
-        }
-        return [];
-      }
-      const cleaned = parsed.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+      if (!Array.isArray(parsed) || parsed.length === 0) return [];
+      const cleaned = parsed.filter(p => p && p.title && !dummyProductIds.includes(p.id));
       if (cleaned.length !== parsed.length) {
         localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
       }
@@ -1228,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveStoredProducts(prods) {
-    const cleaned = (prods || []).filter(p => !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
+    const cleaned = (prods || []).filter(p => p && p.title && !dummyProductIds.includes(p.id));
     localStorage.setItem('blinjo_products_v3', JSON.stringify(cleaned));
     const activeProd = cleaned.find(p => p.active) || cleaned[0];
     if (activeProd) {
@@ -1254,12 +1239,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof syncProducts === 'function') {
     syncProducts((syncedProds) => {
       if (syncedProds && Array.isArray(syncedProds)) {
-        const cleaned = syncedProds.filter(p => p && p.title && !['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008'].includes(p.id));
-        if (cleaned.length > 0 || productsList.length === 0) {
-          productsList = cleaned;
-          updateProductKPIs();
-          renderProductsTable();
-        }
+        const cleaned = syncedProds.filter(p => p && p.title && !dummyProductIds.includes(p.id));
+        productsList = cleaned;
+        updateProductKPIs();
+        renderProductsTable();
       }
     });
   }
@@ -1867,7 +1850,9 @@ document.addEventListener('DOMContentLoaded', () => {
         badge: status === 'Active' ? '🔥 BESTSELLER' : (status === 'Out of Stock' ? 'OUT OF STOCK' : 'NEW'),
         image: firstImg,
         images: allImgs.length > 0 ? allImgs : [firstImg],
-        active: true
+        active: true,
+        addedByAdmin: true,
+        fromAdmin: true
       };
 
       productsList.forEach(p => p.active = false);
