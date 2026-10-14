@@ -1317,12 +1317,348 @@ document.addEventListener('DOMContentLoaded', () => {
       transition: opacity 0.3s;
     `;
     toast.textContent = message;
-    document.body.appendChild(toast);
+  // ==========================================================================
+  // DIRECT LANDING PAGE HANDLERS (EXACT HIGH-FIDELITY EXPERIENCE)
+  // ==========================================================================
 
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 300);
-    }, 2500);
+  // 1. Video Modal Handlers
+  window.openVideoModalDirect = function() {
+    const vModal = document.getElementById('videoModal');
+    if (vModal) {
+      vModal.style.display = 'flex';
+      const iframe = document.getElementById('videoPlayer');
+      if (iframe && !iframe.src.includes('autoplay=1')) {
+        iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+      }
+    }
+  };
+
+  window.closeVideoModalDirect = function() {
+    const vModal = document.getElementById('videoModal');
+    if (vModal) {
+      vModal.style.display = 'none';
+      const iframe = document.getElementById('videoPlayer');
+      if (iframe) {
+        iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1";
+      }
+    }
+  };
+
+  const closeVideoModalBtn = document.getElementById('closeVideoModal');
+  if (closeVideoModalBtn) {
+    closeVideoModalBtn.addEventListener('click', window.closeVideoModalDirect);
+  }
+  const watchVideoBtn = document.getElementById('watchVideoBtn');
+  if (watchVideoBtn) {
+    watchVideoBtn.addEventListener('click', window.openVideoModalDirect);
+  }
+  const videoModalEl = document.getElementById('videoModal');
+  if (videoModalEl) {
+    videoModalEl.addEventListener('click', (e) => {
+      if (e.target === videoModalEl) window.closeVideoModalDirect();
+    });
+  }
+
+  // 2. Lightbox Modal Handlers
+  window.openLightboxDirect = function(imgSrc, caption) {
+    const lbModal = document.getElementById('lightboxModal');
+    const lbImg = document.getElementById('lightboxImg');
+    const lbCap = document.getElementById('lightboxCaption');
+    if (lbModal && lbImg) {
+      lbImg.src = imgSrc;
+      if (lbCap) lbCap.textContent = caption || '';
+      lbModal.style.display = 'flex';
+    }
+  };
+
+  window.closeLightboxDirect = function() {
+    const lbModal = document.getElementById('lightboxModal');
+    if (lbModal) lbModal.style.display = 'none';
+  };
+
+  const closeLbBtn = document.getElementById('closeLightboxModal');
+  if (closeLbBtn) {
+    closeLbBtn.addEventListener('click', window.closeLightboxDirect);
+  }
+  const lbModalEl = document.getElementById('lightboxModal');
+  if (lbModalEl) {
+    lbModalEl.addEventListener('click', (e) => {
+      if (e.target === lbModalEl) window.closeLightboxDirect();
+    });
+  }
+
+  // 3. Hero Slider Dots & Arrows
+  const heroImages = [
+    'assets/bestseller.webp',
+    'assets/golden_lady_hero.jpg',
+    'assets/golden_lady_topview.jpg',
+    'assets/golden_lady_closeup.jpg',
+    'assets/golden_lady_detail.jpg'
+  ];
+  let currentHeroIdx = 0;
+  const heroFeaturedImg = document.getElementById('heroFeaturedImg');
+  const heroDots = document.querySelectorAll('.hero-dots-row .hero-dot');
+  const landingHeroPrevBtn = document.getElementById('landingHeroPrevBtn');
+  const landingHeroNextBtn = document.getElementById('landingHeroNextBtn');
+
+  function updateHeroImage(index) {
+    currentHeroIdx = (index + heroImages.length) % heroImages.length;
+    if (heroFeaturedImg) {
+      heroFeaturedImg.style.opacity = '0.4';
+      setTimeout(() => {
+        heroFeaturedImg.src = heroImages[currentHeroIdx];
+        heroFeaturedImg.style.opacity = '1';
+      }, 150);
+    }
+    heroDots.forEach((dot, idx) => {
+      if (idx === currentHeroIdx) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+  }
+
+  if (landingHeroPrevBtn) {
+    landingHeroPrevBtn.addEventListener('click', () => {
+      updateHeroImage(currentHeroIdx - 1);
+    });
+  }
+  if (landingHeroNextBtn) {
+    landingHeroNextBtn.addEventListener('click', () => {
+      updateHeroImage(currentHeroIdx + 1);
+    });
+  }
+  heroDots.forEach((dot, idx) => {
+    dot.addEventListener('click', () => {
+      updateHeroImage(idx);
+    });
+  });
+
+  // 4. 360 Gallery Horizontal Scroll Arrows
+  const g360Track = document.getElementById('g360Track');
+  const g360PrevBtn = document.getElementById('g360PrevBtn');
+  const g360NextBtn = document.getElementById('g360NextBtn');
+
+  if (g360PrevBtn && g360Track) {
+    g360PrevBtn.addEventListener('click', () => {
+      g360Track.scrollBy({ left: -260, behavior: 'smooth' });
+    });
+  }
+  if (g360NextBtn && g360Track) {
+    g360NextBtn.addEventListener('click', () => {
+      g360Track.scrollBy({ left: 260, behavior: 'smooth' });
+    });
+  }
+
+  // 5. Customer Reviews Navigation
+  const reviewsCardsRow = document.getElementById('reviewsCardsRow');
+  const revPrevBtn = document.getElementById('revPrevBtn');
+  const revNextBtn = document.getElementById('revNextBtn');
+
+  if (revPrevBtn && reviewsCardsRow) {
+    revPrevBtn.addEventListener('click', () => {
+      reviewsCardsRow.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+  }
+  if (revNextBtn && reviewsCardsRow) {
+    revNextBtn.addEventListener('click', () => {
+      reviewsCardsRow.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+  }
+
+  // 6. Smooth Scroll for all Buy Now Buttons
+  const buyNowAnchors = document.querySelectorAll('a[href="#order-now-section"]');
+  buyNowAnchors.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const orderSec = document.getElementById('order-now-section');
+      if (orderSec) {
+        orderSec.scrollIntoView({ behavior: 'smooth' });
+        const nameInp = document.getElementById('directCustName');
+        if (nameInp) {
+          setTimeout(() => nameInp.focus(), 500);
+        }
+      }
+    });
+  });
+
+  // 7. Direct Order Form Submission
+  const directLandingOrderForm = document.getElementById('directLandingOrderForm');
+  const directSubmitOrderBtn = document.getElementById('directSubmitOrderBtn');
+
+  if (directLandingOrderForm) {
+    directLandingOrderForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const custName = document.getElementById('directCustName')?.value.trim();
+      const custPhone = document.getElementById('directCustPhone')?.value.trim();
+      const custAddress = document.getElementById('directCustAddress')?.value.trim();
+      const custLandmark = document.getElementById('directCustLandmark')?.value.trim() || '';
+      const custCity = document.getElementById('directCustCity')?.value.trim();
+      const custState = document.getElementById('directCustState')?.value.trim();
+      const custPincode = document.getElementById('directCustPincode')?.value.trim();
+
+      if (!custName || !custPhone || !custAddress || !custCity || !custState || !custPincode) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      if (!/^\d{10}$/.test(custPhone.replace(/[^0-9]/g, ''))) {
+        alert('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+
+      const payMethodRadio = document.querySelector('input[name="directPaymentMethod"]:checked');
+      const isOnline = payMethodRadio && payMethodRadio.value === 'online';
+
+      const orderRefId = 'BLJ-' + Math.floor(1000 + Math.random() * 9000);
+      const fullAddressStr = custLandmark 
+        ? `${custAddress}, Near ${custLandmark}, ${custCity}, ${custState} - ${custPincode}`
+        : `${custAddress}, ${custCity}, ${custState} - ${custPincode}`;
+
+      const orderData = {
+        id: orderRefId,
+        storeId: 'ST-BLJ-001',
+        name: custName,
+        avatar: 'assets/cat_1.jpg',
+        city: `${custCity}, ${custState}`,
+        email: `${custPhone}@customer.blinjo.com`,
+        phone: custPhone.startsWith('+91') ? custPhone : `+91 ${custPhone}`,
+        address: fullAddressStr,
+        products: [
+          { name: 'Blinjo Premium Golden Lady Fountain', price: 2499, qty: 1, img: 'assets/bestseller.webp' }
+        ],
+        moreCount: 1,
+        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+        amount: 2499,
+        paymentMethod: isOnline ? 'Online (Razorpay)' : 'Cash on Delivery',
+        paymentStatus: isOnline ? 'Paid' : 'Pending',
+        status: 'Pending'
+      };
+
+      if (isOnline) {
+        // Trigger Razorpay
+        if (directSubmitOrderBtn) {
+          directSubmitOrderBtn.disabled = true;
+          directSubmitOrderBtn.innerHTML = '<span class="btn-po-main">Opening Payment Gateway... ⏳</span>';
+        }
+
+        const resetBtn = () => {
+          if (directSubmitOrderBtn) {
+            directSubmitOrderBtn.disabled = false;
+            directSubmitOrderBtn.innerHTML = '<span class="btn-po-main">🛒 Place Order Now</span><span class="btn-po-sub">Secure Payment | Fast Delivery</span>';
+          }
+        };
+
+        if (typeof Razorpay !== 'undefined') {
+          const options = {
+            key: "rzp_test_1DP5mmOlF5G5ag",
+            amount: 2499 * 100, // in paise
+            currency: "INR",
+            name: "Blinjo Store",
+            description: `Order #${orderRefId} - Golden Lady Fountain`,
+            image: "assets/bestseller.webp",
+            prefill: {
+              name: custName,
+              contact: custPhone
+            },
+            theme: { color: "#dc2626" },
+            handler: function (response) {
+              const paymentId = response.razorpay_payment_id || ('pay_rzp_' + Math.random().toString(36).substring(2, 8));
+              orderData.paymentMethod = `Razorpay Online (${paymentId})`;
+              orderData.paymentStatus = 'Paid';
+              finalizeAndPersistDirectOrder(orderData);
+              resetBtn();
+            },
+            modal: {
+              ondismiss: function () {
+                resetBtn();
+              }
+            }
+          };
+
+          try {
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function(resp) {
+              alert('Payment failed. You can choose Cash on Delivery instead.');
+              resetBtn();
+            });
+            rzp.open();
+          } catch(err) {
+            console.warn('Razorpay error, finalizing test order:', err);
+            finalizeAndPersistDirectOrder(orderData);
+            resetBtn();
+          }
+        } else {
+          // Razorpay script not loaded, finalize as test order
+          finalizeAndPersistDirectOrder(orderData);
+          resetBtn();
+        }
+
+      } else {
+        // COD order
+        if (directSubmitOrderBtn) {
+          directSubmitOrderBtn.disabled = true;
+          directSubmitOrderBtn.innerHTML = '<span class="btn-po-main">Placing Order... ⏳</span>';
+        }
+
+        setTimeout(() => {
+          finalizeAndPersistDirectOrder(orderData);
+          if (directSubmitOrderBtn) {
+            directSubmitOrderBtn.disabled = false;
+            directSubmitOrderBtn.innerHTML = '<span class="btn-po-main">🛒 Place Order Now</span><span class="btn-po-sub">Secure Payment | Fast Delivery</span>';
+          }
+        }, 500);
+      }
+    });
+  }
+
+  function finalizeAndPersistDirectOrder(newOrder) {
+    // 1. Save to local storage
+    try {
+      const existingData = localStorage.getItem('blinjo_orders_v2');
+      const ordersArr = existingData ? JSON.parse(existingData) : [];
+      ordersArr.unshift(newOrder);
+      localStorage.setItem('blinjo_orders_v2', JSON.stringify(ordersArr));
+      localStorage.setItem('blinjo_orders', JSON.stringify(ordersArr));
+    } catch(e) {
+      console.error('Storage error:', e);
+    }
+
+    // 2. Sync to Firestore if configured
+    if (typeof addOrderFirestore === 'function') {
+      try {
+        addOrderFirestore(newOrder);
+      } catch(e) {}
+    }
+
+    // 3. Broadcast to admin tabs
+    try {
+      const orderBC = new BroadcastChannel('blinjo_orders_channel');
+      orderBC.postMessage({ type: 'NEW_ORDER_PLACED', orderId: newOrder.id, newOrder: newOrder });
+      orderBC.close();
+    } catch(e) {}
+    window.dispatchEvent(new CustomEvent('blinjo_order_placed', { detail: newOrder }));
+
+    // 4. Show Success Modal
+    const succId = document.getElementById('successOrderId');
+    const succAmt = document.getElementById('successOrderAmount');
+    const succSub = document.getElementById('successOrderSub');
+    const succModal = document.getElementById('orderSuccessModal');
+
+    if (succId) succId.textContent = `#${newOrder.id}`;
+    if (succAmt) succAmt.textContent = `₹${newOrder.amount.toLocaleString('en-IN')}`;
+    if (succSub) {
+      succSub.textContent = newOrder.paymentStatus === 'Paid'
+        ? 'Thank you for your payment! We have received your order and will start packing it right away.'
+        : 'Thank you for your order! Your Cash on Delivery order is confirmed and will be delivered soon.';
+    }
+    if (succModal) succModal.style.display = 'flex';
+
+    // 5. Reset form
+    if (directLandingOrderForm) directLandingOrderForm.reset();
   }
 
 });

@@ -1254,12 +1254,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // PRODUCTS MANAGEMENT SYSTEM CONTROLLER
+  // PRODUCTS MANAGEMENT SYSTEM CONTROLLER (ADVANCE)
   // ==========================================
   let productsList = getStoredProducts();
   let currentProdPage = 1;
   const prodPageSize = 10;
   let currentViewingProd = null;
+  let selectedProdIds = new Set();
+  let activeProdChip = 'all';
+  let activeKpiFilter = 'all';
 
   // Dynamic Products KPI calculation (DOM-safe, zero TDZ errors)
   function updateProductKPIs() {
@@ -1272,11 +1275,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeEl = document.getElementById('kpiActiveProdVal');
     const outEl = document.getElementById('kpiOutOfStockVal');
     const lowEl = document.getElementById('kpiLowStockVal');
+    const headerBadge = document.getElementById('prodsHeaderCountBadge');
 
     if (totalEl) totalEl.textContent = total;
     if (activeEl) activeEl.textContent = active;
     if (outEl) outEl.textContent = outOfStock;
     if (lowEl) lowEl.textContent = lowStock;
+    if (headerBadge) headerBadge.textContent = `${total} Items`;
+  }
+
+  // Update Floating Bulk Action Bar Visibility & Count
+  function updateProdsBulkBar() {
+    const bulkBar = document.getElementById('prodsBulkActionBar');
+    const countEl = document.getElementById('selectedProdsCount');
+    if (!bulkBar) return;
+    if (selectedProdIds.size > 0) {
+      if (countEl) countEl.textContent = selectedProdIds.size;
+      bulkBar.style.display = 'flex';
+    } else {
+      bulkBar.style.display = 'none';
+    }
+  }
+
+  // Export Products to CSV (selected or all)
+  function exportProductsToCsv(subset = null) {
+    const prodsToExport = subset ? productsList.filter(p => subset.has(p.id)) : productsList;
+    if (!prodsToExport || prodsToExport.length === 0) {
+      alert('No products to export.');
+      return;
+    }
+    const headers = ['ID', 'Title', 'SKU', 'Category', 'Selling Price (INR)', 'MRP (INR)', 'Discount %', 'Stock', 'Status', 'Main Showcase', 'Image URL'];
+    const rows = prodsToExport.map(p => {
+      const disc = Math.round(((p.mrp - p.price) / p.mrp) * 100) || 0;
+      return [
+        `"${p.id || ''}"`,
+        `"${(p.title || '').replace(/"/g, '""')}"`,
+        `"${p.sku || ''}"`,
+        `"${p.category || 'Urli Bowls'}"`,
+        p.price || 0,
+        p.mrp || 0,
+        disc,
+        p.stock !== undefined ? p.stock : 0,
+        `"${p.status || 'Active'}"`,
+        p.active ? 'Yes' : 'No',
+        `"${p.image || ''}"`
+      ].join(',');
+    });
+    const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent([headers.join(','), ...rows].join('\n'));
+    const link = document.createElement('a');
+    link.setAttribute('href', csvContent);
+    link.setAttribute('download', `blinjo_products_catalog_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   // Render Product Pagination
@@ -1319,27 +1370,58 @@ document.addEventListener('DOMContentLoaded', () => {
     if (next) next.addEventListener('click', () => { if (currentProdPage < totalPages) { currentProdPage++; renderProductsTable(); } });
   }
 
-  // Render Products Table
+  // Render Advance Products Table
   function renderProductsTable() {
     const productsTableBody = document.getElementById('productsTableBody');
     if (!productsTableBody) return;
     productsTableBody.innerHTML = '';
 
     const prodSearchInput = document.getElementById('prodSearchInput');
+    const clearProdSearchBtn = document.getElementById('clearProdSearchBtn');
     const filterProdCategory = document.getElementById('filterProdCategory');
     const filterProdStatus = document.getElementById('filterProdStatus');
     const filterStockStatus = document.getElementById('filterStockStatus');
+    const sortProdBy = document.getElementById('sortProdBy');
 
     const query = prodSearchInput ? prodSearchInput.value.toLowerCase().trim() : '';
+    if (clearProdSearchBtn) {
+      clearProdSearchBtn.style.display = query.length > 0 ? 'block' : 'none';
+    }
+
     const selectedCat = filterProdCategory ? filterProdCategory.value : 'all';
     const selectedStatus = filterProdStatus ? filterProdStatus.value : 'all';
     const selectedStock = filterStockStatus ? filterStockStatus.value : 'all';
+    const sortBy = sortProdBy ? sortProdBy.value : 'newest';
 
     let filtered = productsList.filter(prod => {
-      const matchQuery = !query || prod.title.toLowerCase().includes(query) || (prod.sku && prod.sku.toLowerCase().includes(query));
+      // 1. KPI Filter
+      if (activeKpiFilter === 'Active' && prod.status !== 'Active') return false;
+      if (activeKpiFilter === 'Out of Stock' && prod.stock !== 0 && prod.status !== 'Out of Stock') return false;
+      if (activeKpiFilter === 'Low Stock' && !( (prod.stock > 0 && prod.stock <= 20) || prod.status === 'Low Stock' )) return false;
+
+      // 2. Chip Filter
+      if (activeProdChip === 'Active' && prod.status !== 'Active') return false;
+      if (activeProdChip === 'Low Stock' && !( (prod.stock > 0 && prod.stock <= 20) || prod.status === 'Low Stock' )) return false;
+      if (activeProdChip === 'Out of Stock' && prod.stock !== 0 && prod.status !== 'Out of Stock') return false;
+      if (['Urli Bowls', 'Diya Sets', 'Festive Decor'].includes(activeProdChip)) {
+        if (!prod.category || prod.category.toLowerCase() !== activeProdChip.toLowerCase()) return false;
+      }
+
+      // 3. Search query
+      const matchQuery = !query ||
+        (prod.title && prod.title.toLowerCase().includes(query)) ||
+        (prod.sku && prod.sku.toLowerCase().includes(query)) ||
+        (prod.category && prod.category.toLowerCase().includes(query)) ||
+        (prod.badge && prod.badge.toLowerCase().includes(query)) ||
+        String(prod.price).includes(query);
+
+      // 4. Dropdown Category
       const matchCat = (selectedCat === 'all') || (prod.category && prod.category.toLowerCase() === selectedCat.toLowerCase());
-      const matchStatus = (selectedStatus === 'all') || (prod.status.toLowerCase() === selectedStatus.toLowerCase());
-      
+
+      // 5. Dropdown Status
+      const matchStatus = (selectedStatus === 'all') || (prod.status && prod.status.toLowerCase() === selectedStatus.toLowerCase());
+
+      // 6. Dropdown Stock Health
       let matchStock = true;
       if (selectedStock === 'In Stock') matchStock = prod.stock > 20;
       else if (selectedStock === 'Low Stock') matchStock = prod.stock > 0 && prod.stock <= 20;
@@ -1348,60 +1430,132 @@ document.addEventListener('DOMContentLoaded', () => {
       return matchQuery && matchCat && matchStatus && matchStock;
     });
 
+    // Sort products
+    if (sortBy === 'price-desc') {
+      filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (sortBy === 'price-asc') {
+      filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (sortBy === 'stock-asc') {
+      filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+    } else if (sortBy === 'stock-desc') {
+      filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+    } else if (sortBy === 'name-asc') {
+      filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    }
+
     renderProdPagination(filtered.length);
 
     if (filtered.length === 0) {
-      productsTableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 28px; color: #9ca3af;">No products found matching filters.</td></tr>`;
+      productsTableBody.innerHTML = `
+        <tr>
+          <td colspan="11" style="text-align:center; padding: 48px 20px; color: #94a3b8;">
+            <div style="font-size:36px; margin-bottom:10px;">🔍</div>
+            <strong style="color:#1e293b; font-size:15px; display:block; margin-bottom:4px;">No matching products found</strong>
+            <span style="font-size:13px; color:#64748b;">Try adjusting your search query, status filters, or category chips.</span>
+            <div style="margin-top:14px;">
+              <button type="button" class="btn-reset-filters-inline" style="background:#047857; color:#fff; border:none; padding:7px 16px; border-radius:7px; font-weight:700; font-size:12.5px; cursor:pointer; box-shadow:0 2px 6px rgba(4,120,87,0.2);">Reset All Filters</button>
+            </div>
+          </td>
+        </tr>
+      `;
       return;
     }
 
     const startIndex = (currentProdPage - 1) * prodPageSize;
     const pageProds = filtered.slice(startIndex, startIndex + prodPageSize);
 
+    // Update master checkbox
+    const selectAllProds = document.getElementById('selectAllProds');
+    if (selectAllProds) {
+      selectAllProds.checked = pageProds.length > 0 && pageProds.every(p => selectedProdIds.has(p.id));
+    }
+
     pageProds.forEach((prod, index) => {
       const tr = document.createElement('tr');
       const discountPct = Math.round(((prod.mrp - prod.price) / prod.mrp) * 100) || 0;
+      const savings = Math.max(0, (prod.mrp || 0) - (prod.price || 0));
       const rowNum = startIndex + index + 1;
+      const isChecked = selectedProdIds.has(prod.id);
 
-      let statusBadge = `<span class="status-active-pill">🟢 Active</span>`;
-      if (prod.status === 'Low Stock' || (prod.stock > 0 && prod.stock <= 20)) {
-        statusBadge = `<span class="status-low-pill">🟡 Low Stock</span>`;
+      let statusBadge = `<button type="button" class="status-toggle-pill status-active-pill" data-id="${prod.id}" title="Click to toggle Status">🟢 Active</button>`;
+      if (prod.status === 'Draft') {
+        statusBadge = `<button type="button" class="status-toggle-pill status-draft-pill" data-id="${prod.id}" title="Click to toggle Status" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:3px 10px; border-radius:12px; font-size:11.5px; font-weight:700;">⚪ Draft</button>`;
+      } else if (prod.status === 'Low Stock' || (prod.stock > 0 && prod.stock <= 20)) {
+        statusBadge = `<button type="button" class="status-toggle-pill status-low-pill" data-id="${prod.id}" title="Click to toggle Status">🟡 Low Stock</button>`;
       } else if (prod.status === 'Out of Stock' || prod.stock === 0) {
-        statusBadge = `<span class="status-out-pill">🔴 Out of Stock</span>`;
+        statusBadge = `<button type="button" class="status-toggle-pill status-out-pill" data-id="${prod.id}" title="Click to toggle Status">🔴 Out of Stock</button>`;
       }
 
       let stockColorClass = 'text-green';
       if (prod.stock === 0) stockColorClass = 'text-red';
       else if (prod.stock <= 20) stockColorClass = 'text-orange';
 
+      const mainShowcaseBadge = prod.active ? `<span class="badge-main-prod" title="Currently active hero showcase product on storefront">🌟 MAIN SHOWCASE</span>` : '';
+
       tr.innerHTML = `
-        <td><input type="checkbox" class="prod-select-chk"></td>
-        <td><strong>${rowNum}</strong></td>
+        <td style="text-align:center;"><input type="checkbox" class="prod-row-chk" data-id="${prod.id}" ${isChecked ? 'checked' : ''} style="cursor:pointer; width:16px; height:16px;"></td>
+        <td style="text-align:center;"><strong>${rowNum}</strong></td>
         <td>
-          <strong>${prod.title}</strong>
-          <small class="sku-text">${prod.sku || 'SKU: BLJ00' + rowNum}</small>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <strong style="color:#0f172a; font-size:13.5px; line-height:1.3;">${prod.title}</strong>
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:2px;">
+              <small class="sku-text" style="font-size:11px; color:#64748b;">${prod.sku || 'BLJ00' + rowNum}</small>
+              ${mainShowcaseBadge}
+            </div>
+          </div>
         </td>
-        <td><img src="${prod.image}" alt="${prod.title}" class="prod-thumb-img"></td>
-        <td><span style="font-size:12px; font-weight:600; color:#475569;">${prod.category || 'Home Decor'}</span></td>
-        <td style="text-align:center;"><strong>₹${prod.price.toLocaleString('en-IN')}</strong></td>
-        <td style="text-align:center;"><span style="text-decoration: line-through; color: #94a3b8; font-size: 12px;">₹${prod.mrp.toLocaleString('en-IN')}</span></td>
-        <td style="text-align:center;"><span class="discount-pill-green">${discountPct}%</span></td>
-        <td><span class="stock-num ${stockColorClass}">${prod.stock}</span></td>
-        <td>${statusBadge}</td>
         <td style="text-align:center;">
-          <div class="action-icon-group" style="justify-content: center; align-items: center; gap: 6px;">
-            <button type="button" class="btn-details-prod view-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="View Details">
+          <div class="prod-thumb-container" title="Click to enlarge" style="margin:0 auto;">
+            <img src="${prod.image || 'assets/bestseller.webp'}" alt="${prod.title}" onerror="this.src='assets/bestseller.webp'">
+          </div>
+        </td>
+        <td>
+          <span style="background:#f1f5f9; color:#334155; font-size:11.5px; font-weight:700; padding:4px 9px; border-radius:6px; border:1px solid #e2e8f0; display:inline-block; white-space:nowrap;">
+            ${prod.category || 'Urli Bowls'}
+          </span>
+        </td>
+        <td style="text-align:center;">
+          <strong style="color:#047857; font-size:14px;">₹${prod.price.toLocaleString('en-IN')}</strong>
+        </td>
+        <td style="text-align:center;">
+          <span style="text-decoration: line-through; color: #94a3b8; font-size: 12px; display:block;">₹${prod.mrp.toLocaleString('en-IN')}</span>
+          <small style="display:block; color:#047857; font-size:10.5px; font-weight:700;">Save ₹${savings.toLocaleString('en-IN')}</small>
+        </td>
+        <td style="text-align:center;">
+          <span class="discount-pill-green" style="font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px;">${discountPct}%</span>
+        </td>
+        <td style="text-align:center;">
+          <div class="stock-stepper" style="margin:0 auto;">
+            <button type="button" class="stock-stepper-btn stock-dec-btn" data-id="${prod.id}" title="Decrease Stock (1 unit)">-</button>
+            <span class="stock-num ${stockColorClass}" style="min-width:28px; text-align:center; font-weight:800; font-size:12.5px;">${prod.stock}</span>
+            <button type="button" class="stock-stepper-btn stock-inc-btn" data-id="${prod.id}" title="Increase Stock (1 unit)">+</button>
+          </div>
+        </td>
+        <td style="text-align:center;">
+          ${statusBadge}
+        </td>
+        <td style="text-align:center;">
+          <div class="action-icon-group" style="justify-content: center; align-items: center; gap: 5px; flex-wrap:nowrap;">
+            <button type="button" class="btn-details-prod view-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="View Complete Product Details" style="padding:5px 9px; font-size:11.5px;">
               <span>📄</span> Details
             </button>
-            <button type="button" class="btn-details-prod edit-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="Edit Product" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700;">
+            <button type="button" class="btn-details-prod edit-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="Edit Product Specs & Price" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-weight:700; padding:5px 9px; font-size:11.5px;">
               <span>✏️</span> Edit
             </button>
-            <button type="button" class="icon-action-btn-danger delete-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="Delete Product">🗑️</button>
+            <button type="button" class="make-main-prod-btn" data-id="${prod.id}" title="${prod.active ? 'Currently Main Showcase Product' : 'Set as Main Showcase on Storefront'}" style="background:${prod.active ? '#fef3c7' : '#ffffff'}; border:1px solid ${prod.active ? '#fde68a' : '#cbd5e1'}; color:${prod.active ? '#b45309' : '#64748b'}; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11.5px; font-weight:700; transition:all 0.15s;">
+              ${prod.active ? '⭐ Main' : '☆ Set Main'}
+            </button>
+            <button type="button" class="duplicate-prod-btn" data-id="${prod.id}" title="Duplicate Product" style="background:#ffffff; border:1px solid #cbd5e1; color:#334155; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; transition:all 0.15s;">
+              📋
+            </button>
+            <button type="button" class="icon-action-btn-danger delete-prod-btn" data-id="${prod.id}" data-index="${rowNum - 1}" title="Delete Product" style="padding:5px 8px; font-size:12px;">🗑️</button>
           </div>
         </td>
       `;
       productsTableBody.appendChild(tr);
     });
+
+    updateProdsBulkBar();
   }
 
   // View Product Details Modal Controllers
@@ -1564,10 +1718,147 @@ document.addEventListener('DOMContentLoaded', () => {
   window.closeEditProductModal = closeEditProductModal;
   window.renderProductsTable = renderProductsTable;
   window.updateProductKPIs = updateProductKPIs;
+  window.exportProductsToCsv = exportProductsToCsv;
 
-  // Global Event Delegation for Product Table Actions (Details, Edit, Delete)
+  // Global Event Delegation for Product Table Actions
   document.addEventListener('click', (e) => {
-    // 1. Edit Product Button
+    const toastFn = window.showAdminToast || window.showAdminOrderToast || function(msg) { console.log(msg); };
+
+    // 1. Master Checkbox Select All Visible
+    if (e.target && e.target.id === 'selectAllProds') {
+      const isChecked = e.target.checked;
+      const chks = document.querySelectorAll('.prod-row-chk');
+      chks.forEach(chk => {
+        const id = chk.getAttribute('data-id');
+        if (id) {
+          if (isChecked) selectedProdIds.add(id);
+          else selectedProdIds.delete(id);
+          chk.checked = isChecked;
+        }
+      });
+      updateProdsBulkBar();
+      return;
+    }
+
+    // 2. Individual Row Checkbox
+    const rowChk = e.target.closest('.prod-row-chk');
+    if (rowChk) {
+      const id = rowChk.getAttribute('data-id');
+      if (id) {
+        if (rowChk.checked) selectedProdIds.add(id);
+        else selectedProdIds.delete(id);
+        updateProdsBulkBar();
+        const allChks = Array.from(document.querySelectorAll('.prod-row-chk'));
+        const selectAllEl = document.getElementById('selectAllProds');
+        if (selectAllEl) selectAllEl.checked = allChks.length > 0 && allChks.every(c => c.checked);
+      }
+      return;
+    }
+
+    // 3. Stock Decrement (-) Button
+    const decBtn = e.target.closest('.stock-dec-btn');
+    if (decBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = decBtn.getAttribute('data-id');
+      const prod = productsList.find(p => p && p.id === pId);
+      if (prod) {
+        prod.stock = Math.max(0, (prod.stock || 0) - 1);
+        if (prod.stock === 0) prod.status = 'Out of Stock';
+        else if (prod.stock <= 20 && prod.status === 'Active') prod.status = 'Low Stock';
+        saveStoredProducts(productsList);
+        if (typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(prod);
+        updateProductKPIs();
+        renderProductsTable();
+        toastFn(`Stock updated: ${prod.title} now has ${prod.stock} units`);
+      }
+      return;
+    }
+
+    // 4. Stock Increment (+) Button
+    const incBtn = e.target.closest('.stock-inc-btn');
+    if (incBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = incBtn.getAttribute('data-id');
+      const prod = productsList.find(p => p && p.id === pId);
+      if (prod) {
+        prod.stock = (prod.stock || 0) + 1;
+        if (prod.stock > 20 && (prod.status === 'Low Stock' || prod.status === 'Out of Stock')) {
+          prod.status = 'Active';
+        }
+        saveStoredProducts(productsList);
+        if (typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(prod);
+        updateProductKPIs();
+        renderProductsTable();
+        toastFn(`Stock updated: ${prod.title} now has ${prod.stock} units`);
+      }
+      return;
+    }
+
+    // 5. Inline Status Toggle Pill
+    const statusBtn = e.target.closest('.status-toggle-pill');
+    if (statusBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = statusBtn.getAttribute('data-id');
+      const prod = productsList.find(p => p && p.id === pId);
+      if (prod) {
+        prod.status = prod.status === 'Active' ? 'Draft' : 'Active';
+        saveStoredProducts(productsList);
+        if (typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(prod);
+        updateProductKPIs();
+        renderProductsTable();
+        toastFn(`Status changed: "${prod.title}" is now ${prod.status}`);
+      }
+      return;
+    }
+
+    // 6. Make Main Showcase Product
+    const makeMainBtn = e.target.closest('.make-main-prod-btn');
+    if (makeMainBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = makeMainBtn.getAttribute('data-id');
+      productsList.forEach(p => { p.active = (p.id === pId); });
+      const mainProd = productsList.find(p => p.id === pId);
+      saveStoredProducts(productsList);
+      if (mainProd && typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(mainProd);
+      updateProductKPIs();
+      renderProductsTable();
+      toastFn(`🌟 "${mainProd?.title || 'Product'}" set as Main Showcase on Storefront!`);
+      return;
+    }
+
+    // 7. Duplicate Product Button
+    const dupBtn = e.target.closest('.duplicate-prod-btn');
+    if (dupBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pId = dupBtn.getAttribute('data-id');
+      const source = productsList.find(p => p && p.id === pId);
+      if (source) {
+        const newId = 'BLJ_' + Date.now().toString(36).toUpperCase();
+        const clone = {
+          ...source,
+          id: newId,
+          title: source.title + ' (Copy)',
+          sku: (source.sku || 'BLJ') + '-COPY',
+          active: false,
+          addedByAdmin: true,
+          fromAdmin: true
+        };
+        productsList.unshift(clone);
+        saveStoredProducts(productsList);
+        if (typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(clone);
+        updateProductKPIs();
+        renderProductsTable();
+        toastFn(`📋 Duplicated "${source.title}" successfully!`);
+      }
+      return;
+    }
+
+    // 8. Edit Product Button
     const editBtn = e.target.closest('.edit-prod-btn');
     if (editBtn) {
       e.preventDefault();
@@ -1578,7 +1869,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 2. View Product Details Button
+    // 9. View Product Details Button
     const viewBtn = e.target.closest('.view-prod-btn');
     if (viewBtn) {
       e.preventDefault();
@@ -1589,7 +1880,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 3. Delete Product Button
+    // 10. Delete Product Button
     const delBtn = e.target.closest('.delete-prod-btn');
     if (delBtn) {
       e.preventDefault();
@@ -1598,16 +1889,56 @@ document.addEventListener('DOMContentLoaded', () => {
       const idx = productsList.findIndex(x => x && x.id === pId);
       const p = idx !== -1 ? productsList[idx] : productsList[parseInt(delBtn.getAttribute('data-index'))];
       if (p && confirm(`Are you sure you want to delete product "${p.title}"?`)) {
-        if (idx !== -1) {
-          productsList.splice(idx, 1);
-        }
+        if (idx !== -1) productsList.splice(idx, 1);
+        selectedProdIds.delete(p.id);
         saveStoredProducts(productsList);
         if (typeof deleteProductFirestore === 'function') {
           deleteProductFirestore(p.id || p.sku || `PROD-${idx}`);
         }
         updateProductKPIs();
         renderProductsTable();
+        toastFn(`Product "${p.title}" removed.`);
       }
+      return;
+    }
+
+    // 11. Quick Filter Chips Bar
+    const chipBtn = e.target.closest('.prod-chip');
+    if (chipBtn) {
+      e.preventDefault();
+      const chipVal = chipBtn.getAttribute('data-chip');
+      activeProdChip = chipVal;
+      document.querySelectorAll('.prod-chip').forEach(c => c.classList.remove('active'));
+      chipBtn.classList.add('active');
+      currentProdPage = 1;
+      renderProductsTable();
+      return;
+    }
+
+    // 12. Interactive KPI Card Filter Click
+    const kpiCard = e.target.closest('.order-kpi-card[data-prod-kpi]');
+    if (kpiCard) {
+      e.preventDefault();
+      const kpiVal = kpiCard.getAttribute('data-prod-kpi');
+      if (activeKpiFilter === kpiVal && kpiVal !== 'all') {
+        activeKpiFilter = 'all';
+      } else {
+        activeKpiFilter = kpiVal;
+      }
+      document.querySelectorAll('.order-kpi-card[data-prod-kpi]').forEach(c => {
+        c.classList.toggle('active-filter', c.getAttribute('data-prod-kpi') === activeKpiFilter && activeKpiFilter !== 'all');
+      });
+      currentProdPage = 1;
+      renderProductsTable();
+      return;
+    }
+
+    // 13. Inline Reset Filters Button
+    const inlineReset = e.target.closest('.btn-reset-filters-inline');
+    if (inlineReset) {
+      e.preventDefault();
+      const resetBtn = document.getElementById('resetProdFiltersBtn');
+      if (resetBtn) resetBtn.click();
       return;
     }
   });
@@ -1726,22 +2057,135 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Floating Bulk Actions Bar Event Handlers
+  document.getElementById('bulkSetActiveBtn')?.addEventListener('click', () => {
+    if (selectedProdIds.size === 0) return;
+    productsList.forEach(p => {
+      if (selectedProdIds.has(p.id)) {
+        p.status = 'Active';
+        if (typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(p);
+      }
+    });
+    saveStoredProducts(productsList);
+    updateProductKPIs();
+    renderProductsTable();
+    const toastFn = window.showAdminToast || window.showAdminOrderToast;
+    if (typeof toastFn === 'function') toastFn(`🟢 Set ${selectedProdIds.size} products to Active!`);
+  });
+
+  document.getElementById('bulkSetDraftBtn')?.addEventListener('click', () => {
+    if (selectedProdIds.size === 0) return;
+    productsList.forEach(p => {
+      if (selectedProdIds.has(p.id)) {
+        p.status = 'Draft';
+        if (typeof addOrUpdateProductFirestore === 'function') addOrUpdateProductFirestore(p);
+      }
+    });
+    saveStoredProducts(productsList);
+    updateProductKPIs();
+    renderProductsTable();
+    const toastFn = window.showAdminToast || window.showAdminOrderToast;
+    if (typeof toastFn === 'function') toastFn(`⚪ Set ${selectedProdIds.size} products to Draft.`);
+  });
+
+  document.getElementById('bulkExportBtn')?.addEventListener('click', () => {
+    exportProductsToCsv(selectedProdIds);
+  });
+
+  document.getElementById('exportProductsCsvBtn')?.addEventListener('click', () => {
+    exportProductsToCsv(null);
+  });
+
+  document.getElementById('bulkDeleteBtn')?.addEventListener('click', () => {
+    if (selectedProdIds.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedProdIds.size} selected products?`)) return;
+    productsList = productsList.filter(p => {
+      if (selectedProdIds.has(p.id)) {
+        if (typeof deleteProductFirestore === 'function') deleteProductFirestore(p.id);
+        return false;
+      }
+      return true;
+    });
+    selectedProdIds.clear();
+    saveStoredProducts(productsList);
+    updateProductKPIs();
+    renderProductsTable();
+    const toastFn = window.showAdminToast || window.showAdminOrderToast;
+    if (typeof toastFn === 'function') toastFn('Selected products deleted.');
+  });
+
+  document.getElementById('clearProdsSelectionBtn')?.addEventListener('click', () => {
+    selectedProdIds.clear();
+    const selectAllEl = document.getElementById('selectAllProds');
+    if (selectAllEl) selectAllEl.checked = false;
+    document.querySelectorAll('.prod-row-chk').forEach(c => c.checked = false);
+    updateProdsBulkBar();
+  });
+
   // Toolbar Event Listeners for Products
   const prodSearchInput = document.getElementById('prodSearchInput');
+  const clearProdSearchBtn = document.getElementById('clearProdSearchBtn');
   const filterProdCategory = document.getElementById('filterProdCategory');
   const filterProdStatus = document.getElementById('filterProdStatus');
   const filterStockStatus = document.getElementById('filterStockStatus');
+  const sortProdBy = document.getElementById('sortProdBy');
   const resetProdFiltersBtn = document.getElementById('resetProdFiltersBtn');
   const applyProdFiltersBtn = document.getElementById('applyProdFiltersBtn');
 
-  if (prodSearchInput) prodSearchInput.addEventListener('input', () => { currentProdPage = 1; renderProductsTable(); });
-  if (applyProdFiltersBtn) applyProdFiltersBtn.addEventListener('click', () => { currentProdPage = 1; renderProductsTable(); });
+  if (prodSearchInput) {
+    prodSearchInput.addEventListener('input', () => {
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
+  if (clearProdSearchBtn) {
+    clearProdSearchBtn.addEventListener('click', () => {
+      if (prodSearchInput) prodSearchInput.value = '';
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
+  if (sortProdBy) {
+    sortProdBy.addEventListener('change', () => {
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
+  if (filterProdCategory) {
+    filterProdCategory.addEventListener('change', () => {
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
+  if (filterProdStatus) {
+    filterProdStatus.addEventListener('change', () => {
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
+  if (filterStockStatus) {
+    filterStockStatus.addEventListener('change', () => {
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
+  if (applyProdFiltersBtn) {
+    applyProdFiltersBtn.addEventListener('click', () => {
+      currentProdPage = 1;
+      renderProductsTable();
+    });
+  }
   if (resetProdFiltersBtn) {
     resetProdFiltersBtn.addEventListener('click', () => {
       if (prodSearchInput) prodSearchInput.value = '';
       if (filterProdCategory) filterProdCategory.value = 'all';
       if (filterProdStatus) filterProdStatus.value = 'all';
       if (filterStockStatus) filterStockStatus.value = 'all';
+      if (sortProdBy) sortProdBy.value = 'newest';
+      activeProdChip = 'all';
+      activeKpiFilter = 'all';
+      document.querySelectorAll('.prod-chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-chip') === 'all'));
+      document.querySelectorAll('.order-kpi-card[data-prod-kpi]').forEach(c => c.classList.remove('active-filter'));
       currentProdPage = 1;
       renderProductsTable();
     });

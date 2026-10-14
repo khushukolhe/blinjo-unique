@@ -3,811 +3,634 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blinjo Premium Rose Urli with Diya & Decorative Idol | Official Store</title>
-  <meta name="description" content="Shop authentic Blinjo Premium Rose Urli with Diya & Decorative Idol. Handcrafted brass decorative bowl with artificial red roses & marigolds. Perfect for Pooja, Diwali & Gifting. Free Shipping & COD Available!">
+  <title>Blinjo Premium Golden Lady Fountain | Official Store</title>
+  <meta name="description" content="Shop authentic Blinjo Premium Golden Lady Fountain. Luxurious handcrafted decorative centerpiece for Pooja, Diwali, festive gifting and elegant home décor.">
   
-  <!-- Preload Critical LCP Hero Image -->
+  <!-- Preload Critical Hero Image -->
   <link rel="preload" as="image" href="assets/bestseller.webp" type="image/webp" fetchpriority="high">
 
-  <!-- Preconnect to Fonts & Third Parties -->
+  <!-- Fonts & CDNs -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://checkout.razorpay.com">
   <link rel="dns-prefetch" href="https://firestore.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=25">
   
-  <!-- Luxury Favicons (Emerald & Gold) -->
+  <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=4">
   <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=4">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4">
-  <meta name="msapplication-TileImage" content="/favicon.png?v=4">
-  <meta name="theme-color" content="#043827">
+  <meta name="theme-color" content="#0d0c0b">
 </head>
-<body>
+<body class="blinjo-landing-body">
 
-  <!-- Hero Section (Dynamically rendered from Admin Panel Slideshow) -->
-  <section class="hero-section" id="home">
-    <div class="hero-bg-container">
-      <div class="hero-blur-backdrop" id="heroBlurBackdrop" style="background-image: url('assets/bestseller.webp');"></div>
-      <img src="assets/bestseller.webp" alt="Blinjo Store Slideshow" class="hero-bg-img" id="mainHeroImg" fetchpriority="high" decoding="sync">
+  <!-- 1. HEADER NAV -->
+  <header class="landing-header">
+    <div class="landing-header-container">
+      <a href="#hero" class="landing-logo">
+        <svg class="landing-lotus-icon" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50 10 C45 25 35 40 20 50 C35 55 45 70 50 90 C55 70 65 55 80 50 C65 40 55 25 50 10 Z" fill="#eab308"/>
+          <path d="M50 25 C42 38 30 48 10 52 C25 60 38 72 45 88 C46 72 54 60 50 25 Z" fill="#ca8a04" opacity="0.8"/>
+          <path d="M50 25 C58 38 70 48 90 52 C75 60 62 72 55 88 C54 72 46 60 50 25 Z" fill="#ca8a04" opacity="0.8"/>
+          <circle cx="50" cy="52" r="6" fill="#fef08a"/>
+        </svg>
+        <div class="landing-logo-text-wrap">
+          <span class="landing-logo-title">Blinjo</span>
+          <span class="landing-logo-sub">PREMIUM HOME DECOR</span>
+        </div>
+      </a>
+
+      <div class="landing-header-badges">
+        <div class="header-badge-item">
+          <span class="h-badge-icon">🚚</span>
+          <div>
+            <strong>Free Delivery</strong>
+            <small>Across India</small>
+          </div>
+        </div>
+        <div class="header-badge-item">
+          <span class="h-badge-icon">🛡️</span>
+          <div>
+            <strong>Secure</strong>
+            <small>Payment</small>
+          </div>
+        </div>
+        <div class="header-badge-item">
+          <span class="h-badge-icon">📦</span>
+          <div>
+            <strong>Easy</strong>
+            <small>Returns</small>
+          </div>
+        </div>
+      </div>
     </div>
+  </header>
 
-    <!-- Optional Slide Caption Banner -->
-    <div class="hero-slide-caption" id="heroSlideCaption" style="display: none;">
-      <h3 class="hero-slide-title" id="heroSlideTitle"></h3>
-      <p class="hero-slide-desc" id="heroSlideDesc"></p>
-    </div>
-
-    <!-- Hero Slideshow Navigation Arrows -->
-    <button type="button" class="hero-nav-arrow hero-prev-arrow" id="heroPrevBtn" aria-label="Previous Slide">‹</button>
-    <button type="button" class="hero-nav-arrow hero-next-arrow" id="heroNextBtn" aria-label="Next Slide">›</button>
-
-    <!-- Slide Indicator Dots -->
-    <div class="hero-dots-container" id="heroDotsContainer"></div>
-
-    <!-- Floating Corner Buy Now Button on Slideshow -->
-    <div class="hero-corner-buy-wrap">
-      <button type="button" class="hero-corner-buy-btn" id="heroCornerBuyBtn">
-        <span class="hero-buy-flash">⚡</span> BUY NOW <span class="hero-buy-arrow">➔</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Immediate Initializer: load admin-configured slides without layout shift -->
-  <script>
-    (function() {
-      try {
-        var raw = localStorage.getItem('blinjo_slideshow_v2');
-        var list = null;
-        if (raw) {
-          try {
-            var parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              list = parsed.filter(function(s) {
-                return s && s.active !== false && s.image && s.image.indexOf('hero_banner.jpg') === -1;
-              });
-            }
-          } catch(e) {}
-        }
-        if (!list || list.length === 0) {
-          list = [
-            { image: 'assets/bestseller.webp', title: 'Handcrafted Brass Urli Bowl with Floating Diya', subtitle: 'Infuse divine warmth & royal elegance into your festive home decor' },
-            { image: 'assets/cat_1.webp', title: 'Exquisite Living Room Centerpiece', subtitle: 'Artisanal decorative bowl with scented roses & radiant glow' },
-            { image: 'assets/cat_2.webp', title: 'Divine Pooja Room Lotus Urli', subtitle: 'Pure brass blessing for mandir, aarti & daily spiritual celebrations' },
-            { image: 'assets/cat_3.webp', title: 'Festive Diwali Diya & Floral Glow', subtitle: 'Captivating handcrafted festive decor for joyful celebrations' }
-          ];
-        }
-        var homeEl = document.getElementById('home');
-        var imgEl = document.getElementById('mainHeroImg');
-        var blurEl = document.getElementById('heroBlurBackdrop');
-        if (homeEl) homeEl.style.display = 'flex';
-        if (imgEl && list[0] && list[0].image) imgEl.src = list[0].image;
-        if (blurEl && list[0] && list[0].image) blurEl.style.backgroundImage = 'url("' + list[0].image + '")';
-      } catch (e) {}
-    })();
-  </script>
-
-  <!-- Occasion / Use-Case Section -->
-  <section class="usecase-section">
-    <div class="section-container">
+  <!-- 2. HERO SECTION -->
+  <section class="landing-hero" id="hero">
+    <div class="hero-inner-container">
       
-      <div class="section-title-wrap">
-        <h2 class="main-heading">Perfect for Every Occasion</h2>
-      </div>
+      <!-- Left Column: Specs & CTA -->
+      <div class="hero-left-content">
+        <span class="hero-eyebrow">BRING DIVINE BEAUTY TO YOUR HOME</span>
+        <h1 class="hero-main-title">Blinjo Premium<br>Golden Lady Fountain</h1>
+        <p class="hero-main-desc">A luxurious decorative centerpiece for pooja, Diwali, festive gifting and home décor.</p>
 
-
-
-      <div class="usecase-grid">
-        
-        <!-- Card 1 -->
-        <div class="usecase-card" onclick="openLightbox('assets/cat_1.webp', 'Living Room Decor')">
-          <img src="assets/cat_1.webp" alt="Living Room Decor" loading="lazy" decoding="async">
-          <div class="pill-label">Living Room Decor</div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="usecase-card" onclick="openLightbox('assets/cat_2.webp', 'Pooja Room')">
-          <img src="assets/cat_2.webp" alt="Pooja Room" loading="lazy" decoding="async">
-          <div class="pill-label">Pooja Room</div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="usecase-card" onclick="openLightbox('assets/cat_3.webp', 'Diwali & Festivals')">
-          <img src="assets/cat_3.webp" alt="Diwali & Festivals" loading="lazy" decoding="async">
-          <div class="pill-label">Diwali & Festivals</div>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="usecase-card" onclick="openLightbox('assets/cat_4.webp', 'Wedding Decoration')">
-          <img src="assets/cat_4.webp" alt="Wedding Decoration" loading="lazy" decoding="async">
-          <div class="pill-label">Wedding Decoration</div>
-        </div>
-
-        <!-- Card 5 -->
-        <div class="usecase-card" onclick="openLightbox('assets/cat_5.webp', 'Entrance Decor')">
-          <img src="assets/cat_5.webp" alt="Entrance Decor" loading="lazy" decoding="async">
-          <div class="pill-label">Entrance Decor</div>
-        </div>
-
-        <!-- Card 6 -->
-        <div class="usecase-card" onclick="openLightbox('assets/cat_6.webp', 'Perfect Gift')">
-          <img src="assets/cat_6.webp" alt="Perfect Gift" loading="lazy" decoding="async">
-          <div class="pill-label">Perfect Gift</div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Pricing, Offers & Direct Order Section -->
-  <section class="offer-section" id="purchase">
-    <div class="offer-container">
-      <div class="offer-grid">
-        
-        <!-- Left Product Showcase Card -->
-        <div class="offer-image-box">
-          <img src="assets/bestseller.webp" alt="Blinjo Rose Urli Set" id="offerProductImg" loading="lazy" decoding="async">
-          <div class="offer-badge-ribbon">🔥 BESTSELLER</div>
-        </div>
-
-        <!-- Right Pricing & Order Action Box -->
-        <div class="offer-details-box">
-          <div class="rating-header">
-            <div class="rating-left">
-              <div class="stars">★★★★★</div>
-              <span class="rating-text">4.9/5 (1,420+ Verified Buyers)</span>
-            </div>
-            <div class="bestseller-crown-badge">👑 Bestseller</div>
+        <!-- 4 Feature Value Props -->
+        <div class="hero-feature-grid">
+          <div class="hero-f-item">
+            <span class="hero-f-icon">💎</span>
+            <span class="hero-f-text">Premium Quality</span>
           </div>
-
-          <h2 class="product-title-main">BLINJO PREMIUM ROSE URLI SET</h2>
-
-          <div class="price-box-wrapper">
-            <div class="price-box-left">
-              <span class="current-price">₹2,999</span>
-              <span class="original-price">₹5,999</span>
-              <span class="discount-badge">50% OFF</span>
-            </div>
-            <div class="you-save-badge">
-              <div class="save-tag-icon">🏷️</div>
-              <div class="save-text-wrap">
-                <span class="save-label">You Save</span>
-                <strong class="save-amount">₹3,000</strong>
-              </div>
-            </div>
+          <div class="hero-f-item">
+            <span class="hero-f-icon">🏠</span>
+            <span class="hero-f-text">Elegant Home Decor</span>
           </div>
-
-          <!-- Stock Countdown & Urgency -->
-          <div class="urgency-banner-new">
-            <div class="stock-pill-new">⚡ Only <strong id="stockCount">14</strong> Left in Stock!</div>
-            <div class="timer-divider"></div>
-            <div class="timer-box-new">
-              <span class="clock-icon">🕒</span>
-              <span>Offer Ends In</span>
-              <span class="timer-digits-red" id="countdownTimer">04 : 32 : 15</span>
-            </div>
+          <div class="hero-f-item">
+            <span class="hero-f-icon">🎁</span>
+            <span class="hero-f-text">Perfect for Gifting</span>
           </div>
-
-          <!-- Quantity Selector & Action Buttons -->
-          <div class="action-row">
-            <div class="quantity-selector">
-              <button type="button" class="qty-btn" id="qtyMinus">-</button>
-              <input type="number" id="qtyInput" value="1" min="1" max="10" readonly>
-              <button type="button" class="qty-btn" id="qtyPlus">+</button>
-            </div>
-
-            <button class="btn-checkout-orange" id="instantBuyBtn">
-              <div class="buy-btn-left">
-                <span class="bolt-icon">⚡</span>
-                <div class="buy-btn-text">
-                  <span class="buy-title">BUY NOW</span>
-                  <span class="buy-sub">CASH ON DELIVERY</span>
-                </div>
-              </div>
-              <div class="btn-circle-arrow">›</div>
-            </button>
-          </div>
-
-          <button class="btn-add-cart-outline-new" id="addToCartBtn">
-            <span class="cart-icon">🛒</span>
-            <span class="cart-text">Add to Cart</span>
-            <span class="cart-arrow">›</span>
-          </button>
-
-          <!-- Guarantees Row -->
-          <div class="guarantees-grid-new">
-            <div class="g-item-new green-bg">
-              <div class="g-icon">🚚</div>
-              <div class="g-text">
-                <strong>Free</strong>
-                <span>Express Delivery</span>
-              </div>
-            </div>
-            <div class="g-item-new gold-bg">
-              <div class="g-icon">💵</div>
-              <div class="g-text">
-                <strong>Cash On</strong>
-                <span>Delivery</span>
-              </div>
-            </div>
-            <div class="g-item-new blue-bg">
-              <div class="g-icon">🔄</div>
-              <div class="g-text">
-                <strong>3 Days</strong>
-                <span>Easy Return Policy</span>
-              </div>
-            </div>
+          <div class="hero-f-item">
+            <span class="hero-f-icon">🪔</span>
+            <span class="hero-f-text">Ideal for Pooja & Diwali</span>
           </div>
         </div>
 
-      </div>
-    </div>
-  </section>
-
-  <!-- Customer Products Catalog Grid Section (Dynamically populated from Admin) -->
-  <section class="products-catalog-section" id="products-catalog" style="padding:60px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
-    <div style="max-width:1200px; margin:0 auto;">
-      <div style="text-align:center; margin-bottom:40px;">
-        <span style="background:#e6f4ea; color:#047857; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:8px;">Handcrafted Elegance</span>
-        <h2 style="font-family:'Cinzel', serif; font-size:32px; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Our Festive Decor Collection</h2>
-        <p style="color:#64748b; font-size:15px; margin:0;">Explore authentic handcrafted brass urlis, floating diyas, and festive decor sets.</p>
-      </div>
-
-      <div class="customer-products-grid" id="customerProductsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:24px;"></div>
-    </div>
-  </section>
-
-  <!-- Products Initializer: ensures festive collection renders cleanly -->
-  <script>
-    (function() {
-      try {
-        var raw = localStorage.getItem('blinjo_products_v3');
-        var sec = document.getElementById('products-catalog');
-        if (sec) {
-          if (raw) {
-            var parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              var dummyIds = ['BLJ001','BLJ002','BLJ003','BLJ004','BLJ005','BLJ006','BLJ007','BLJ008','PROD-001','PROD-002','PROD-003','PROD-004'];
-              var valid = parsed.filter(function(p) {
-                return p && p.title && dummyIds.indexOf(p.id) === -1;
-              });
-              sec.style.display = valid.length > 0 ? 'block' : 'none';
-            }
-          } else {
-            sec.style.display = 'block';
-          }
-        }
-      } catch(e) {}
-    })();
-  </script>
-
-  <!-- Footer -->
-  <footer class="footer" id="contact">
-    <div class="footer-container">
-      <div class="footer-brand">
-        <div class="brand-logo">
-          <span class="logo-text text-white">Blinjo</span>
-        </div>
-        <p>Elevating Indian festive home decor with timeless handcrafted brass elegance and divine charm.</p>
-      </div>
-
-      <div class="footer-links">
-        <h4>Quick Links</h4>
-        <a href="#home">Home</a>
-        <a href="#products-catalog">Collection</a>
-        <a href="#features">Features</a>
-        <a href="#reviews">Reviews</a>
-        <a href="#faq">FAQ</a>
-      </div>
-
-      <div class="footer-contact">
-        <h4>Need Support?</h4>
-        <p>📧 Email: support@blinjo.com</p>
-        <p>📍 Location: New Delhi, India</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 Blinjo. All Rights Reserved. Crafted with ❤️ for Festive Celebrations.</p>
-    </div>
-  </footer>
-
-  <!-- Floating Mobile Order Bar -->
-  <div class="mobile-sticky-bar">
-    <div class="m-price-info">
-      <span class="m-price">₹2,999</span>
-      <span class="m-strike">₹5,999</span>
-    </div>
-    <button class="btn-primary-green m-btn" id="mobileBuyBtn">
-      BUY NOW - COD
-    </button>
-  </div>
-
-  <!-- Video Modal -->
-  <div class="modal" id="videoModal">
-    <div class="modal-content video-content">
-      <button class="close-modal" id="closeVideoModal">&times;</button>
-      <div class="video-container">
-        <iframe id="videoPlayer" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Blinjo Rose Urli Video Preview" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-    </div>
-  </div>
-
-  <!-- Image Lightbox Modal -->
-  <div class="modal" id="lightboxModal">
-    <div class="modal-content lightbox-content">
-      <button class="close-modal" id="closeLightboxModal">&times;</button>
-      <img src="" alt="Enlarged Decor View" id="lightboxImg">
-      <div class="lightbox-caption" id="lightboxCaption"></div>
-    </div>
-  </div>
-
-  <!-- Cart & Multi-Step Checkout Modal Overlay (100% Exact Match to User Screenshots) -->
-  <div class="cart-drawer-overlay" id="cartDrawerOverlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.45); backdrop-filter:blur(4px); z-index:99999; display:none; align-items:center; justify-content:center; padding:16px;">
-    <div class="cart-drawer-modal-card" style="width:100%; max-width:480px; max-height:92vh; background:#ffffff; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden; position:relative;">
-      
-      <!-- Top Brand Header with Menu Icon -->
-      <div class="cart-header-top" style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #f1f5f9; background:#ffffff;">
-        <div class="brand-cart-logo" style="display:flex; align-items:center; gap:10px;">
-          <button type="button" id="hamburgerMenuBtn" style="border:none; background:none; font-size:20px; color:#334155; cursor:pointer; padding:0 4px; display:flex; align-items:center;" title="Menu">≡</button>
-          <button type="button" id="backToCartBtn" style="display:none; border:none; background:none; font-size:22px; color:#475569; cursor:pointer; padding:0 4px; font-weight:700;" title="Back to Cart">‹</button>
-          <div class="green-bag-icon" style="background:#047857; color:#fff; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">🛍️</div>
-          <div class="brand-title-wrap" style="line-height:1.2;">
-            <strong class="brand-name" style="font-size:18px; font-weight:800; color:#0f172a; display:block;">Blinjo</strong>
-            <span class="brand-sub" style="font-size:11px; color:#64748b; font-weight:500;">Online Store</span>
-          </div>
+        <!-- Pricing Row -->
+        <div class="hero-pricing-row">
+          <span class="hero-price-current">₹2,499</span>
+          <span class="hero-price-mrp">₹4,999</span>
+          <span class="hero-discount-pill">50% OFF</span>
         </div>
 
-        <!-- 4-Step Progress Stepper (Visible during checkout steps) -->
-        <div class="checkout-stepper-header" id="checkoutStepperHeader" style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600;">
-          <div class="step-item active" id="stepIndicatorCart" style="display:flex; align-items:center; gap:4px; color:#047857;">
-            <span class="step-icon-circle" id="stepCartIconCircle" style="width:24px; height:24px; border-radius:50%; background:#047857; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">🛒</span>
-            <span class="step-label" id="stepCartLabel" style="font-weight:700; color:#047857;">Cart</span>
-          </div>
-          <span class="step-arrow" style="color:#cbd5e1; font-size:10px;">›</span>
-          <div class="step-item" id="stepIndicatorAddress" style="display:flex; align-items:center; gap:4px; color:#94a3b8;">
-            <span class="step-icon-circle" id="stepAddressIconCircle" style="width:24px; height:24px; border-radius:50%; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">📍</span>
-            <span class="step-label" id="stepAddressLabel">Address</span>
-          </div>
-          <span class="step-arrow" style="color:#cbd5e1; font-size:10px;">›</span>
-          <div class="step-item" id="stepIndicatorPayment" style="display:flex; align-items:center; gap:4px; color:#94a3b8;">
-            <span class="step-icon-circle" style="width:24px; height:24px; border-radius:50%; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">💳</span>
-            <span class="step-label">Payment</span>
-          </div>
+        <!-- Buy Now CTA Button -->
+        <div class="hero-cta-wrap">
+          <a href="#order-now-section" class="btn-golden-buy" id="heroBuyNowBtn">
+            <span>🛒</span> Buy Now
+          </a>
+          <span class="hero-cta-subtext">Secure Payment | Fast Delivery | Cash on Delivery Available</span>
         </div>
 
-        <button type="button" class="close-drawer-btn" id="closeCartBtnTop" style="border:none; background:none; font-size:22px; color:#94a3b8; cursor:pointer; padding:4px;">✕</button>
+        <!-- Carousel Navigation Dots -->
+        <div class="hero-dots-row">
+          <span class="hero-dot active"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
+        </div>
       </div>
 
-      <div class="cart-drawer-body" style="padding:20px 24px; overflow-y:auto; max-height:calc(90vh - 70px);">
-        
-        <!-- STEP 1: SHOPPING CART VIEW (Exact Match to Diagram Screenshot) -->
-        <div id="checkoutStepCart" class="checkout-step-view">
+      <!-- Right Column: Visual with Video Overlay & Badge -->
+      <div class="hero-right-visual">
+        <div class="hero-visual-card">
+          <img src="assets/bestseller.webp" alt="Blinjo Premium Golden Lady Fountain" class="hero-featured-img" id="heroFeaturedImg" fetchpriority="high">
           
-          <!-- Section Title with Close Button -->
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-            <h3 class="cart-section-title" style="margin:0; font-size:18px; font-weight:800; color:#0f172a;">
-              Shopping Cart <span class="cart-item-count" style="color:#0f172a; font-weight:500; font-size:16px;" id="cartQtyHeader">(1 Item)</span>
-            </h3>
-            <button type="button" class="close-drawer-btn" id="closeCartBtn" style="border:none; background:none; font-size:22px; color:#94a3b8; cursor:pointer; padding:4px;">✕</button>
+          <!-- Hexagon 50% OFF Badge -->
+          <div class="hero-flat-badge">
+            <span class="flat-text">FLAT</span>
+            <span class="flat-pct">50%</span>
+            <span class="flat-off">OFF</span>
           </div>
 
-          <!-- Product Item Card -->
-          <div class="cart-item-card-new" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; background:#ffffff; padding:12px; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:16px;">
-            <img src="assets/bestseller.webp" alt="Blinjo Brass Urli Bowl" id="cartProductImg" class="cart-prod-thumb" loading="lazy" decoding="async" style="width:72px; height:72px; border-radius:10px; object-fit:cover; flex-shrink:0;">
-            
-            <div class="cart-prod-details" style="flex:1;">
-              <h4 id="cartProdTitle" style="margin:0; font-size:14px; font-weight:800; color:#0f172a;">Blinjo Brass Urli Bowl</h4>
-              <p id="cartProdSubtitle" style="margin:2px 0 6px 0; font-size:11px; color:#64748b;">Traditional Brass Urli for Home Decor</p>
-              
-              <div class="cart-price-discount-row" style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-                <strong class="cart-selling-price" id="cartSellingPrice" style="font-size:16px; font-weight:800; color:#ff5722;">₹599</strong>
-                <span class="cart-mrp-price" id="cartMrpPrice" style="text-decoration:line-through; color:#94a3b8; font-size:12px;">₹799</span>
-                <span class="cart-disc-badge" id="cartDiscBadge" style="background:#e6f4ea; color:#137333; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;">25% OFF</span>
-              </div>
+          <!-- Video Play Overlay Button -->
+          <div class="hero-video-overlay" id="watchVideoBtn" title="Click to watch product video">
+            <div class="hero-play-circle">
+              <span class="hero-play-triangle">▶</span>
+            </div>
+            <span class="hero-play-label">Watch Product Video</span>
+          </div>
+        </div>
+      </div>
 
-              <div class="cart-qty-trash-group" style="display:flex; align-items:center; justify-content:space-between;">
-                <div class="qty-stepper-box" style="display:flex; align-items:center; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; overflow:hidden;">
-                  <button type="button" id="drawerQtyMinus" class="stepper-btn" style="border:none; background:none; padding:4px 10px; font-weight:700; cursor:pointer; color:#334155; font-size:13px;">-</button>
-                  <span id="cartQtyVal" class="stepper-val" style="font-weight:700; font-size:13px; color:#0f172a; padding:0 4px;">1</span>
-                  <button type="button" id="drawerQtyPlus" class="stepper-btn" style="border:none; background:none; padding:4px 10px; font-weight:700; cursor:pointer; color:#334155; font-size:13px;">+</button>
-                </div>
-                <button type="button" class="trash-btn" id="clearCartItemBtn" title="Remove Item" style="border:none; background:none; cursor:pointer; font-size:16px; color:#94a3b8;">🗑️</button>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <button type="button" class="landing-arrow landing-arrow-left" id="landingHeroPrevBtn" aria-label="Previous">‹</button>
+    <button type="button" class="landing-arrow landing-arrow-right" id="landingHeroNextBtn" aria-label="Next">›</button>
+  </section>
+
+  <!-- 3. FEATURE HIGHLIGHTS BAR -->
+  <section class="feature-highlights-bar">
+    <div class="f-bar-container">
+      <div class="f-bar-item">
+        <div class="f-bar-circle">🚚</div>
+        <div class="f-bar-text">
+          <strong>Free Delivery</strong>
+          <small>Across India</small>
+        </div>
+      </div>
+      <div class="f-bar-item">
+        <div class="f-bar-circle">🛡️</div>
+        <div class="f-bar-text">
+          <strong>Secure Payment</strong>
+          <small>100% Safe</small>
+        </div>
+      </div>
+      <div class="f-bar-item">
+        <div class="f-bar-circle">📦</div>
+        <div class="f-bar-text">
+          <strong>Easy Returns</strong>
+          <small>Hassle Free</small>
+        </div>
+      </div>
+      <div class="f-bar-item">
+        <div class="f-bar-circle">🏅</div>
+        <div class="f-bar-text">
+          <strong>Premium Quality</strong>
+          <small>Long Lasting</small>
+        </div>
+      </div>
+      <div class="f-bar-item">
+        <div class="f-bar-circle">🤍</div>
+        <div class="f-bar-text">
+          <strong>Perfect Gift</strong>
+          <small>For Loved Ones</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. MIDDLE SECTION: HIGHLIGHTS & ORDER NOW FORM -->
+  <section class="landing-main-split-section" id="order-now-section">
+    <div class="split-inner-container">
+      
+      <!-- Left Column: Highlights & What's Included -->
+      <div class="split-left-col">
+        <div class="highlights-header">
+          <h2 class="section-title-serif">Product Highlights</h2>
+          <p class="section-desc-muted">Designed to add a divine and royal touch to your home.</p>
+        </div>
+
+        <!-- Product Image + 6 Checked Bullets -->
+        <div class="highlights-showcase-row">
+          <div class="highlights-image-wrap">
+            <img src="assets/golden_lady_hero.jpg" alt="Golden Lady Urli Cutout" class="highlights-cutout-img">
+          </div>
+          <div class="highlights-bullets-list">
+            <div class="bullet-item">
+              <span class="bullet-check">✔</span>
+              <span>Premium Golden Finish</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-check">✔</span>
+              <span>Beautiful Urli with Artificial Flowers</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-check">✔</span>
+              <span>Two Glowing Diyas Included</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-check">✔</span>
+              <span>Perfect for Pooja, Diwali & Festive Decor</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-check">✔</span>
+              <span>Ideal for Home, Office & Gifting</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-check">✔</span>
+              <span>Long Lasting & Easy to Maintain</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- What's Included -->
+        <div class="whats-included-wrap">
+          <h3 class="whats-included-title">What's Included</h3>
+          <div class="whats-included-grid">
+            <div class="included-card">
+              <div class="included-thumb-wrap">
+                <img src="assets/golden_lady_detail.jpg" alt="Red Artificial Roses">
               </div>
+              <span class="included-label">Red Artificial<br>Roses</span>
+            </div>
+            <div class="included-card">
+              <div class="included-thumb-wrap">
+                <img src="assets/golden_lady_topview.jpg" alt="Premium Golden Urli">
+              </div>
+              <span class="included-label">Premium<br>Golden Urli</span>
+            </div>
+            <div class="included-card">
+              <div class="included-thumb-wrap">
+                <img src="assets/golden_lady_closeup.jpg" alt="Golden Lady Idol">
+              </div>
+              <span class="included-label">Golden<br>Lady Idol</span>
+            </div>
+            <div class="included-card">
+              <div class="included-thumb-wrap">
+                <img src="assets/bestseller.webp" alt="Two Glowing Diyas">
+              </div>
+              <span class="included-label">Two<br>Glowing Diyas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Now Card -->
+      <div class="split-right-col">
+        <div class="order-card-card">
+          
+          <div class="order-card-header">
+            <div class="order-card-icon">🚚</div>
+            <div class="order-card-titles">
+              <h3 class="order-card-title">Order Now</h3>
+              <p class="order-card-sub">Enter your details to place the order</p>
             </div>
           </div>
 
-          <!-- Payment Option Selector Card (Prepaid vs COD) -->
-          <div style="margin-bottom:16px;">
-            <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#0f172a; margin-bottom:8px;">
-              <span>💳</span> Payment Option
-            </label>
+          <form id="directLandingOrderForm" class="landing-order-form">
+            
+            <div class="form-input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="directCustName" class="landing-input" required placeholder="Full Name *">
+            </div>
 
-            <!-- Prepaid Option Card -->
-            <div id="payOptPrepaidCard" style="border:2px solid #10b981; background:#f0fdf4; border-radius:12px; padding:12px; margin-bottom:10px; cursor:pointer; transition:all 0.2s;">
-              <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin:0;">
-                <input type="radio" name="paymentChoice" value="prepaid" id="payChoicePrepaid" checked style="accent-color:#047857; width:18px; height:18px; margin-top:2px;">
-                <div style="flex:1;">
-                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                    <strong style="font-size:13px; color:#0f172a;">Prepaid Order (UPI)</strong>
-                    <div style="display:flex; gap:4px;">
-                      <span style="font-size:10px; font-weight:700; color:#4285f4; background:#ffffff; padding:1px 5px; border-radius:4px; border:1px solid #cbd5e1;">GPay</span>
-                      <span style="font-size:10px; font-weight:700; color:#5f259f; background:#ffffff; padding:1px 5px; border-radius:4px; border:1px solid #cbd5e1;">PhonePe</span>
-                      <span style="font-size:10px; font-weight:700; color:#00baf2; background:#ffffff; padding:1px 5px; border-radius:4px; border:1px solid #cbd5e1;">Paytm</span>
-                    </div>
+            <div class="form-input-wrap">
+              <span class="input-icon">📞</span>
+              <input type="tel" id="directCustPhone" class="landing-input" required placeholder="Mobile Number *" pattern="[0-9]{10}" maxlength="10">
+            </div>
+
+            <div class="form-input-wrap">
+              <span class="input-icon">📍</span>
+              <input type="text" id="directCustAddress" class="landing-input" required placeholder="Full Address *">
+            </div>
+
+            <div class="form-input-wrap">
+              <span class="input-icon">🏢</span>
+              <input type="text" id="directCustLandmark" class="landing-input" placeholder="Landmark (Optional)">
+            </div>
+
+            <div class="form-input-wrap">
+              <span class="input-icon">🏛️</span>
+              <input type="text" id="directCustCity" class="landing-input" required placeholder="City *">
+            </div>
+
+            <div class="form-two-cols">
+              <div class="form-input-wrap">
+                <span class="input-icon">🗺️</span>
+                <input type="text" id="directCustState" class="landing-input" required placeholder="State *">
+              </div>
+              <div class="form-input-wrap">
+                <span class="input-icon">📮</span>
+                <input type="text" id="directCustPincode" class="landing-input" required placeholder="Pincode *" pattern="[0-9]{6}" maxlength="6">
+              </div>
+            </div>
+
+            <!-- Payment Options -->
+            <div class="landing-payment-options">
+              <label class="landing-radio-label">
+                <input type="radio" name="directPaymentMethod" value="online" id="directPayOnline" checked>
+                <div class="radio-custom-box">
+                  <div class="radio-text-group">
+                    <span class="radio-title">Online Payment (Razorpay)</span>
                   </div>
-                  <span style="display:inline-block; background:#e6f4ea; color:#137333; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">Get 50% OFF on Delivery Charges</span>
+                  <div class="payment-logos-row">
+                    <span class="pay-logo-badge visa-badge">VISA</span>
+                    <span class="pay-logo-badge mc-badge">MC</span>
+                    <span class="pay-logo-badge upi-badge">UPI</span>
+                  </div>
+                </div>
+              </label>
+
+              <label class="landing-radio-label">
+                <input type="radio" name="directPaymentMethod" value="cod" id="directPayCod">
+                <div class="radio-custom-box">
+                  <span class="radio-title">Cash on Delivery (COD)</span>
                 </div>
               </label>
             </div>
 
-            <!-- Cash on Delivery Option Card -->
-            <div id="payOptCodCard" style="border:1.5px solid #cbd5e1; background:#ffffff; border-radius:12px; padding:12px; cursor:pointer; transition:all 0.2s;">
-              <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin:0;">
-                <input type="radio" name="paymentChoice" value="cod" id="payChoiceCod" style="accent-color:#047857; width:18px; height:18px; margin-top:2px;">
-                <div style="flex:1;">
-                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-                    <span style="font-size:14px;">💸</span>
-                    <strong style="font-size:13px; color:#0f172a;">Cash on Delivery (COD)</strong>
-                  </div>
-                  <p style="margin:0; font-size:11px; color:#64748b; line-height:1.3;">Pay when you receive the order. Standard delivery charges apply</p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Order Summary Card -->
-          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin-bottom:16px;">
-            <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#0f172a; margin-bottom:8px;">
-              <span>📄</span> Order Summary
-            </label>
-            <div style="display:flex; flex-direction:column; gap:6px; font-size:12px; color:#475569;">
-              <div style="display:flex; justify-content:space-between;">
-                <span>Subtotal (<span id="summaryItemCount">1 item</span>)</span>
-                <strong style="color:#0f172a;" id="drawerSubtotal">₹599</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between;">
-                <span>Delivery Charge</span>
-                <div>
-                  <span style="text-decoration:line-through; color:#94a3b8; margin-right:4px;" id="delChargeOriginal">₹80</span>
-                  <strong style="color:#0f172a;" id="delChargeVal">₹40</strong>
-                </div>
-              </div>
-              <div id="prepaidSaveBanner" style="display:flex; justify-content:space-between; color:#137333; font-weight:700;">
-                <span>Save on Delivery (Prepaid)</span>
-                <span>- ₹40</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; border-top:1px solid #e2e8f0; padding-top:8px; margin-top:2px; font-size:15px; font-weight:800; color:#0f172a;">
-                <span>Total Amount</span>
-                <strong style="color:#0f172a;" id="drawerTotal">₹599</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Button: Proceed to Address -->
-          <button type="button" class="btn-confirm-order-green" id="placeOrderBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:14px; font-size:16px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.25); transition:background 0.2s;">
-            <span id="placeOrderBtnText">Proceed to Address</span> <span style="font-size:18px;">➔</span>
-          </button>
-
-        </div>
-
-
-        <!-- STEP 2: DELIVERY ADDRESS FORM VIEW (Screenshot 2 Match) -->
-        <div id="checkoutStepAddress" class="checkout-step-view" style="display:none;">
-          
-          <!-- Step Title Header -->
-          <div class="address-step-header" style="display:flex; align-items:flex-start; gap:14px; margin-bottom:24px;">
-            <div class="address-pin-icon" style="background:#e6f4ea; color:#047857; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">📍</div>
-            <div>
-              <h3 style="margin:0; font-size:22px; font-weight:800; color:#0f172a; line-height:1.2;">Delivery Address</h3>
-              <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Enter your delivery address to receive your order</p>
-            </div>
-          </div>
-
-          <form id="orderAddressForm" class="address-form-styled" style="display:flex; flex-direction:column; gap:16px;">
-            
-            <!-- Full Name -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Full Name <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">👤</span>
-                <input type="text" id="custNameInput" placeholder="Enter full name" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none; transition:border 0.2s;">
-              </div>
-            </div>
-
-            <!-- Email Address -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Email Address <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">✉️</span>
-                <input type="email" id="custEmailInput" placeholder="Enter email address" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
-              </div>
-            </div>
-
-            <!-- 10-Digit Mobile Number -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">10-Digit Mobile Number <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">📞</span>
-                <input type="tel" id="custPhoneInput" placeholder="Enter mobile number" pattern="[0-9]{10}" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
-              </div>
-            </div>
-
-            <!-- Flat, Building / House No. -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Flat, Building / House No. <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">🏠</span>
-                <input type="text" id="custFlatInput" placeholder="Enter flat, building or house number" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
-              </div>
-            </div>
-
-            <!-- Area / Landmark -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Area / Landmark</label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">📍</span>
-                <input type="text" id="custStreetInput" placeholder="Enter area or landmark (optional)" style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
-              </div>
-            </div>
-
-            <!-- Pincode -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">Pincode <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">📮</span>
-                <input type="text" id="custPincodeInput" placeholder="Enter pincode" pattern="[0-9]{6}" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none;">
-              </div>
-            </div>
-
-            <!-- State -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">State <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">🗺️</span>
-                <select id="custStateInput" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none; background:#ffffff; appearance:none; cursor:pointer;">
-                  <option value="" disabled selected>Select state</option>
-                  <option value="Maharashtra">Maharashtra</option>
-                  <option value="Delhi">Delhi</option>
-                  <option value="Karnataka">Karnataka</option>
-                  <option value="Telangana">Telangana</option>
-                  <option value="Gujarat">Gujarat</option>
-                  <option value="Tamil Nadu">Tamil Nadu</option>
-                  <option value="West Bengal">West Bengal</option>
-                  <option value="Rajasthan">Rajasthan</option>
-                  <option value="Uttar Pradesh">Uttar Pradesh</option>
-                  <option value="Madhya Pradesh">Madhya Pradesh</option>
-                  <option value="Punjab">Punjab</option>
-                  <option value="Haryana">Haryana</option>
-                  <option value="Bihar">Bihar</option>
-                  <option value="Kerala">Kerala</option>
-                </select>
-                <span style="position:absolute; right:14px; pointer-events:none; color:#94a3b8;">⌄</span>
-              </div>
-            </div>
-
-            <!-- City -->
-            <div class="form-field-group">
-              <label style="display:block; font-size:13px; font-weight:700; color:#0f172a; margin-bottom:6px;">City <span style="color:#ef4444;">*</span></label>
-              <div class="input-icon-wrap" style="position:relative; display:flex; align-items:center;">
-                <span class="field-icon" style="position:absolute; left:14px; color:#94a3b8; font-size:16px;">🏙️</span>
-                <select id="custCityInput" required style="width:100%; padding:12px 14px 12px 42px; border-radius:10px; border:1px solid #e2e8f0; font-size:14px; color:#0f172a; outline:none; background:#ffffff; appearance:none; cursor:pointer;">
-                  <option value="" disabled selected>Select state first</option>
-                </select>
-                <span style="position:absolute; right:14px; pointer-events:none; color:#94a3b8;">⌄</span>
-              </div>
-            </div>
-
-            <!-- Save Address Checkbox -->
-            <div class="checkbox-row" style="display:flex; align-items:center; gap:10px; margin-top:6px;">
-              <input type="checkbox" id="saveAddressCheck" checked style="accent-color:#047857; width:18px; height:18px; cursor:pointer;">
-              <label for="saveAddressCheck" style="font-size:13px; font-weight:600; color:#0f172a; cursor:pointer;">Save this address for future orders</label>
-            </div>
-
-            <!-- Dynamic Action Button: Continue to Payment ➔ (Prepaid) OR Place Order ➔ (COD) -->
-            <button type="submit" class="btn-save-continue-green" id="saveAddressBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:17px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.3); margin-top:10px; transition:background 0.2s;">
-              <span id="saveAddressBtnText">Continue to Payment</span> <span style="font-size:18px;">➔</span>
+            <!-- Place Order Now Button -->
+            <button type="submit" class="btn-place-order-red" id="directSubmitOrderBtn">
+              <span class="btn-po-main">🛒 Place Order Now</span>
+              <span class="btn-po-sub">Secure Payment | Fast Delivery</span>
             </button>
+
+            <!-- Bottom Trust Badges -->
+            <div class="order-trust-row">
+              <div class="ot-item">
+                <span class="ot-icon">🛡️</span>
+                <span>100% Secure Payment</span>
+              </div>
+              <div class="ot-item">
+                <span class="ot-icon">🔄</span>
+                <span>7 Days Easy Returns</span>
+              </div>
+              <div class="ot-item">
+                <span class="ot-icon">🏅</span>
+                <span>Quality Assurance</span>
+              </div>
+            </div>
 
           </form>
 
         </div>
+      </div>
 
+    </div>
+  </section>
 
-        <!-- STEP 3: PAYMENT PAGE (Razorpay Test Mode & UPI) VIEW (Only for Prepaid Flow) -->
-        <div id="checkoutStepPayment" class="checkout-step-view" style="display:none;">
-          
-          <div class="payment-step-header" style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
-            <div class="payment-card-icon" style="background:#e0f2fe; color:#0284c7; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">💳</div>
-            <div>
-              <h3 style="margin:0; font-size:22px; font-weight:800; color:#0f172a; line-height:1.2;">Payment Gateway</h3>
-              <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">Secure Checkout powered by Razorpay (Test Mode)</p>
-            </div>
-          </div>
+  <!-- 5. 360 PRODUCT VIEW -->
+  <section class="gallery-360-section">
+    <div class="section-header-center">
+      <h2 class="title-dark-serif">360° Product View</h2>
+      <p class="sub-dark-muted">See every detail of this beautiful masterpiece</p>
+    </div>
 
-          <!-- Razorpay Payment Recommended Card -->
-          <div class="razorpay-pay-card" style="border:2px solid #0284c7; background:linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); border-radius:16px; padding:20px; text-align:center; box-shadow:0 6px 20px rgba(2,132,199,0.12); margin-bottom:20px; position:relative; overflow:hidden;">
-            <div style="position:absolute; top:12px; right:12px; background:#0284c7; color:#ffffff; font-size:10px; font-weight:800; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px;">Test Mode</div>
-            
-            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px;">
-              <strong style="font-size:17px; color:#0f172a; font-weight:800;">Razorpay Test Checkout</strong>
-            </div>
-            <p style="margin:0 0 14px 0; font-size:12.5px; color:#475569;">Supports Cards, NetBanking, UPI (GPay/PhonePe/Paytm), & Wallets</p>
-            
-            <div class="razorpay-method-pills" style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
-              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">💳 Credit / Debit Cards</span>
-              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">🏦 NetBanking</span>
-              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">📲 UPI</span>
-              <span style="font-weight:700; font-size:11px; color:#0369a1; background:#ffffff; padding:5px 12px; border-radius:8px; border:1px solid #bae6fd; box-shadow:0 1px 3px rgba(0,0,0,0.04);">👛 Wallets</span>
-            </div>
-
-            <div style="margin-bottom:16px; background:#f8fafc; padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
-              <span style="font-size:12px; color:#64748b; font-weight:600; display:block; margin-bottom:2px;">Total Payable Amount:</span>
-              <strong style="font-size:26px; font-weight:800; color:#0f172a; display:block;" id="razorpayPayAmountVal">₹599</strong>
-              <span style="font-size:11px; color:#047857; font-weight:700;">Includes 50% OFF Shipping Discount ✓</span>
-            </div>
-
-            <button type="button" class="btn-confirm-order-green" id="completeUpiPayBtn" style="width:100%; background:linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:17px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(2,132,199,0.35); transition:transform 0.15s, background 0.2s;">
-              <span>Pay with Razorpay (Test Mode)</span> <span style="font-size:20px;">➔</span>
-            </button>
-          </div>
-
-          <!-- Divider -->
-          <div style="text-align:center; position:relative; margin:20px 0;">
-            <span style="background:#fff; padding:0 12px; color:#94a3b8; font-size:12px; font-weight:700; position:relative; z-index:1;">OR SCAN DIRECT UPI QR</span>
-            <div style="border-top:1px solid #e2e8f0; position:absolute; top:50%; width:100%; left:0; z-index:0;"></div>
-          </div>
-
-          <!-- Direct UPI QR Box -->
-          <div class="upi-pay-card" style="border:1px solid #e2e8f0; background:#f8fafc; border-radius:16px; padding:16px; text-align:center; margin-bottom:20px;">
-            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px;">
-              <strong style="font-size:14px; color:#0f172a; font-weight:700;">Direct UPI QR Code</strong>
-            </div>
-            
-            <div class="qr-code-box" style="display:inline-block; background:#ffffff; padding:10px; border:1px solid #cbd5e1; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:10px;">
-              <svg width="120" height="120" viewBox="0 0 100 100" style="display:block;">
-                <rect width="100" height="100" fill="white"/>
-                <rect x="5" y="5" width="28" height="28" fill="#0f172a"/>
-                <rect x="9" y="9" width="20" height="20" fill="white"/>
-                <rect x="13" y="13" width="12" height="12" fill="#047857"/>
-
-                <rect x="67" y="5" width="28" height="28" fill="#0f172a"/>
-                <rect x="71" y="9" width="20" height="20" fill="white"/>
-                <rect x="75" y="13" width="12" height="12" fill="#047857"/>
-
-                <rect x="5" y="67" width="28" height="28" fill="#0f172a"/>
-                <rect x="9" y="71" width="20" height="20" fill="white"/>
-                <rect x="13" y="75" width="12" height="12" fill="#047857"/>
-
-                <rect x="38" y="8" width="8" height="8" fill="#047857"/>
-                <rect x="50" y="8" width="10" height="8" fill="#0f172a"/>
-                <rect x="38" y="20" width="14" height="6" fill="#0f172a"/>
-                <rect x="8" y="38" width="10" height="10" fill="#047857"/>
-                <rect x="22" y="38" width="12" height="6" fill="#0f172a"/>
-                <rect x="38" y="38" width="24" height="24" fill="#0f172a"/>
-                <rect x="42" y="42" width="16" height="16" fill="#047857" rx="4"/>
-                <text x="50" y="54" font-size="10" text-anchor="middle" fill="white" font-weight="bold">🛍️</text>
-
-                <rect x="68" y="38" width="24" height="8" fill="#047857"/>
-                <rect x="68" y="50" width="12" height="12" fill="#0f172a"/>
-                <rect x="84" y="50" width="8" height="12" fill="#047857"/>
-                <rect x="38" y="68" width="10" height="14" fill="#047857"/>
-                <rect x="52" y="68" width="12" height="14" fill="#0f172a"/>
-                <rect x="68" y="68" width="24" height="24" fill="#0f172a"/>
-                <rect x="74" y="74" width="12" height="12" fill="white"/>
-                <rect x="78" y="78" width="4" height="4" fill="#047857"/>
-              </svg>
-            </div>
-            <div style="margin-bottom:4px;">
-              <strong style="font-size:18px; font-weight:800; color:#0f172a;" id="upiPayAmountVal">₹599</strong>
-            </div>
-            <p style="margin:0; font-size:11px; color:#64748b;">Scan using GPay, PhonePe, Paytm, BHIM</p>
-          </div>
-
-          <div style="text-align:center; font-size:12px; color:#64748b; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:6px;">
-            <span>🔒</span> <span>100% Encrypted & Secure Payment</span>
+    <div class="gallery-360-carousel-wrap">
+      <button type="button" class="gallery-carousel-arrow left-arrow" id="g360PrevBtn" aria-label="Previous">‹</button>
+      <div class="gallery-360-scroll-track" id="g360Track">
+        <div class="g360-card video-card" onclick="openVideoModalDirect()">
+          <img src="assets/bestseller.webp" alt="Product Video Preview">
+          <div class="g360-video-badge">
+            <span class="g360-play-icon">▶</span>
+            <span>Product Video</span>
           </div>
         </div>
+        <div class="g360-card" onclick="openLightboxDirect('assets/golden_lady_topview.jpg', 'Top View with Flowers')">
+          <img src="assets/golden_lady_topview.jpg" alt="Top View with Flowers">
+        </div>
+        <div class="g360-card" onclick="openLightboxDirect('assets/golden_lady_closeup.jpg', 'Golden Lady Close-Up')">
+          <img src="assets/golden_lady_closeup.jpg" alt="Golden Lady Close-Up">
+        </div>
+        <div class="g360-card" onclick="openLightboxDirect('assets/golden_lady_detail.jpg', 'Roses and Diya Detail')">
+          <img src="assets/golden_lady_detail.jpg" alt="Roses and Diya Detail">
+        </div>
+        <div class="g360-card" onclick="openLightboxDirect('assets/cat_1.webp', 'Living Room Setup')">
+          <img src="assets/cat_1.webp" alt="Living Room Setup">
+        </div>
+        <div class="g360-card" onclick="openLightboxDirect('assets/cat_3.webp', 'Festive Celebration View')">
+          <img src="assets/cat_3.webp" alt="Festive Celebration View">
+        </div>
+      </div>
+      <button type="button" class="gallery-carousel-arrow right-arrow" id="g360NextBtn" aria-label="Next">›</button>
+    </div>
+  </section>
 
+  <!-- 6. PERFECT FOR EVERY OCCASION -->
+  <section class="occasions-section">
+    <div class="section-header-center">
+      <h2 class="title-serif">Perfect for Every Occasion</h2>
+      <p class="sub-muted">Make your festivals and celebrations more special.</p>
+    </div>
 
-        <!-- STEP 4: ORDER SUCCESS VIEW (Prepaid & COD Match) -->
-        <div id="checkoutStepSuccess" class="checkout-step-view" style="display:none; text-align:center; padding:10px 0;">
-          
-          <div class="success-checkmark-circle" style="background:#047857; color:#ffffff; width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 16px auto; box-shadow:0 8px 24px rgba(4,120,87,0.3);">
-            ✓
+    <div class="occasions-grid-4">
+      <div class="occasion-card">
+        <div class="occasion-img-box">
+          <img src="assets/occasion_diwali.jpg" alt="Diwali Celebrations">
+        </div>
+        <span class="occasion-pill">Diwali<br>Celebrations</span>
+      </div>
+      <div class="occasion-card">
+        <div class="occasion-img-box">
+          <img src="assets/cat_2.webp" alt="Pooja Ceremonies">
+        </div>
+        <span class="occasion-pill">Pooja<br>Ceremonies</span>
+      </div>
+      <div class="occasion-card">
+        <div class="occasion-img-box">
+          <img src="assets/occasion_gifting.jpg" alt="Festive Gifting">
+        </div>
+        <span class="occasion-pill">Festive<br>Gifting</span>
+      </div>
+      <div class="occasion-card">
+        <div class="occasion-img-box">
+          <img src="assets/cat_1.webp" alt="Home Decor">
+        </div>
+        <span class="occasion-pill">Home<br>Decor</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. TRADITION & PROSPERITY BANNER -->
+  <section class="tradition-banner-section">
+    <div class="tradition-banner-container">
+      <div class="tradition-left-img-wrap">
+        <img src="assets/bestseller.webp" alt="A Touch of Tradition">
+      </div>
+      <div class="tradition-right-text-wrap">
+        <span class="tradition-eyebrow">ELEVATE YOUR HOME DÉCOR</span>
+        <h2 class="tradition-title">A Touch of Tradition<br>A Symbol of Prosperity</h2>
+        <p class="tradition-desc">The Blinjo Premium Golden Lady Fountain brings positivity, prosperity and elegance to your home. A perfect blend of tradition and modern decor.</p>
+        <a href="#order-now-section" class="btn-golden-buy tradition-btn">
+          <span>🛒</span> Buy Now
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. BRAND VALUE BADGES -->
+  <section class="brand-values-row">
+    <div class="values-container">
+      <div class="value-item">
+        <span class="val-icon">⭐</span>
+        <span class="val-text">Trusted by 10,000+ Customers</span>
+      </div>
+      <div class="value-item">
+        <span class="val-icon">💎</span>
+        <span class="val-text">High-Quality Materials</span>
+      </div>
+      <div class="value-item">
+        <span class="val-icon">🎁</span>
+        <span class="val-text">Safe & Secure Packaging</span>
+      </div>
+      <div class="value-item">
+        <span class="val-icon">⚡</span>
+        <span class="val-text">Fast & Reliable Delivery</span>
+      </div>
+      <div class="value-item">
+        <span class="val-icon">👤</span>
+        <span class="val-text">Dedicated Customer Support</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. OUR HAPPY CUSTOMERS -->
+  <section class="reviews-section" id="reviews">
+    <div class="section-header-center">
+      <h2 class="title-serif">Our Happy Customers</h2>
+      <p class="sub-muted">Loved by thousands of families across India</p>
+    </div>
+
+    <div class="reviews-carousel-wrap">
+      <button type="button" class="rev-arrow left" id="revPrevBtn" aria-label="Previous Review">‹</button>
+      <div class="reviews-cards-row" id="reviewsCardsRow">
+        <div class="review-card">
+          <div class="rev-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="Priya S.">
           </div>
-
-          <h3 style="margin:0; font-size:24px; font-weight:800; color:#0f172a;" id="successTitle">Payment Successful!</h3>
-          <p style="margin:6px 0 20px 0; font-size:14px; color:#64748b;" id="successSubtitle">Your order has been placed successfully.</p>
-
-          <!-- Order Summary Card -->
-          <div class="success-details-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:18px; text-align:left; margin-bottom:24px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
-              <span style="color:#64748b;">Order ID</span>
-              <strong style="color:#0f172a; font-weight:800;" id="succOrderId">#BLJ123456</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
-              <span style="color:#64748b;">Order Amount</span>
-              <strong style="color:#0f172a; font-weight:800;" id="succAmount">₹599</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
-              <span style="color:#64748b;">Payment Method</span>
-              <strong style="color:#047857; font-weight:800;" id="succPayMethod">UPI (Prepaid)</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:13px;">
-              <span style="color:#64748b;">Expected Delivery</span>
-              <strong style="color:#0f172a; font-weight:700;" id="succDeliveryDate">05 Oct 2026</strong>
-            </div>
-          </div>
-
-          <!-- View Order Details Button -->
-          <button type="button" id="finishOrderBtn" style="width:100%; background:#047857; color:#ffffff; border:none; border-radius:12px; padding:16px; font-size:16px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(4,120,87,0.25);">
-            <span>View Order Details</span> <span style="font-size:18px;">➔</span>
-          </button>
-
+          <div class="rev-stars">★★★★★</div>
+          <p class="rev-quote">"Amazing product! Looks beautiful in my living room. Perfect for Diwali."</p>
+          <strong class="rev-author">— Priya S.</strong>
         </div>
 
+        <div class="review-card">
+          <div class="rev-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80" alt="Amit K.">
+          </div>
+          <div class="rev-stars">★★★★★</div>
+          <p class="rev-quote">"Excellent quality and packaging. The golden finish is stunning."</p>
+          <strong class="rev-author">— Amit K.</strong>
+        </div>
+
+        <div class="review-card">
+          <div class="rev-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Neha R.">
+          </div>
+          <div class="rev-stars">★★★★★</div>
+          <p class="rev-quote">"A perfect gift option. Everyone loved it!"</p>
+          <strong class="rev-author">— Neha R.</strong>
+        </div>
+      </div>
+      <button type="button" class="rev-arrow right" id="revNextBtn" aria-label="Next Review">›</button>
+    </div>
+  </section>
+
+  <!-- 10. BOTTOM HIGHLIGHT RIBBON -->
+  <section class="bottom-cta-ribbon">
+    <div class="ribbon-inner">
+      <div class="ribbon-text-group">
+        <h3 class="ribbon-title">Bring Home Blessings Today</h3>
+        <span class="ribbon-sub">Blinjo Premium Golden Lady Fountain</span>
+        <div class="ribbon-price-row">
+          <strong class="r-curr">₹2,499</strong>
+          <span class="r-mrp">₹4,999</span>
+          <span class="r-badge">50% OFF</span>
+        </div>
+      </div>
+      <a href="#order-now-section" class="btn-ribbon-buy">
+        <span>🛒</span> Buy Now
+      </a>
+    </div>
+  </section>
+
+  <!-- 11. FOOTER -->
+  <footer class="landing-footer" id="contact">
+    <div class="landing-footer-container">
+      <div class="footer-logo-block">
+        <svg class="landing-lotus-icon small" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50 10 C45 25 35 40 20 50 C35 55 45 70 50 90 C55 70 65 55 80 50 C65 40 55 25 50 10 Z" fill="#eab308"/>
+          <circle cx="50" cy="52" r="6" fill="#fef08a"/>
+        </svg>
+        <div>
+          <span class="footer-logo-text">Blinjo</span>
+          <span class="footer-logo-sub">PREMIUM HOME DECOR</span>
+        </div>
+      </div>
+
+      <div class="footer-trust-badges">
+        <div class="ft-item">
+          <span>🚚</span>
+          <div><strong>Free Delivery</strong><small>Across India</small></div>
+        </div>
+        <div class="ft-item">
+          <span>🛡️</span>
+          <div><strong>Secure</strong><small>Payment</small></div>
+        </div>
+        <div class="ft-item">
+          <span>📦</span>
+          <div><strong>Easy</strong><small>Returns</small></div>
+        </div>
+      </div>
+
+      <div class="footer-ratings-block">
+        <span class="ratings-lead">Trusted by 10,000+ Happy Customers</span>
+        <div class="ratings-stars">★★★★★</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Video Modal -->
+  <div class="modal" id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div style="position:relative; width:100%; max-width:800px; background:#000; border-radius:16px; overflow:hidden;">
+      <button type="button" id="closeVideoModal" style="position:absolute; top:12px; right:14px; background:#fff; border:none; width:36px; height:36px; border-radius:50%; font-size:20px; font-weight:800; cursor:pointer; z-index:10;">✕</button>
+      <div style="position:relative; padding-bottom:56.25%; height:0;">
+        <iframe id="videoPlayer" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" title="Product Video" style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;" allowfullscreen></iframe>
       </div>
     </div>
   </div>
 
-  <!-- Added to Cart Pop-up Modal (Exact Match to User Screenshot 1) -->
-  <div class="modal" id="addedToCartModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.5); backdrop-filter:blur(4px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
-    <div class="added-cart-modal-card" style="background:#ffffff; border-radius:20px; padding:24px 24px 20px 24px; text-align:center; max-width:340px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.18); position:relative; animation:modalPopIn 0.25s ease-out;">
-      
-      <!-- Top Close Button -->
-      <button type="button" id="closeAddedModalBtn" style="position:absolute; top:14px; right:16px; border:none; background:none; font-size:20px; color:#94a3b8; cursor:pointer; padding:4px; line-height:1;">✕</button>
-
-      <!-- Circle Checkmark Icon with Confetti Dots -->
-      <div style="position:relative; width:80px; height:80px; margin:4px auto 16px auto; display:flex; align-items:center; justify-content:center;">
-        <!-- Confetti Dots -->
-        <span style="position:absolute; top:4px; left:12px; width:6px; height:6px; background:#ff5722; border-radius:50%;"></span>
-        <span style="position:absolute; top:12px; right:10px; width:6px; height:6px; background:#10b981; border-radius:50%;"></span>
-        <span style="position:absolute; bottom:8px; left:6px; width:7px; height:7px; background:#10b981; border-radius:50%;"></span>
-        <span style="position:absolute; bottom:14px; right:8px; width:6px; height:6px; background:#eab308; border-radius:50%;"></span>
-        <span style="position:absolute; top:20px; left:2px; width:5px; height:5px; background:#3b82f6; border-radius:50%;"></span>
-        <span style="position:absolute; top:2px; right:24px; width:5px; height:5px; background:#a855f7; border-radius:50%;"></span>
-        
-        <!-- Outer Glowing Light Green Circle -->
-        <div style="width:76px; height:76px; background:#dcfce7; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-          <!-- Inner Dark Green Circle with White Checkmark -->
-          <div style="width:52px; height:52px; background:#047857; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:26px; font-weight:800; box-shadow:0 4px 12px rgba(4,120,87,0.3);">
-            ✓
-          </div>
-        </div>
-      </div>
-
-      <!-- Title & Message -->
-      <h3 style="margin:0 0 6px 0; font-size:20px; font-weight:800; color:#0f172a;">Added to Cart!</h3>
-      <p style="margin:0 0 20px 0; font-size:13px; color:#64748b; line-height:1.4;" id="addedModalProdMsg">
-        Blinjo Brass Urli Bowl (10 Inch) has been added to your cart.
-      </p>
-
-      <!-- Action Buttons Row -->
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button type="button" id="continueShoppingBtn" style="flex:1; border:1.5px solid #cbd5e1; background:#ffffff; color:#334155; font-weight:700; font-size:12.5px; padding:11px 10px; border-radius:10px; cursor:pointer; transition:all 0.2s;">
-          Continue Shopping
-        </button>
-        <button type="button" id="viewCartModalBtn" style="flex:1; border:none; background:#047857; color:#ffffff; font-weight:700; font-size:12.5px; padding:11px 10px; border-radius:10px; cursor:pointer; box-shadow:0 4px 12px rgba(4,120,87,0.25); transition:background 0.2s;">
-          View Cart
-        </button>
-      </div>
-
+  <!-- Lightbox Modal -->
+  <div class="modal" id="lightboxModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div style="position:relative; max-width:90vw; max-height:90vh; text-align:center;">
+      <button type="button" id="closeLightboxModal" style="position:absolute; top:-40px; right:0; background:none; border:none; color:#fff; font-size:32px; cursor:pointer;">✕</button>
+      <img src="" alt="Enlarged Decor View" id="lightboxImg" style="max-width:100%; max-height:80vh; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+      <div id="lightboxCaption" style="color:#ffffff; font-size:15px; font-weight:700; margin-top:12px;"></div>
     </div>
   </div>
 
+  <!-- Order Success Modal -->
+  <div class="modal" id="orderSuccessModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.6); backdrop-filter:blur(5px); z-index:999999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; border-radius:20px; max-width:440px; width:100%; padding:32px 24px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+      <div style="width:68px; height:68px; background:#dcfce7; color:#16a34a; font-size:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:16px;">✓</div>
+      <h3 style="font-size:24px; font-weight:800; color:#0f172a; margin:0 0 6px 0;">Order Confirmed!</h3>
+      <p style="color:#64748b; font-size:14px; margin:0 0 16px 0;" id="successOrderSub">Thank you for your order. We have received it and will start preparing your shipment right away.</p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:20px; font-size:13px; text-align:left;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span style="color:#64748b;">Order Number:</span>
+          <strong id="successOrderId">#BLJ-9821</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span style="color:#64748b;">Item:</span>
+          <strong>Blinjo Golden Lady Fountain</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#64748b;">Total Amount:</span>
+          <strong style="color:#047857; font-size:15px;" id="successOrderAmount">₹2,499</strong>
+        </div>
+      </div>
+      <button type="button" onclick="document.getElementById('orderSuccessModal').style.display='none'" style="width:100%; background:#047857; color:#ffffff; font-weight:700; font-size:15px; padding:12px; border-radius:10px; border:none; cursor:pointer;">Continue Shopping</button>
+    </div>
+  </div>
 
-
-  <!-- Razorpay Payment Gateway SDK (Test Mode Enabled) -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
-
-  <!-- Firebase Firestore Compatibility Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
-  <script src="firebase-config.js" defer></script>
-  <script src="script.js" defer></script>
+  <!-- Scripts -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js?v=25"></script>
+  <script src="script.js?v=25"></script>
 </body>
 </html>
