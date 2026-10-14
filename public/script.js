@@ -394,6 +394,111 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Quantity Selector & Price Calculations & Live Product Sync
   let currentQty = 1;
   let basePrice = 2999;
+  let currentSelectedPayment = 'prepaid';
+
+  const qtyInput = document.getElementById('qtyInput');
+  const qtyMinus = document.getElementById('qtyMinus');
+  const qtyPlus = document.getElementById('qtyPlus');
+  const drawerSubtotal = document.getElementById('drawerSubtotal');
+  const drawerTotal = document.getElementById('drawerTotal');
+  const cartQtyVal = document.getElementById('cartQtyVal');
+  const cartCount = document.getElementById('cartCount');
+
+  const drawerQtyMinus = document.getElementById('drawerQtyMinus');
+  const drawerQtyPlus = document.getElementById('drawerQtyPlus');
+  const payOptPrepaidCard = document.getElementById('payOptPrepaidCard');
+  const payOptCodCard = document.getElementById('payOptCodCard');
+  const payChoicePrepaid = document.getElementById('payChoicePrepaid');
+  const payChoiceCod = document.getElementById('payChoiceCod');
+  const payMethodSelect = document.getElementById('payMethodSelect');
+  const prepaidSaveBanner = document.getElementById('prepaidSaveBanner');
+  const delChargeVal = document.getElementById('delChargeVal');
+  const clearCartItemBtn = document.getElementById('clearCartItemBtn');
+
+  function updateQuantity(newQty) {
+    if (newQty < 1) newQty = 1;
+    if (newQty > 10) newQty = 10;
+    currentQty = newQty;
+
+    if (qtyInput) qtyInput.value = currentQty;
+    if (cartQtyVal) cartQtyVal.textContent = currentQty;
+    if (cartCount) cartCount.textContent = currentQty;
+
+    const summaryItemCount = document.getElementById('summaryItemCount');
+    if (summaryItemCount) summaryItemCount.textContent = `${currentQty} ${currentQty === 1 ? 'item' : 'items'}`;
+
+    const cartQtyHeader = document.getElementById('cartQtyHeader');
+    if (cartQtyHeader) cartQtyHeader.textContent = `(${currentQty} ${currentQty === 1 ? 'Item' : 'Items'})`;
+
+    const subtotal = currentQty * basePrice;
+    const formattedSubtotal = `₹${subtotal.toLocaleString('en-IN')}`;
+    
+    if (drawerSubtotal) drawerSubtotal.textContent = formattedSubtotal;
+
+    const isPrepaid = currentSelectedPayment === 'prepaid';
+    const deliveryCharge = isPrepaid ? 40 : 80;
+    const discount = isPrepaid ? 40 : 0;
+    const netTotal = subtotal + deliveryCharge - discount;
+
+    if (drawerTotal) drawerTotal.textContent = `₹${netTotal.toLocaleString('en-IN')}`;
+
+    const cartItemPriceEl = document.getElementById('cartItemPrice');
+    if (cartItemPriceEl) {
+      cartItemPriceEl.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
+    }
+  }
+
+  function updatePaymentOption(method) {
+    currentSelectedPayment = method;
+    const isPrepaid = method === 'prepaid';
+    if (payChoicePrepaid) payChoicePrepaid.checked = isPrepaid;
+    if (payChoiceCod) payChoiceCod.checked = !isPrepaid;
+
+    if (payOptPrepaidCard) {
+      payOptPrepaidCard.style.border = isPrepaid ? '2px solid #10b981' : '1.5px solid #cbd5e1';
+      payOptPrepaidCard.style.background = isPrepaid ? '#f0fdf4' : '#ffffff';
+    }
+    if (payOptCodCard) {
+      payOptCodCard.style.border = !isPrepaid ? '2px solid #10b981' : '1.5px solid #cbd5e1';
+      payOptCodCard.style.background = !isPrepaid ? '#f0fdf4' : '#ffffff';
+    }
+
+    if (prepaidSaveBanner) prepaidSaveBanner.style.display = isPrepaid ? 'flex' : 'none';
+    if (delChargeVal) delChargeVal.textContent = isPrepaid ? '₹40' : '₹80';
+    if (payMethodSelect) payMethodSelect.value = method;
+
+    const saveAddressBtnText = document.getElementById('saveAddressBtnText');
+    if (saveAddressBtnText) {
+      saveAddressBtnText.textContent = isPrepaid ? 'Continue to Payment' : 'Place Order';
+    }
+
+    updateQuantity(currentQty);
+  }
+
+  if (payOptPrepaidCard) {
+    payOptPrepaidCard.addEventListener('click', () => updatePaymentOption('prepaid'));
+  }
+  if (payOptCodCard) {
+    payOptCodCard.addEventListener('click', () => updatePaymentOption('cod'));
+  }
+  if (payChoicePrepaid) {
+    payChoicePrepaid.addEventListener('change', () => updatePaymentOption('prepaid'));
+  }
+  if (payChoiceCod) {
+    payChoiceCod.addEventListener('change', () => updatePaymentOption('cod'));
+  }
+
+  if (qtyMinus) qtyMinus.addEventListener('click', () => updateQuantity(currentQty - 1));
+  if (qtyPlus) qtyPlus.addEventListener('click', () => updateQuantity(currentQty + 1));
+  if (drawerQtyMinus) drawerQtyMinus.addEventListener('click', () => updateQuantity(currentQty - 1));
+  if (drawerQtyPlus) drawerQtyPlus.addEventListener('click', () => updateQuantity(currentQty + 1));
+
+  if (clearCartItemBtn) {
+    clearCartItemBtn.addEventListener('click', () => {
+      updateQuantity(1);
+      showToast('🛒 Item quantity reset to 1');
+    });
+  }
 
   function loadActiveProduct() {
     const offerSection = document.querySelector('.offer-section');
@@ -637,112 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     renderCustomerProductsGrid();
   }
-  const qtyInput = document.getElementById('qtyInput');
-  const qtyMinus = document.getElementById('qtyMinus');
-  const qtyPlus = document.getElementById('qtyPlus');
-  const drawerSubtotal = document.getElementById('drawerSubtotal');
-  const drawerTotal = document.getElementById('drawerTotal');
-  const cartQtyVal = document.getElementById('cartQtyVal');
-  const cartCount = document.getElementById('cartCount');
 
-  const drawerQtyMinus = document.getElementById('drawerQtyMinus');
-  const drawerQtyPlus = document.getElementById('drawerQtyPlus');
-  const payOptPrepaidCard = document.getElementById('payOptPrepaidCard');
-  const payOptCodCard = document.getElementById('payOptCodCard');
-  const payChoicePrepaid = document.getElementById('payChoicePrepaid');
-  const payChoiceCod = document.getElementById('payChoiceCod');
-  const payMethodSelect = document.getElementById('payMethodSelect');
-  const prepaidSaveBanner = document.getElementById('prepaidSaveBanner');
-  const delChargeVal = document.getElementById('delChargeVal');
-  const clearCartItemBtn = document.getElementById('clearCartItemBtn');
-
-  let currentSelectedPayment = 'prepaid';
-
-  function updatePaymentOption(method) {
-    currentSelectedPayment = method;
-    const isPrepaid = method === 'prepaid';
-    if (payChoicePrepaid) payChoicePrepaid.checked = isPrepaid;
-    if (payChoiceCod) payChoiceCod.checked = !isPrepaid;
-
-    if (payOptPrepaidCard) {
-      payOptPrepaidCard.style.border = isPrepaid ? '2px solid #10b981' : '1.5px solid #cbd5e1';
-      payOptPrepaidCard.style.background = isPrepaid ? '#f0fdf4' : '#ffffff';
-    }
-    if (payOptCodCard) {
-      payOptCodCard.style.border = !isPrepaid ? '2px solid #10b981' : '1.5px solid #cbd5e1';
-      payOptCodCard.style.background = !isPrepaid ? '#f0fdf4' : '#ffffff';
-    }
-
-    if (prepaidSaveBanner) prepaidSaveBanner.style.display = isPrepaid ? 'flex' : 'none';
-    if (delChargeVal) delChargeVal.textContent = isPrepaid ? '₹40' : '₹80';
-    if (payMethodSelect) payMethodSelect.value = method;
-
-    const saveAddressBtnText = document.getElementById('saveAddressBtnText');
-    if (saveAddressBtnText) {
-      saveAddressBtnText.textContent = isPrepaid ? 'Continue to Payment' : 'Place Order';
-    }
-
-    updateQuantity(currentQty);
-  }
-
-  if (payOptPrepaidCard) {
-    payOptPrepaidCard.addEventListener('click', () => updatePaymentOption('prepaid'));
-  }
-  if (payOptCodCard) {
-    payOptCodCard.addEventListener('click', () => updatePaymentOption('cod'));
-  }
-  if (payChoicePrepaid) {
-    payChoicePrepaid.addEventListener('change', () => updatePaymentOption('prepaid'));
-  }
-  if (payChoiceCod) {
-    payChoiceCod.addEventListener('change', () => updatePaymentOption('cod'));
-  }
-
-  function updateQuantity(newQty) {
-    if (newQty < 1) newQty = 1;
-    if (newQty > 10) newQty = 10;
-    currentQty = newQty;
-
-    if (qtyInput) qtyInput.value = currentQty;
-    if (cartQtyVal) cartQtyVal.textContent = currentQty;
-    if (cartCount) cartCount.textContent = currentQty;
-
-    const summaryItemCount = document.getElementById('summaryItemCount');
-    if (summaryItemCount) summaryItemCount.textContent = `${currentQty} ${currentQty === 1 ? 'item' : 'items'}`;
-
-    const cartQtyHeader = document.getElementById('cartQtyHeader');
-    if (cartQtyHeader) cartQtyHeader.textContent = `(${currentQty} ${currentQty === 1 ? 'Item' : 'Items'})`;
-
-    const subtotal = currentQty * basePrice;
-    const formattedSubtotal = `₹${subtotal.toLocaleString('en-IN')}`;
-    
-    if (drawerSubtotal) drawerSubtotal.textContent = formattedSubtotal;
-
-    const isPrepaid = currentSelectedPayment === 'prepaid';
-    const deliveryCharge = isPrepaid ? 40 : 80;
-    const discount = isPrepaid ? 40 : 0;
-    const netTotal = subtotal + deliveryCharge - discount;
-
-    if (drawerTotal) drawerTotal.textContent = `₹${netTotal.toLocaleString('en-IN')}`;
-
-    const cartItemPriceEl = document.getElementById('cartItemPrice');
-    if (cartItemPriceEl) {
-      cartItemPriceEl.textContent = `₹${basePrice.toLocaleString('en-IN')}`;
-    }
-  }
-
-  if (qtyMinus) qtyMinus.addEventListener('click', () => updateQuantity(currentQty - 1));
-  if (qtyPlus) qtyPlus.addEventListener('click', () => updateQuantity(currentQty + 1));
-
-  if (drawerQtyMinus) drawerQtyMinus.addEventListener('click', () => updateQuantity(currentQty - 1));
-  if (drawerQtyPlus) drawerQtyPlus.addEventListener('click', () => updateQuantity(currentQty + 1));
-
-  if (clearCartItemBtn) {
-    clearCartItemBtn.addEventListener('click', () => {
-      updateQuantity(1);
-      showToast('🛒 Item quantity reset to 1');
-    });
-  }
 
 
   // 5. Cart Drawer & Instant Buy Now Button Actions
