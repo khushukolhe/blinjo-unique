@@ -738,13 +738,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   } catch(e) {}
 
+  renderCustomerProductsGrid();
+
   if (typeof syncProducts === 'function') {
     syncProducts((products) => {
       renderCustomerProductsGrid(products);
       loadActiveProduct();
     });
-  } else {
-    renderCustomerProductsGrid();
   }
 
 
